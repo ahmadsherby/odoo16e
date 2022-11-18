@@ -1,0 +1,10 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_stone_item_type_root,stone_item_type_root,model_stone_item_type,stock.group_stock_manager,1,1,1,1
+access_stone_item_type_user,stone_item_type_user,model_stone_item_type,,1,0,0,0
+access_stone_item_color_root,stone_item_color_root,model_stone_item_color,stock.group_stock_manager,1,1,1,1
+access_stone_item_color_user,stone_item_color_user,model_stone_item_color,,1,0,0,0
+access_stone_item_source_root,stone_item_source_root,model_stone_item_source,stock.group_stock_manager,1,1,1,1
+access_stone_item_source_user,stone_item_source_user,model_stone_item_source,,1,0,0,0
+access_stone_item_source_root,stone_item_source_root,model_stone_item_source,stock.group_stock_manager,1,1,1,1
+access_stone_item_source_user,stone_item_source_user,model_stone_item_source,,1,0,0,0
+access_stone_item_root,stone_item_root,model_stone_item,stock.group_stock_manager,1,1,1,1

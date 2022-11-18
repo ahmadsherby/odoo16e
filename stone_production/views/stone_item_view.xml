@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="stone_item_form_view" model="ir.ui.view">
+        <field name="name">stone.item.form.view</field>
+        <field name="model">stone.item</field>
+        <field name="arch" type="xml">
+            <form string="Item">
+                <sheet>
+                    <field name="active" invisible="1"/>
+                    <field name="company_id" invisible="1"/>
+                    <widget name="web_ribbon" title="Archived" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
+                    <div class="oe_title">
+                        <label for="name" string="Item"/>
+                        <h1>
+                            <div class="d-flex">
+                                <field class="text-break" name="name"/>
+                            </div>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="parent_id"/>
+                            <field name="type_id"/>
+                            <field name="type_size" invisible="1"/>
+                            <field name="source_id"/>
+                            <field name="color_id"/>
+                            <field name="choice"/>
+                        </group>
+                        <group string="Dimensions">
+                            <label for="weight" />
+                            <div class="o_row" name="weight">
+                                <field name="weight" class="oe_inline"/>
+                                <field name="dimension_uom_id" readonly="1" force_save="1"/>
+                            </div>
+
+                            <label for="length"/>
+                            <div class="o_row" name="length">
+                                <field name="length" class="oe_inline"/>
+                                <field name="dimension_uom_id" readonly="1" force_save="1"/>
+                            </div>
+
+                            <label for="height" attrs="{'invisible':[('type_size','!=', 'volume')]}"/>
+                            <div class="o_row" name="height" attrs="{'invisible':[('type_size','!=', 'volume')]}">
+                                <field name="height" class="oe_inline"/>
+                                <field name="dimension_uom_id" readonly="1" force_save="1"/>
+                            </div>
+
+                            <label for="thickness" attrs="{'invisible':[('type_size','in', ('volume', 'surface'))]}"/>
+                            <div class="o_row" name="thickness" attrs="{'invisible':[('type_size','in', ('volume', 'surface'))]}">
+                                <field name="thickness" class="oe_inline"/>
+                                <field name="dimension_uom_id" readonly="1" force_save="1"/>
+                            </div>
+
+                            <b><label for="size_value"/></b>
+                            <div class="o_row" name="size_value">
+                                <field name="size_value" class="oe_inline"/>
+                                <field name="type_size_uom_id" readonly="1" force_save="1"/>
+                            </div>
+                        </group>
+                        <group string="Pieces">
+                            <field name="num_of_pieces"/>
+
+                            <b><label for="total_size"/></b>
+                            <div class="o_row" name="total_size">
+                                <field name="total_size" class="oe_inline"/>
+                                <span class="oe_inline">PC/</span>
+                                <field name="type_size_uom_id" readonly="1" force_save="1"/>
+                            </div>
+                        </group>
+                    </group>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+    <record id="stone_item_tree_view" model="ir.ui.view">
+        <field name="name">stone.item.tree.view</field>
+        <field name="model">stone.item</field>
+        <field name="arch" type="xml">
+            <tree multi_edit="1" string="Item Types">
+                <field name="name"/>
+                <field name="type_id" optional="show"/>
+                <field name="parent_id" optional="show"/>
+                <field name="type_size" invisible="1"/>
+                <field name="source_id" optional="show"/>
+                <field name="color_id" optional="show"/>
+                <field name="choice" optional="show"/>
+                <field name="weight" optional="hide"/>
+                <field name="length" optional="hide"/>
+                <field name="height" optional="hide"/>
+                <field name="thickness" optional="hide"/>
+                <field name="size_value" sum="size_value"/>
+                <field name="num_of_pieces" sum="num_of_pieces"/>
+                <field name="total_size" sum="total_size"/>
+                <field name="company_id" groups="base.group_multi_company" readonly="1" optional="hide"/>
+            </tree>
+        </field>
+    </record>
+    <record id="stone_item_action" model="ir.actions.act_window">
+        <field name="name">Items</field>
+        <field name="res_model">stone.item</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="stone_item_tree_view"/>
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+                Add New Item
+            </p>
+        </field>
+    </record>
+    <menuitem id="stone_item_menu" name="Items"
+              parent="stone_production.stock_production_root"
+              action="stone_item_action" sequence="1"/>
+</odoo>

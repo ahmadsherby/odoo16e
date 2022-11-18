@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="product_category_stones" model="product.category">
+            <field name="name">Stone</field>
+        </record>
+        <record id="product_category_block" model="product.category">
+            <field name="name">Block</field>
+            <field name="parent_id" ref="product_category_stones"/>
+        </record>
+        <record id="item_type_block" model="stone.item.type">
+            <field name="name">Block</field>
+            <field name="code">BLC</field>
+            <field name="size" >volume</field>
+            <field name="categ_id" ref="product_category_stones"/>
+        </record>
+        <record id="product_category_slab" model="product.category">
+            <field name="name">Slab</field>
+            <field name="parent_id" ref="product_category_stones"/>
+        </record>
+        <record id="item_type_slab" model="stone.item.type">
+            <field name="name">Slab</field>
+            <field name="code">SLB</field>
+            <field name="size" >surface</field>
+            <field name="categ_id" ref="product_category_slab"/>
+        </record>
+    </data>
+</odoo>

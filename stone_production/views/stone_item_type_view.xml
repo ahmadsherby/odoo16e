@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="stone_item_type_form_view" model="ir.ui.view">
+        <field name="name">stone.item.type.form.view</field>
+        <field name="model">stone.item.type</field>
+        <field name="arch" type="xml">
+            <form string="Item Type">
+                <sheet>
+                    <field name="active" invisible="1"/>
+                    <field name="company_id" invisible="1"/>
+                    <div class="oe_button_box" name="button_box">
+                        <button class="oe_stat_button"
+                                name="open_items"
+                                icon="fa-list-ul"
+                                type="object">
+                            <div class="o_field_widget o_stat_info">
+                                <span>
+                                    Items
+                                </span>
+                            </div>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Archived" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
+                    <div class="oe_title">
+                        <label for="name" string="Item Type"/>
+                        <h1>
+                            <div class="d-flex">
+                                <field class="text-break" name="name" placeholder="e.g. Block"/>
+                            </div>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="code"/>
+                            <field name="categ_id" options="{'no_create': 1, 'no_create_edit': 1, 'no_quick_create': 1}"/>
+                        </group>
+                        <group>
+                            <label for="size"/>
+                            <div class="o_row" name="size" width="2">
+                                <field name="size" class="oe_inline"/>
+                                <field name="size_uom_id"  readonly="1" force_save="1"
+                                       options="{'no_create': 1, 'no_create_edit': 1, 'no_quick_create': 1}"/>
+                            </div>
+                        </group>
+                    </group>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+    <record id="stone_item_type_tree_view" model="ir.ui.view">
+        <field name="name">stone.item.type.tree.view</field>
+        <field name="model">stone.item.type</field>
+        <field name="arch" type="xml">
+            <tree multi_edit="1" string="Item Types">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="size" optional="show"/>
+                <field name="size_uom_id" optional="hide" readonly="1" force_save="1"/>
+                <field name="company_id" groups="base.group_multi_company" readonly="1" optional="hide"/>
+            </tree>
+        </field>
+    </record>
+    <record id="stone_item_type_action" model="ir.actions.act_window">
+        <field name="name">Item Type</field>
+        <field name="res_model">stone.item.type</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="stone_item_type_tree_view"/>
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+                Add New Type
+            </p>
+        </field>
+    </record>
+    <menuitem id="stone_item_type_menu" name="Item Type"
+              parent="stone_production.stock_production_config"
+              action="stone_item_type_action" sequence="1"/>
+</odoo>
