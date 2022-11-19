@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="product_template_form_view_inherit" model="ir.ui.view">
+        <field name="name">product.template.common.form.inherit</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_form_view"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//group[@name='group_general']" position="inside">
+                <field name="item_id" readonly="1" force_save="1"/>
+                <field name="type_id" readonly="1" force_save="1"/>
+                <field name="source_id" readonly="1" force_save="1"/>
+                <field name="color_id" readonly="1" force_save="1"/>
+            </xpath>
+            <xpath expr="//group[@name='group_lots_and_weight']//div" position="after">
+                <label for="width" attrs="{'invisible':[('product_variant_count', '>', 1), ('is_product_variant', '=', False)]}"/>
+                <div class="o_row" name="weight" attrs="{'invisible':[('product_variant_count', '>', 1), ('is_product_variant', '=', False)]}">
+                    <field name="width" class="oe_inline"/>
+                    <field name="dimension_uom_id"/>
+                </div>
+                <label for="length" attrs="{'invisible':[('product_variant_count', '>', 1), ('is_product_variant', '=', False)]}"/>
+                <div class="o_row" name="weight" attrs="{'invisible':[('product_variant_count', '>', 1), ('is_product_variant', '=', False)]}">
+                    <field name="length" class="oe_inline"/>
+                    <field name="dimension_uom_id"/>
+                </div>
+                <label for="height" attrs="{'invisible':[('product_variant_count', '>', 1), ('is_product_variant', '=', False)]}"/>
+                <div class="o_row" name="weight" attrs="{'invisible':[('product_variant_count', '>', 1), ('is_product_variant', '=', False)]}">
+                    <field name="height" class="oe_inline"/>
+                    <field name="dimension_uom_id"/>
+                </div>
+                <label for="thickness" attrs="{'invisible':[('product_variant_count', '>', 1), ('is_product_variant', '=', False)]}"/>
+                <div class="o_row" name="weight" attrs="{'invisible':[('product_variant_count', '>', 1), ('is_product_variant', '=', False)]}">
+                    <field name="thickness" class="oe_inline"/>
+                    <field name="dimension_uom_id"/>
+                </div>
+            </xpath>
+
+        </field>
+    </record>
+</odoo>
