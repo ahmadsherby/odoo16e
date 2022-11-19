@@ -3,7 +3,7 @@ from odoo import models, fields, api, _
 from odoo.exceptions import UserError
 import logging
 from random import randint
-igrey = '\x1b[38;21m'
+grey = '\x1b[38;21m'
 yellow = '\x1b[33;21m'
 red = '\x1b[31;21m'
 bold_red = '\x1b[31;1m'
@@ -39,7 +39,7 @@ class StoneItemSource(models.Model):
         Prevent delete color of type that is used on item
         :return: SUPER
         """
-        source_obj = self.env['stock.item.source']
+        source_obj = self.env['stone.item.source']
         for rec in self:
             source_ids = source_obj.search([('color_ids', 'in', rec.id)])
             if source_ids:
@@ -53,12 +53,14 @@ class StoneItemSource(models.Model):
         :param vals: edit vals
         :return: SUPER
         """
+        # logging.info(blue + "=== color write vals %s" % str(vals) + reset)
         if vals.get('code'):
-            source_obj = self.env['stock.item.source']
+            source_obj = self.env['stone.item.source']
             for rec in self:
                 source_ids = source_obj.search([('color_ids', 'in', rec.id)])
+                # logging.info(blue + "yellow source %s" % source_ids + reset)
                 if source_ids:
                     raise UserError(_("It's not possible to edit item color code used on active sources %s "
                                       % source_ids.mapped('display_name')))
-        return super().unlink()
+        return super().write(vals)
 # Ahmed Salama Code End.

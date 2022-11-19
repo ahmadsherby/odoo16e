@@ -2,7 +2,7 @@
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
 import logging
-igrey = '\x1b[38;21m'
+grey = '\x1b[38;21m'
 yellow = '\x1b[33;21m'
 red = '\x1b[31;21m'
 bold_red = '\x1b[31;1m'
@@ -35,7 +35,7 @@ class StoneItemSource(models.Model):
                               help="The next code to be set on generate product")
     location_id = fields.Many2one('stock.location', 'Location', required=True,
                                   help="Sets a location to be used on update pieces of the used product.")
-    item_ids = fields.One2many('stone.item', 'type_id', "Items")
+    item_ids = fields.One2many('stone.item', 'source_id', "Items")
 
     # =========== Core Methods
     def name_get(self):
@@ -64,11 +64,12 @@ class StoneItemSource(models.Model):
         :param vals: edit vals
         :return: SUPER
         """
+        # logging.info(blue + "=== source write vals %s" % str(vals) + reset)
         if vals.get('code'):
             for rec in self:
                 if rec.item_ids:
                     raise UserError(_("It's not possible to edit item type code used on active item %s "
                                       % rec.item_ids.mapped('display_name')))
-        return super().unlink()
+        return super().write(vals)
 
 # Ahmed Salama Code End.

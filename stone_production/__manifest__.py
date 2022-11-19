@@ -18,6 +18,7 @@
         'views/stone_item_color_view.xml',
         'views/stone_item_source_view.xml',
         'views/stone_item_view.xml',
+        'views/product_view_changes.xml',
     ],
     'installable': True,
     'auto_install': False,

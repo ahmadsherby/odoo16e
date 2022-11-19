@@ -3,7 +3,7 @@ from odoo import models, fields, api, _
 from odoo.exceptions import UserError
 import logging
 from random import randint
-igrey = '\x1b[38;21m'
+grey = '\x1b[38;21m'
 yellow = '\x1b[33;21m'
 red = '\x1b[31;21m'
 bold_red = '\x1b[31;1m'
@@ -91,12 +91,14 @@ class StoneItemType(models.Model):
         :param vals: edit vals
         :return: SUPER
         """
+        # logging.info(blue + "=== type write vals %s" % str(vals) + reset)
         if vals.get('code'):
             for rec in self:
                 if rec.item_ids:
+                    # logging.info(yellow + "Related Items %s" % rec.item_ids + reset)
                     raise UserError(_("It's not possible to edit item type code used on active item %s "
                                       % rec.item_ids.mapped('display_name')))
-        return super().unlink()
+        return super().write(vals)
 
     # =========== Business Methods
     def open_items(self):

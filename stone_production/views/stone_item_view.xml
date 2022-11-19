@@ -5,34 +5,48 @@
         <field name="model">stone.item</field>
         <field name="arch" type="xml">
             <form string="Item">
+                <header>
+                    <button name="create_product" string="Create Product" states="draft"
+                            icon="fa-plus" type="object" class="oe_highlight"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,product"/>
+                </header>
                 <sheet>
                     <field name="active" invisible="1"/>
                     <field name="company_id" invisible="1"/>
+                    <field name="code_compute" invisible="1"/>
+                    <field name="code_slices" invisible="1"/>
                     <widget name="web_ribbon" title="Archived" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
                     <div class="oe_title">
-                        <label for="name" string="Item"/>
                         <h1>
+                            <div class="d-flex">
+                                <field class="text-break" name="code" readonly="1" force_save="1"/>
+                            </div>
+                        </h1>
+                        <label for="name" string="Item"/>
+                        <h2>
                             <div class="d-flex">
                                 <field class="text-break" name="name"/>
                             </div>
-                        </h1>
+                        </h2>
                     </div>
                     <group>
                         <group>
                             <field name="parent_id"/>
                             <field name="type_id"/>
                             <field name="type_size" invisible="1"/>
-                            <field name="source_id"/>
-                            <field name="color_id"/>
+                            <field name="source_id" domain="[('type_ids','in',type_id)]"/>
+                            <field name="color_ids" invisible="1"/>
+                            <field name="color_id" domain="[('id','in',color_ids)]"/>
                             <field name="choice"/>
+                            <field name="product_id" readonly="1" force_save="1" attrs="{'invisible':[('product_id','=',False)]}"/>
+                            <field name="product_tmpl_id" readonly="1" force_save="1" attrs="{'invisible':[('product_id','=',False)]}"/>
                         </group>
                         <group string="Dimensions">
-                            <label for="weight" />
-                            <div class="o_row" name="weight">
-                                <field name="weight" class="oe_inline"/>
+                            <label for="width" />
+                            <div class="o_row" name="width">
+                                <field name="width" class="oe_inline"/>
                                 <field name="dimension_uom_id" readonly="1" force_save="1"/>
                             </div>
-
                             <label for="length"/>
                             <div class="o_row" name="length">
                                 <field name="length" class="oe_inline"/>
@@ -82,14 +96,18 @@
         <field name="model">stone.item</field>
         <field name="arch" type="xml">
             <tree multi_edit="1" string="Item Types">
+                <field name="code_slices" invisible="1"/>
+                <field name="code_compute" invisible="1"/>
+                <field name="code"/>
                 <field name="name"/>
                 <field name="type_id" optional="show"/>
                 <field name="parent_id" optional="show"/>
                 <field name="type_size" invisible="1"/>
                 <field name="source_id" optional="show"/>
+                <field name="color_ids" invisible="1"/>
                 <field name="color_id" optional="show"/>
                 <field name="choice" optional="show"/>
-                <field name="weight" optional="hide"/>
+                <field name="width" optional="hide"/>
                 <field name="length" optional="hide"/>
                 <field name="height" optional="hide"/>
                 <field name="thickness" optional="hide"/>
