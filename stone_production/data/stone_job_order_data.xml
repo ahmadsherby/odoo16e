@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+       <record id="stone_job_order_type_cutting_block" model="stone.job.order.type">
+           <field name="name">Cutting Blocks</field>
+       </record>
+        <record id="stone_job_order_type_cutting_slab" model="stone.job.order.type">
+           <field name="name">Cutting Slabs</field>
+       </record>
+    </data>
+</odoo>

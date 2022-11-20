@@ -10,3 +10,7 @@ access_stone_item_source_user,stone_item_source_user,model_stone_item_source,,1,
 access_stone_item_root,stone_item_root,model_stone_item,stock.group_stock_manager,1,1,1,1
 access_stone_item_choice_root,stone_item_choice_root,model_stone_item_choice,stock.group_stock_manager,1,1,1,1
 access_stone_item_choice_user,stone_item_choice_user,model_stone_item_choice,,1,0,0,0
+access_stone_job_order_root,stone_job_order_root,model_stone_job_order,stock.group_stock_manager,1,1,1,1
+access_stone_job_order_user,stone_job_order_user,model_stone_job_order,,1,0,0,0
+access_stone_job_order_type_root,stone_job_order_type_root,model_stone_job_order_type,stock.group_stock_manager,1,1,1,1
+access_stone_job_order_type_user,stone_job_order_type_user,model_stone_job_order_type,,1,0,0,0

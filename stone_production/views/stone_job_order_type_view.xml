@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record id="stone_item_color_form_view" model="ir.ui.view">
-        <field name="name">stone.item.color.form.view</field>
-        <field name="model">stone.item.color</field>
+    <record id="stone_job_order_type_form_view" model="ir.ui.view">
+        <field name="name">stone.job.order.type.form.view</field>
+        <field name="model">stone.job.order.type</field>
         <field name="arch" type="xml">
-            <form string="Item Color">
+            <form string="Job Order Type">
                 <sheet>
                     <field name="active" invisible="1"/>
                     <widget name="web_ribbon" title="Archived" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
@@ -18,7 +18,6 @@
                     </div>
                     <group>
                         <group>
-                            <field name="code"/>
                             <field name="company_id" groups="base.group_multi_company"/>
                         </group>
                     </group>
@@ -32,24 +31,23 @@
         </field>
     </record>
 
-    <record id="stone_item_color_tree_view" model="ir.ui.view">
-        <field name="name">stone.item.color.tree.view</field>
-        <field name="model">stone.item.color</field>
+    <record id="stone_job_order_type_tree_view" model="ir.ui.view">
+        <field name="name">stone.job.order.type.tree.view</field>
+        <field name="model">stone.job.order.type</field>
         <field name="arch" type="xml">
-            <tree multi_edit="1" string="Item Colors">
+            <tree multi_edit="1" string="Job Order Type">
                 <field name="name"/>
-                <field name="code" />
                 <field name="company_id" groups="base.group_multi_company"/>
             </tree>
         </field>
     </record>
-    <record id="stone_item_color_action" model="ir.actions.act_window">
-        <field name="name">Item Color</field>
-        <field name="res_model">stone.item.color</field>
+    <record id="stone_job_order_type_action" model="ir.actions.act_window">
+        <field name="name">Job Order Type</field>
+        <field name="res_model">stone.job.order.type</field>
         <field name="view_mode">tree,form</field>
-        <field name="view_id" ref="stone_item_color_tree_view"/>
+        <field name="view_id" ref="stone_job_order_type_tree_view"/>
     </record>
-    <menuitem id="stone_item_color_menu" name="Item Color"
+    <menuitem id="stone_job_order_type_menu" name="Job Order Type"
               parent="stone_production.stock_production_config"
-              action="stone_item_color_action" sequence="2"/>
+              action="stone_job_order_type_action" sequence="4"/>
 </odoo>
