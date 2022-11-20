@@ -19,7 +19,6 @@ class StoneItemSource(models.Model):
     _name = 'stone.item.color'
     _inherit = ['mail.thread', 'mail.activity.mixin', 'image.mixin']
     _description = "Stone Item Color"
-    _check_company_auto = True
     _rec_names_search = ['name', 'code']
 
     # =========== Compute Methods
@@ -29,8 +28,7 @@ class StoneItemSource(models.Model):
     name = fields.Char("Item Source(Query)", required=True)
     code = fields.Char("Code", required=True)
     active = fields.Boolean('Active', default=True)
-    company_id = fields.Many2one('res.company', string='Company', required=True,
-                                 default=lambda self: self.env.company)
+    company_id = fields.Many2one('res.company', string='Company')
     color = fields.Integer('Color', default=_default_color)
 
     # =========== Core Methods

@@ -33,6 +33,7 @@
                     <field name="thickness" class="oe_inline"/>
                     <field name="dimension_uom_id"/>
                 </div>
+                <field name="num_of_pieces" readonly="1" force_save="1"/>
             </xpath>
 
         </field>

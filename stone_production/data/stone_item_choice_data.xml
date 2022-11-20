@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <record id="item_type_choice_1" model="stone.item.choice">
+            <field name="name">1ST</field>
+        </record>
+         <record id="item_type_choice_2" model="stone.item.choice">
+            <field name="name">2ND</field>
+        </record>
+    </data>
+</odoo>

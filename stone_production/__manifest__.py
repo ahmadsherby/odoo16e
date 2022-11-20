@@ -9,7 +9,8 @@
     'depends': ['stock', 'product'],
     'data': [
         'data/stone_item_type_data.xml',
-        
+        'data/stone_item_choice_data.xml',
+
         # 'security/',
         'security/ir.model.access.csv',
 

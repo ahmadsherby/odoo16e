@@ -19,7 +19,6 @@ class StoneItemType(models.Model):
     _name = 'stone.item.type'
     _inherit = ['mail.thread', 'mail.activity.mixin', 'image.mixin']
     _description = "Stone ITem Type"
-    _check_company_auto = True
     _rec_names_search = ['name', 'code']
 
     # ========== compute methods
@@ -54,8 +53,7 @@ class StoneItemType(models.Model):
     name = fields.Char("Item Type", required=True)
     code = fields.Char("Code", required=True)
     active = fields.Boolean('Active', default=True)
-    company_id = fields.Many2one('res.company', string='Company', required=True,
-                                 default=lambda self: self.env.company)
+    company_id = fields.Many2one('res.company', string='Company')
     size = fields.Selection(selection=_eq_selections, string="Size Equation", required=True,
                             help="The equation of compute size of item")
     size_uom_id = fields.Many2one('uom.uom', string="UOM", compute=_compute_size_uom_name)
@@ -63,6 +61,8 @@ class StoneItemType(models.Model):
                                help="Sets a category to be used on create product.")
     item_ids = fields.One2many('stone.item', 'type_id', "Items")
     color = fields.Integer('Color', default=_default_color)
+    item_default = fields.Boolean("Item Default?")
+    manual_insert = fields.Boolean("Allow Manual Insert?")
 
     # =========== Core Methods
     def name_get(self):
@@ -110,4 +110,12 @@ class StoneItemType(models.Model):
         action = self.env["ir.actions.actions"]._for_xml_id('stone_production.stone_item_action')
         action['domain'] = [('id', 'in', self.item_ids.ids)]
         return action
+
+    @api.constrains('item_default')
+    def _constrain_one_type_default(self):
+        for rec in self:
+            if isinstance(rec.id, int):
+                other_ids = self.search([('item_default', '=', True), ('id', '!=', rec.id)])
+                if other_ids:
+                    raise UserError(_("Can't have more than 1 default type\n %s already set as default" % other_ids.mapped('display_name')))
 # Ahmed Salama Code End.

@@ -20,9 +20,10 @@ class ProductProduct(models.Model):
     source_id = fields.Many2one(comodel_name='stone.item.source', string="Stone Source")
     color_id = fields.Many2one(comodel_name='stone.item.color', string="Stone Color")
     dimension_uom_id = fields.Many2one('uom.uom', string="UOM")
-    width = fields.Float('Width', digits='Stock Weight')
-    length = fields.Float('Length', digits='Stock Weight')
-    height = fields.Float('Height', digits='Stock Weight')
+    width = fields.Integer('Width', digits='Stock Weight')
+    length = fields.Integer('Length', digits='Stock Weight')
+    height = fields.Integer('Height', digits='Stock Weight')
     thickness = fields.Float('Thickness', digits='Stock Weight')
+    num_of_pieces = fields.Float("Pieces")
 
 # Ahmed Salama Code End.

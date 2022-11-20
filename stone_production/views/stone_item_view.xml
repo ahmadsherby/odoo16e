@@ -13,33 +13,30 @@
                 <sheet>
                     <field name="active" invisible="1"/>
                     <field name="company_id" invisible="1"/>
+                    <field name="after_save" invisible="1"/>
                     <widget name="web_ribbon" title="Archived" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
                     <div class="oe_title">
+                        <label for="name" string="Item Code"/>
                         <h1>
                             <div class="d-flex">
-                                <field class="text-break" name="code" readonly="1" force_save="1"/>
+                                <field class="oe_read_only text-break" name="name" readonly="1" force_save="1"/>
+                                <field class="oe_edit_only" name="code_compute"/>
                             </div>
-<!--                            <div class="o_row oe_edit_only" name="code_compute">-->
-<!--                                <field class="oe_inline" name="code_compute"/>-->
-<!--                                <field class="oe_inline" name="code_num" readonly="1" force_save="1"/>-->
-<!--                            </div>-->
                         </h1>
-                        <label for="name" string="Item"/>
-                        <h2>
-                            <div class="d-flex">
-                                <field class="text-break" name="name"/>
-                            </div>
-                        </h2>
                     </div>
                     <group>
-                        <group>
-                            <field name="parent_id"/>
-                            <field name="type_id" options="{'no_create': 1, 'no_create_edit': 1}"/>
+                        <group string="Main Details">
+                            <field name="type_id" options="{'no_create': 1, 'no_create_edit': 1}"
+                                   attrs="{'readonly':['|',('after_save', '=', True),('state', '!=', 'draft')]}"/>
                             <field name="type_size" invisible="1"/>
-                            <field name="source_id" domain="[('type_ids','in',type_id)]"  options="{'no_create': 1, 'no_create_edit': 1}"/>
+                            <field name="source_id" domain="[('type_ids','in',type_id)]"  options="{'no_create': 1, 'no_create_edit': 1}"
+                                   attrs="{'readonly':['|',('after_save', '=', True),('state', '!=', 'draft')]}"/>
                             <field name="color_ids" invisible="1"/>
-                            <field name="color_id" domain="[('id','in',color_ids)]"  options="{'no_create': 1, 'no_create_edit': 1}"/>
-                            <field name="choice"/>
+                            <field name="color_id" domain="[('id','in',color_ids)]"  options="{'no_create': 1, 'no_create_edit': 1}"
+                                   attrs="{'readonly':['|',('after_save', '=', True),('state', '!=', 'draft')]}"/>
+                            <field name="choice_id" options="{'no_create': 1, 'no_create_edit': 1}"
+                                   attrs="{'readonly':['|',('after_save', '=', True),('state', '!=', 'draft')]}"/>
+                            <field name="remarks" attrs="{'readonly':[('state', '!=', 'draft')]}"/>
                             <field name="product_id" readonly="1" force_save="1" attrs="{'invisible':[('product_id','=',False)]}"/>
                             <field name="product_tmpl_id" readonly="1" force_save="1" attrs="{'invisible':[('product_id','=',False)]}"/>
                         </group>
@@ -54,19 +51,16 @@
                                 <field name="length" class="oe_inline"/>
                                 <field name="dimension_uom_id" readonly="1" force_save="1"/>
                             </div>
-
                             <label for="height" attrs="{'invisible':[('type_size','!=', 'volume')]}"/>
                             <div class="o_row" name="height" attrs="{'invisible':[('type_size','!=', 'volume')]}">
                                 <field name="height" class="oe_inline"/>
                                 <field name="dimension_uom_id" readonly="1" force_save="1"/>
                             </div>
-
                             <label for="thickness" attrs="{'invisible':[('type_size','in', ('volume', 'surface'))]}"/>
                             <div class="o_row" name="thickness" attrs="{'invisible':[('type_size','in', ('volume', 'surface'))]}">
                                 <field name="thickness" class="oe_inline"/>
                                 <field name="dimension_uom_id" readonly="1" force_save="1"/>
                             </div>
-
                             <b><label for="size_value"/></b>
                             <div class="o_row" name="size_value">
                                 <field name="size_value" class="oe_inline"/>
@@ -74,14 +68,18 @@
                             </div>
                         </group>
                         <group string="Pieces">
-                            <field name="num_of_pieces"/>
-
+                            <field name="num_of_pieces"
+                            attrs="{'readonly':['|',('type_id', '=', %(stone_production.item_type_block)d),('state', '!=', 'draft')]}"/>
                             <b><label for="total_size"/></b>
                             <div class="o_row" name="total_size">
                                 <field name="total_size" class="oe_inline"/>
                                 <span class="oe_inline">PC/</span>
                                 <field name="type_size_uom_id" readonly="1" force_save="1"/>
                             </div>
+                        </group>
+                        <group string="Other Details">
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="parent_id" readonly="1" force_save="1"/>
                         </group>
                     </group>
                 </sheet>
@@ -98,17 +96,17 @@
         <field name="model">stone.item</field>
         <field name="arch" type="xml">
             <tree multi_edit="1" string="Item Types">
-<!--                <field name="code_num" invisible="1"/>-->
-<!--                <field name="code_compute" invisible="1"/>-->
-                <field name="code"/>
+                <!--                <field name="code_num" invisible="1"/>-->
+                <field name="code_compute" invisible="1"/>
                 <field name="name"/>
                 <field name="type_id" optional="show"/>
-                <field name="parent_id" optional="show"/>
+                <field name="parent_id" optional="hide"/>
                 <field name="type_size" invisible="1"/>
                 <field name="source_id" optional="show"/>
                 <field name="color_ids" invisible="1"/>
                 <field name="color_id" optional="show"/>
-                <field name="choice" optional="show"/>
+                <field name="choice_id" optional="show"/>
+                <field name="remarks" optional="hide"/>
                 <field name="width" optional="hide"/>
                 <field name="length" optional="hide"/>
                 <field name="height" optional="hide"/>
@@ -116,7 +114,7 @@
                 <field name="size_value" sum="size_value"/>
                 <field name="num_of_pieces" sum="num_of_pieces"/>
                 <field name="total_size" sum="total_size"/>
-                <field name="company_id" groups="base.group_multi_company" readonly="1" optional="hide"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
                 <field name="state" optional="show" widget="badge" decoration-info="state == 'draft'" decoration-success="state == 'product'"/>
             </tree>
         </field>

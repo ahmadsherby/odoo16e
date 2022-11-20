@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <data noupdate="1">
+    <data noupdate="0">
         <record id="product_category_stones" model="product.category">
             <field name="name">Stone</field>
         </record>
@@ -12,6 +12,7 @@
             <field name="name">Block</field>
             <field name="code">BLC</field>
             <field name="size" >volume</field>
+            <field name="item_default" >1</field>
             <field name="categ_id" ref="product_category_stones"/>
         </record>
         <record id="product_category_slab" model="product.category">
@@ -22,6 +23,7 @@
             <field name="name">Slab</field>
             <field name="code">SLB</field>
             <field name="size" >surface</field>
+            <field name="manual_insert" >1</field>
             <field name="categ_id" ref="product_category_slab"/>
         </record>
     </data>

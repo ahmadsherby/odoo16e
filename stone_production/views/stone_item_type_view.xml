@@ -33,6 +33,8 @@
                         <group>
                             <field name="code"/>
                             <field name="categ_id" options="{'no_create': 1, 'no_create_edit': 1, 'no_quick_create': 1}"/>
+                            <field name="item_default"/>
+                            <field name="manual_insert"/>
                         </group>
                         <group>
                             <label for="size"/>
