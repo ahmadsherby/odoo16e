@@ -21,9 +21,9 @@
                         <group>
                             <field name="code"/>
                             <field name="color_ids" widget="many2many_tags"
-                                   options="{'no_create': 1, 'no_create_edit': 1, 'no_quick_create': 1, 'color_field': 'color'}"/>
+                                   options="{'no_create': 1, 'no_create_edit': 1, 'color_field': 'color'}"/>
                             <field name="type_ids" widget="many2many_tags"
-                                   options="{'no_create': 1, 'no_create_edit': 1, 'no_quick_create': 1,}"/>
+                                   options="{'no_create': 1, 'no_create_edit': 1, 'color_field': 'color'}"/>
                         </group>
                         <group>
                             <field name="estimate_hour"/>
@@ -47,10 +47,11 @@
             <tree multi_edit="1" string="Item Sources">
                 <field name="name"/>
                 <field name="code" />
-                <field name="color_ids" widget="many2many_tags" optional="show"/>
-                <field name="type_ids" widget="many2many_tags" optional="show"/>
+                <field name="color_ids" widget="many2many_tags" options="{'color_field': 'color'}" optional="show"/>
+                <field name="type_ids" widget="many2many_tags" options="{'color_field': 'color'}" optional="show"/>
                 <field name="estimate_hour" optional="hide"/>
                 <field name="location_id" optional="show"/>
+                <field name="next_num" optional="show"/>
                 <field name="company_id" groups="base.group_multi_company" readonly="1"/>
             </tree>
         </field>

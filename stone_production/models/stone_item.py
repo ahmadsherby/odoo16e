@@ -33,26 +33,29 @@ class StoneItemType(models.Model):
                 dim_uom_id = dim_meter
             rec.dimension_uom_id = dim_uom_id
 
-    @api.depends('type_id', 'color_id', 'source_id')
-    def _compute_code(self):
-        """
-        Compute code of product item from type/source/color/source serial
-        :return:
-        """
-        for rec in self:
-            code = '/'
-            # logging.info(blue + "Start Compute code of item: %s" % rec.name + reset)
-            next_num = 0
-            if rec.source_id:
-                next_num = rec.source_id.next_num + 1
-            if rec.type_id and rec.color_id and rec.source_id:
-                code_slices = "%s-%s-%s" % (rec.type_id.code, rec.source_id.code, rec.color_id.code)
-                code = "%s-%s-%s-%s" % (rec.type_id.code, rec.source_id.code, rec.color_id.code, next_num)
-                # logging.info(yellow + "next_num: %s" % next_num + reset)
-                # logging.info(yellow + "code: %s" % code + reset)
-                if code and next_num:
-                    rec.write({'code': code, 'code_slices': code_slices})
-            rec.code_compute = code
+    def _concat_code(self, item_type, item_source, item_color, next_num=False):
+        code = "%s-%s-%s%s" % (item_type, item_source, item_color, next_num and "-%s" % next_num or '')
+        return code
+
+    # @api.depends('type_id', 'color_id', 'source_id')
+    # def _compute_code(self):
+    #     """
+    #     Compute code of product item from type/source/color/source serial
+    #     :return:
+    #     """
+    #     for rec in self:
+    #         code = '/'
+    #         # logging.info(blue + "Start Compute code of item: %s" % rec.name + reset)
+    #         if rec.type_id and rec.source_id and rec.color_id:
+    #             # next_num = rec.source_id.next_num + 1
+    #             # code_slices = "%s-%s-%s" % (rec.type_id.code, rec.source_id.code, rec.color_id.code)
+    #             # code = "%s-%s-%s-%s" % (rec.type_id.code, rec.source_id.code, rec.color_id.code, next_num)
+    #             # logging.info(yellow + "next_num: %s" % next_num + reset)
+    #             # logging.info(yellow + "code: %s" % code + reset)
+    #             # if code and next_num:
+    #             #     rec.write({'code': code, 'code_slices': code_slices})
+    #             code = rec._concat_code(rec.type_id.code, rec.source_id.code, rec.color_id.code)
+    #         rec.code_compute = code
 
     @api.depends('width', 'length', 'height', 'thickness', 'type_id.size', 'num_of_pieces')
     def _compute_size(self):
@@ -80,8 +83,8 @@ class StoneItemType(models.Model):
             rec.choice = rec.choice
 
     name = fields.Char("Item", required=True, readonly=True, states={'draft': [('readonly', False)]})
-    code_compute = fields.Char("Code CMP", default="/", compute=_compute_code)
-    code_slices = fields.Char("Code sliced", default="/", help="This field is used to check if code componant changed")
+    # code_compute = fields.Char("Code CMP", default="/", compute=_compute_code)
+    # code_num = fields.Char("Serial", default="0000", help="This field is used to store code_num")
     code = fields.Char("Code", default="/")
     active = fields.Boolean('Active', default=True)
     company_id = fields.Many2one('res.company', string='Company', required=True,
@@ -132,24 +135,68 @@ class StoneItemType(models.Model):
 
     def write(self, vals):
         """
-        This will be used to
-        :param vals:
-        :return:
+        This will be used to generate code
+        :param vals: write_vals
+        :return: SUPER
         """
+        source_obj = self.env['stone.item.source']
         # logging.info(blue + "=== item write vals %s" % str(vals) + reset)
-        if vals.get('code_slices'):
+        if vals.get('source_id') or vals.get('color_id') or vals.get('type_id'):
             for rec in self:
-                if vals.get('code_slices') != rec.code_slices:
+                # if vals.get('code_slices') != rec.code_slices:
                     # logging.info(
                     #     yellow + "COMPARISON ==> New code:%s , old code:%s" % (vals.get('code_slices'), rec.code_slices) + reset)
-                    rec.source_id.write({'next_num': vals.get('code').split('-')[-1]})
+                item_type = vals.get('type_id') or rec.type_id.code
+                item_color = vals.get('color_id') or rec.color_id.code
+                source_id = vals.get('source_id') and source_obj.browse(vals.get('source_id')) or rec.source_id
+                item_source = source_id.code
+                next_num = source_id.next_num
+                vals['code'] = rec._concat_code(item_type, item_source, item_color, next_num)
+                vals['code_num'] = next_num
+                rec.source_id.write({'next_num': next_num + 1})
         return super(StoneItemType, self).write(vals)
+
+    @api.model
+    def create(self, vals):
+        """
+        This will be used to generate code
+        :param vals: create vals
+        :return: SUPER
+        """
+        source_obj = self.env['stone.item.source']
+        type_obj = self.env['stone.item.type']
+        color_obj = self.env['stone.item.color']
+        # logging.info(blue + "=== item write vals %s" % str(vals) + reset)
+        item_id = type_obj.browse(vals.get('type_id'))
+        color_id = color_obj.browse(vals.get('color_id'))
+        source_id = source_obj.browse(vals.get('source_id'))
+        next_num = source_id.next_num
+        vals['code'] = self._concat_code(item_id.code, source_id.code, color_id.code, source_id.next_num)
+        vals['code_num'] = next_num
+        item = super(StoneItemType, self).create(vals)
+        item.source_id.write({'next_num': next_num+1})
+        return item
+
+    # def unlink(self):
+    #     """
+    #     Pervent delete not draft items
+    #     :return: SUPER
+    #     """
+    #     for rec in self:
+    #         if rec.state != 'draft':
+    #             raise UserError(_("It's not possible to delete item which is not draft!!! "))
+    #     return super(StoneItemType, self).unlink()
 
     # ========== Business methods
     def create_product(self):
         product_obj = self.env['product.product']
+        quant_obj = self.env['stock.quant']
         for rec in self:
             if rec.state == 'draft':
+                # TODO: add price of product from source_id.estimate_hour
+                #      - If it's block the price will be source_id.estimate_hour * size_value
+                #      - If it's others the price will be !!!!!!!!
+                price = rec.source_id.estimate_hour * rec.size_value
                 rec.product_id = product_obj.create({
                     'name': rec.name,
                     'default_code': rec.code,
@@ -164,12 +211,12 @@ class StoneItemType(models.Model):
                     'thickness': rec.thickness,
                     'dimension_uom_id': rec.dimension_uom_id.id,
                     'volume': rec.size_value,
+                    'lst_price': price,
                 })
                 rec.product_tmpl_id = rec.product_id.product_tmpl_id.id
                 rec.state = 'product'
-                # TODO: add qty as stock for location of source with num_of_pieces
-                # TODO: add price of product from source_id.estimate_hour
-                #      - If it's block the price will be source_id.estimate_hour * size_value
-                #      - If it's others the price will be !!!!!!!!
+                # Add qty as stock for location of source with num_of_pieces
+                quant_obj._update_available_quantity(rec.product_id, rec.source_id.location_id, rec.num_of_pieces)
+
 
 # Ahmed Salama Code End.
