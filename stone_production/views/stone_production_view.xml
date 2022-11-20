@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <menuitem id="stock_production_root"
+    <menuitem id="stone_production_root"
               groups="stock.group_stock_manager,stock.group_stock_user"
               web_icon="stone_production,static/description/icon.png"
-              name="Stock Production" sequence="141"/>
-    <menuitem id="stock_production_config"
-              parent="stone_production.stock_production_root"
+              name="Stone Production" sequence="141"/>
+    <menuitem id="stone_production_config"
+              parent="stone_production.stone_production_root"
               groups="stock.group_stock_manager,stock.group_stock_user"
               name="Configurations" sequence="1000"/>
 </odoo>

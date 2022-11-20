@@ -48,6 +48,6 @@
         <field name="view_id" ref="stone_job_order_type_tree_view"/>
     </record>
     <menuitem id="stone_job_order_type_menu" name="Job Order Type"
-              parent="stone_production.stock_production_config"
+              parent="stone_production.stone_production_config"
               action="stone_job_order_type_action" sequence="4"/>
 </odoo>

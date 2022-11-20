@@ -79,6 +79,6 @@
         </field>
     </record>
     <menuitem id="stone_item_type_menu" name="Item Type"
-              parent="stone_production.stock_production_config"
+              parent="stone_production.stone_production_config"
               action="stone_item_type_action" sequence="1"/>
 </odoo>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <menuitem id="stone_job_order_menu_root" name="Job Orders"
-              parent="stone_production.stock_production_root" sequence="1"/>
+              parent="stone_production.stone_production_root" sequence="1"/>
     <record id="stone_job_order_form_view" model="ir.ui.view">
         <field name="name">stone.job.order.form.view</field>
         <field name="model">stone.job.order</field>

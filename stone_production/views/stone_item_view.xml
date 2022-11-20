@@ -130,6 +130,6 @@
         </field>
     </record>
     <menuitem id="stone_item_menu" name="Items"
-              parent="stone_production.stock_production_root"
+              parent="stone_production.stone_production_root"
               action="stone_item_action" sequence="2"/>
 </odoo>
