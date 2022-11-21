@@ -224,7 +224,7 @@ class StoneJobOrder(models.Model):
         :return: SUPER
         """
         for rec in self:
-            if rec.cut_state not in ('new', 'cancel'):
+            if rec.cut_status not in ('new', 'cancel'):
                 raise UserError(_("It's not possible to delete job order which is cut status not in new/cancel!!! "))
         return super().unlink()
 
