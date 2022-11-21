@@ -271,7 +271,7 @@
         </field>
     </record>
     <record id="stone_job_order_action_block" model="ir.actions.act_window">
-        <field name="name">Cutting Blocks</field>
+        <field name="name">Blocks Cutting</field>
         <field name="res_model">stone.job.order</field>
         <field name="view_mode">tree,form</field>
         <field name="view_id" ref="stone_job_order_tree_view"/>
@@ -412,7 +412,7 @@
         </field>
     </record>
     <record id="stone_job_order_action_slab" model="ir.actions.act_window">
-        <field name="name">Cutting Slabs</field>
+        <field name="name">Slab Cutting</field>
         <field name="res_model">stone.job.order</field>
         <field name="view_mode">tree,form</field>
         <field name="view_id" ref="stone_job_order_tree_view"/>

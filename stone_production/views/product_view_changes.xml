@@ -10,7 +10,8 @@
                 <field name="item_id" readonly="1" force_save="1"/>
                 <field name="item_type_id" readonly="1" force_save="1"/>
                 <field name="source_id" readonly="1" force_save="1"/>
-                <field name="color_id" readonly="1" force_save="1"/>
+                <field name="choice_id" readonly="1" force_save="1"/>
+                <field name="remarks" readonly="1" force_save="1"/>
             </xpath>
             <xpath expr="//group[@name='group_lots_and_weight']//div" position="after">
                 <label for="width" attrs="{'invisible':[('product_variant_count', '>', 1), ('is_product_variant', '=', False)]}"/>

@@ -178,7 +178,7 @@ class StoneItem(models.Model):
                 # TODO: add price of product from source_id.estimate_hour
                 #      - If it's block the price will be source_id.estimate_hour * size_value
                 #      - If it's others the price will be !!!!!!!!
-                cost = rec.source_id.estimate_hour * rec.size_value
+                cost = rec.source_id.estimate_hour
                 rec.product_id = product_obj.create({
                     'name': rec.name,
                     'default_code': rec.name,
@@ -197,6 +197,8 @@ class StoneItem(models.Model):
                     'num_of_pieces': rec.num_of_pieces,
                     'uom_id': rec.type_size_uom_id.id,
                     'uom_po_id': rec.type_size_uom_id.id,
+                    'choice_id': rec.choice_id.id,
+                    'remarks': rec.remarks,
                 })
                 rec.product_tmpl_id = rec.product_id.product_tmpl_id.id
                 rec.state = 'product'

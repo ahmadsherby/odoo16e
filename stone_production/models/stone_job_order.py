@@ -92,7 +92,7 @@ class StoneJobOrder(models.Model):
     _name = 'stone.job.order'
     _description = "Stone Job Order"
     _inherit = ['mail.thread', 'mail.activity.mixin', 'image.mixin']
-    _rec_names_search = ['name', 'item_id', 'item_type_id', 'parent_id']
+    # _rec_names_search = ['name', 'item_id', 'item_type_id', 'parent_id']
 
     # ========== compute methods
     @api.model

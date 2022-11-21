@@ -25,5 +25,7 @@ class ProductProduct(models.Model):
     height = fields.Integer('Height', digits='Stock Weight')
     thickness = fields.Float('Thickness', digits='Stock Weight')
     num_of_pieces = fields.Float("Pieces")
+    choice_id = fields.Many2one('stone.item.choice', "Choice")
+    remarks = fields.Text("Remarks")
 
 # Ahmed Salama Code End.
