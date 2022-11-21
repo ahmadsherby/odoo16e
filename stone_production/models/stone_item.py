@@ -253,6 +253,10 @@ class StoneItem(models.Model):
                 'res_id': job_order_id.id,
             }
 
+    def action_item_completed(self):
+        for rec in self:
+            rec.cut_status = 'item_completed'
+
 
 class StoneItemChoice(models.Model):
     _name = 'stone.item.choice'

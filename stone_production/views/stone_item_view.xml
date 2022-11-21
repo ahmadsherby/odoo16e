@@ -8,6 +8,8 @@
                 <header>
                     <button name="create_product" string="Create Product" states="draft"
                             icon="fa-plus" type="object" class="oe_highlight"/>
+                    <button name="action_item_completed" string="Cutting Completed" attrs="{'invisible':[('cut_status','!=', 'cutting_completed')]}"
+                            icon="fa-check" type="object" class="oe_highlight"/>
                     <field name="cut_status" widget="statusbar" statusbar_visible="new,under_cutting,cutting_completed,item_completed"/>
                 </header>
                 <sheet>
