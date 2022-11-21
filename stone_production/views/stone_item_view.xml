@@ -8,9 +8,10 @@
                 <header>
                     <button name="create_product" string="Create Product" states="draft"
                             icon="fa-plus" type="object" class="oe_highlight"/>
-                    <field name="state" widget="statusbar" statusbar_visible="draft,product"/>
+                    <field name="cut_status" widget="statusbar" statusbar_visible="new,under_cutting,cutting_completed,item_completed"/>
                 </header>
                 <sheet>
+                    <field name="state" invisible="1"/>
                     <field name="active" invisible="1"/>
                     <field name="job_order_ids" invisible="1"/>
                     <div class="oe_button_box" name="button_box">
@@ -23,6 +24,12 @@
                             </div>
                         </button>
                     </div>
+                     <widget name="web_ribbon" title="Draft"
+                                bg_color="bg-info"
+                                attrs="{'invisible': [('state', '!=', 'draft')]}"/>
+                    <widget name="web_ribbon" title="Product Created"
+                                bg_color="bg-success"
+                                attrs="{'invisible': [('state', '!=', 'product')]}"/>
                     <field name="after_save" invisible="1"/>
                     <widget name="web_ribbon" title="Archived" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
                     <div class="oe_title">
@@ -39,7 +46,8 @@
                             <field name="item_type_id" options="{'no_create': 1, 'no_create_edit': 1}"
                                    attrs="{'readonly':['|',('after_save', '=', True),('state', '!=', 'draft')]}"/>
                             <field name="type_size" invisible="1"/>
-                            <field name="source_id" domain="[('type_ids','in',item_type_id)]"  options="{'no_create': 1, 'no_create_edit': 1}"
+                            <field name="source_id" domain="[('type_ids','in',item_type_id)]"
+                                   options="{'no_create': 1, 'no_create_edit': 1}"
                                    attrs="{'readonly':['|',('after_save', '=', True),('state', '!=', 'draft')]}"/>
                             <field name="color_ids" invisible="1"/>
                             <field name="color_id" domain="[('id','in',color_ids)]"  options="{'no_create': 1, 'no_create_edit': 1}"
@@ -53,20 +61,20 @@
                         <group string="Dimensions">
                             <label for="width" />
                             <div class="o_row" name="width">
-                                <field name="width" class="oe_inline"/>
+                                <field name="width" class="oe_inline" required="1"/>
                                 <field name="dimension_uom_id" readonly="1" force_save="1"/>
                             </div>
                             <label for="length"/>
                             <div class="o_row" name="length">
-                                <field name="length" class="oe_inline"/>
+                                <field name="length" class="oe_inline" required="1"/>
                                 <field name="dimension_uom_id" readonly="1" force_save="1"/>
                             </div>
                             <label for="height" attrs="{'invisible':[('type_size','!=', 'volume')]}"/>
                             <div class="o_row" name="height" attrs="{'invisible':[('type_size','!=', 'volume')]}">
-                                <field name="height" class="oe_inline"/>
+                                <field name="height" class="oe_inline" attrs="{'required':[('type_size','=', 'surface')]}"/>
                                 <field name="dimension_uom_id" readonly="1" force_save="1"/>
                             </div>
-                            <label for="thickness" attrs="{'invisible':[('type_size','in', ('volume', 'surface'))]}"/>
+                            <label for="thickness" attrs="{'invisible':[('type_size','!=', 'surface')]}"/>
                             <div class="o_row" name="thickness" attrs="{'invisible':[('type_size','in', ('volume', 'surface'))]}">
                                 <field name="thickness" class="oe_inline"/>
                                 <field name="dimension_uom_id" readonly="1" force_save="1"/>
@@ -78,18 +86,18 @@
                             </div>
                             <label for="cut_size" style="border-top:1 solid gray;"/>
                             <div class="o_row" name="cut_size">
-                                <field name="cut_size" class="oe_inline"/>
+                                <field name="cut_size" class="oe_inline" readonly="1" force_save="1"/>
                                 <field name="type_size_uom_id" readonly="1" force_save="1"/>
                             </div>
                             <label for="remain_size"/>
                             <div class="o_row" name="remain_size">
-                                <field name="remain_size" class="oe_inline"/>
+                                <field name="remain_size" class="oe_inline" readonly="1" force_save="1"/>
                                 <field name="type_size_uom_id" readonly="1" force_save="1"/>
                             </div>
                         </group>
                         <group string="Pieces">
                             <field name="num_of_pieces"
-                            attrs="{'readonly':['|',('item_type_id', '=', %(stone_production.item_type_block)d),('state', '!=', 'draft')]}"/>
+                                   attrs="{'readonly':['|',('item_type_id', '=', %(stone_production.item_type_block)d),('state', '!=', 'draft')]}"/>
                             <b><label for="total_size"/></b>
                             <div class="o_row" name="total_size">
                                 <field name="total_size" class="oe_inline"/>
@@ -115,18 +123,18 @@
         <field name="name">stone.item.tree.view</field>
         <field name="model">stone.item</field>
         <field name="arch" type="xml">
-            <tree multi_edit="1" string="Item Types">
-                <!--                <field name="code_num" invisible="1"/>-->
+            <tree string="Item Types">
+                <field name="after_save" invisible="1"/>
                 <field name="code_compute" invisible="1"/>
                 <field name="name"/>
-                <field name="item_type_id" optional="show"/>
-                <field name="parent_id" optional="hide"/>
+                <field name="item_type_id" optional="show" attrs="{'readonly':['|',('after_save', '=', True),('state', '!=', 'draft')]}"/>
+                <field name="parent_id" optional="hide" attrs="{'readonly':['|',('after_save', '=', True),('state', '!=', 'draft')]}"/>
                 <field name="type_size" invisible="1"/>
-                <field name="source_id" optional="show"/>
+                <field name="source_id" optional="show" attrs="{'readonly':['|',('after_save', '=', True),('state', '!=', 'draft')]}"/>
                 <field name="color_ids" invisible="1"/>
-                <field name="color_id" optional="show"/>
-                <field name="choice_id" optional="show"/>
-                <field name="remarks" optional="hide"/>
+                <field name="color_id" optional="show" attrs="{'readonly':['|',('after_save', '=', True),('state', '!=', 'draft')]}"/>
+                <field name="choice_id" optional="show" attrs="{'readonly':['|',('after_save', '=', True),('state', '!=', 'draft')]}"/>
+                <field name="remarks" optional="hide" attrs="{'readonly':['|',('after_save', '=', True),('state', '!=', 'draft')]}"/>
                 <field name="width" optional="hide"/>
                 <field name="length" optional="hide"/>
                 <field name="height" optional="hide"/>
@@ -135,8 +143,37 @@
                 <field name="num_of_pieces" sum="num_of_pieces"/>
                 <field name="total_size" sum="total_size"/>
                 <field name="company_id" groups="base.group_multi_company" optional="hide"/>
-                <field name="state" optional="show" widget="badge" decoration-info="state == 'draft'" decoration-success="state == 'product'"/>
+                <field name="state" optional="show" widget="badge"
+                       decoration-info="state == 'draft'" decoration-success="state == 'product'"/>
+                <field name="cut_status" optional="show" widget="badge" decoration-info="state == ('new', 'cutting_completed')"
+                       decoration-warning="state == 'under_cutting'" decoration-success="state == 'item_completed'"/>
+                <button name="action_block_cut" string="Start Block Cut" icon="fa-wrench" type="object"
+                        attrs="{'invisible':['|',('cut_status','not in',('new', 'cutting_completed')),('item_type_id','!=', %(stone_production.item_type_block)d)]}"/>
             </tree>
+        </field>
+    </record>
+    <record id="stone_item_search_view" model="ir.ui.view">
+        <field name="name">stone.item.tree.view</field>
+        <field name="model">stone.item</field>
+        <field name="arch" type="xml">
+            <search string="Search Taxes">
+                <field name="name" string="Name"/>
+                <field name="item_type_id" />
+                <field name="source_id" />
+                <field name="color_id" />
+                <field name="company_id" groups="base.group_multi_company"/>
+                <filter string="Block" name="block" domain="[('item_type_id','=',%(stone_production.item_type_block)d)]" />
+                <filter string="Slab" name="slab" domain="[('item_type_id','=',%(stone_production.item_type_slab)d)]" />
+                <separator/>
+                <filter name="active" string="Active" domain="[('active','=',True)]" help="Show active items"/>
+                <filter name="inactive" string="Inactive" domain="[('active','=',False)]" help="Show inactive items"/>
+                <group string="Group By">
+                    <filter string="Company" name="company" domain="[]" context="{'group_by':'company_id'}" groups="base.group_multi_company"/>
+                    <filter string="Item Type" name="group_item_type" domain="[]" context="{'group_by':'item_type_id'}"/>
+                    <filter string="Item Color" name="group_item_color" domain="[]" context="{'group_by':'color_id'}"/>
+                    <filter string="Item Source" name="group_item_source" domain="[]" context="{'group_by':'source_id'}"/>
+                </group>
+            </search>
         </field>
     </record>
     <record id="stone_item_action" model="ir.actions.act_window">
@@ -153,4 +190,13 @@
     <menuitem id="stone_item_menu" name="Items"
               parent="stone_production.stone_production_root"
               action="stone_item_action" sequence="2"/>
+    <!--Block Action-->
+    <record id="stone_item_block_action" model="ir.actions.act_window">
+        <field name="name">Block Cutting</field>
+        <field name="res_model">stone.item</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="stone_item_tree_view"/>
+        <field name="domain">[('item_type_id.name','=','Block'),('state','=','product'),
+            ('cut_status','in',('new', 'cutting_completed'))]</field>
+    </record>
 </odoo>

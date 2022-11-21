@@ -89,22 +89,6 @@ class StoneItem(models.Model):
             rec.color_id = rec.parent_id.color_id.id
             rec.choice_id = rec.choice_id
 
-    @api.depends('job_order_ids')
-    def _compute_remain_size(self):
-        """
-        Compute beginning size to be used on cut if it's not new or cancelled and created before
-        """
-        for rec in self:
-            cut_size = 0
-            remain_size = rec.size_value
-            if rec.job_order_ids and isinstance(rec.id, int):
-                job_orders = self.env['stone.job.order'].search([('item_id', '=', rec.id),
-                                                                 ('cut_status', 'not in', ['new', 'cancel'])])
-                cut_size = sum(c.cut_size_value for c in job_orders)
-                remain_size -= cut_size
-            rec.cut_size = cut_size
-            rec.remain_size = remain_size
-
     name = fields.Char("Item Code", default='/')
     code_compute = fields.Char("Code CMP", default="/", compute=_compute_code)
     after_save = fields.Boolean("Readonly after save", default=False)
@@ -127,9 +111,9 @@ class StoneItem(models.Model):
     thickness = fields.Float('Thickness', digits='Stock Weight', readonly=True
                              , states={'draft': [('readonly', False)]})
     size_value = fields.Float("Size", digits='Stock Weight', compute=_compute_size)
-    cut_size = fields.Float("Cut Size", digits='Stock Weight', compute=_compute_remain_size,
+    cut_size = fields.Float("Cut Size", digits='Stock Weight',
                             help="This field show the sum value for all job orders for this item which not new/cancel")
-    remain_size = fields.Float("Remain Size", digits='Stock Weight', compute=_compute_remain_size,
+    remain_size = fields.Float("Remain Size", digits='Stock Weight',
                                help="This field show the remain value form "
                                     "all job orders for this item which not new/cancel")
     dimension_uom_id = fields.Many2one('uom.uom', string="UOM", compute=_compute_dim_uom_name)
@@ -139,10 +123,17 @@ class StoneItem(models.Model):
     num_of_pieces = fields.Float("Pieces", default=1)
     total_size = fields.Float("Total Size", compute=_compute_size)
     state = fields.Selection(selection=[('draft', 'Draft'), ('product', 'Product Created')],
-                             string="Status", default='draft',
+                             string="Status", default='draft', tracking=True,
                              help="This is used to check the status of item\n"
                                   "* Draft: it mean it has no related product yet and can be edited\n"
                                   "* Product Created: it mean product has created and uer can't edit it anymore.")
+    cut_status = fields.Selection(selection=[('new', 'New'), ('under_cutting', 'Under Cutting'),
+                                             ('cutting_completed', 'Cutting Completed'), ('item_completed', 'Item Completed')],
+                                  string="Cut Status", default='new', tracking=True,
+                                  help="This is status of cut operation:\n"
+                                       "* New: this is new status for job order where fields is open to edit.\n"
+                                       "* Under Cutting: this is status for valid for cutting.\n"
+                                       "* Cutting Completed: this is status with it's not valid to use.\n")
     product_id = fields.Many2one('product.product', "Product", ondelete='cascade')
     product_tmpl_id = fields.Many2one('product.template', "Template", ondelete='cascade')
     job_order_ids = fields.One2many('stone.job.order', 'item_id', "Job Orders")
@@ -232,6 +223,35 @@ class StoneItem(models.Model):
         action['context'] = {'default_item_id': self.id}
         action['domain'] = [('id', 'in', self.job_order_ids.ids)]
         return action
+
+    def action_block_cut(self):
+        job_order_obj = self.env['stone.job.order']
+        for rec in self:
+            job_order_id = job_order_obj.create({
+                'job_type_id': self.env.ref('stone_production.stone_job_order_type_cutting_block').id,
+                'job_type': 'block',
+                'job_machine_id': self.env.ref('stone_production.stone_job_order_machine_cutting_block').id,
+                'color_id': rec.color_id.id,
+                'choice_id': rec.choice_id.id,
+                'item_id': rec.id,
+                'width': rec.width,
+                'length': rec.length,
+                'height': rec.height,
+                'thickness': rec.thickness,
+                'size_value': rec.size_value,
+                'remain_size': rec.remain_size,
+                'remarks': rec.remarks,
+            })
+            compose_form = self.env.ref('stone_production.stone_job_order_block_form_view', False)
+            return {
+                'name': 'Block Cutting',
+                'type': 'ir.actions.act_window',
+                'view_mode': 'form',
+                'res_model': 'stone.job.order',
+                'views': [(compose_form.id, 'form')],
+                'view_id': compose_form.id,
+                'res_id': job_order_id.id,
+            }
 
 
 class StoneItemChoice(models.Model):

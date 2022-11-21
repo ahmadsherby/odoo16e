@@ -135,7 +135,7 @@ class StoneJobOrder(models.Model):
                 rec.item_id = rec.parent_id.item_id
 
     @api.depends('cut_width', 'cut_length', 'cut_height', 'cut_thickness',
-                 'item_type_id.size', 'beginning_size', 'num_of_pieces')
+                 'item_type_id.size', 'num_of_pieces')
     def _compute_cut_size(self):
         """
         Compute size form dimension and total suze according to number of pieces
@@ -148,7 +148,6 @@ class StoneJobOrder(models.Model):
                 cut_size_value = rec.cut_width * rec.cut_length / 10000
             rec.cut_size_value = cut_size_value
             rec.total_size = cut_size_value * rec.num_of_pieces
-            rec.remain_size = rec.beginning_size - cut_size_value
 
     @api.depends('job_width', 'job_length', 'job_height', 'job_thickness', 'item_type_id.size')
     def _compute_job_size(self):
@@ -181,21 +180,30 @@ class StoneJobOrder(models.Model):
                                        help="UOM of one dimension")
 
     parent_id = fields.Many2one('stone.job.order', "Parent")
+    # Auto Filling Fields
+    width = fields.Integer('Width', digits='Stock Weight', readonly=True)
+    length = fields.Integer('Length', digits='Stock Weight', readonly=True)
+    height = fields.Integer('Height', digits='Stock Weight', readonly=True)
+    thickness = fields.Float('Thickness', digits='Stock Weight', readonly=True)
+    size_value = fields.Float("Size", digits='Stock Weight', readonly=True)
+    remain_size = fields.Float("Remain Size", digits='Stock Weight', readonly=1)
+    color_id = fields.Many2one(comodel_name='stone.item.color', string="Color", readonly=True)
+    choice_id = fields.Many2one('stone.item.choice', "Choice", readonly=True)
+    remarks = fields.Text("Remarks", readonly=True)
 
+    # User Filling Fields
     cut_width = fields.Integer('Cut Width', digits='Stock Weight')
     cut_length = fields.Integer('Cut Length', digits='Stock Weight')
     cut_height = fields.Integer('Cut Height', digits='Stock Weight')
     cut_thickness = fields.Float('Cut Thickness', digits='Stock Weight')
     cut_size_value = fields.Float("Cut Size", digits='Stock Weight', compute=_compute_cut_size)
-    beginning_size = fields.Float("Beginning Size",
-                                  digits='Stock Weight', compute=_get_beginning_size)
-    remain_size = fields.Float("Remain Size", digits='Stock Weight', compute=_compute_cut_size, store=True)
+
     num_of_pieces = fields.Float("Pieces", default=1)
     total_size = fields.Float("Total Size", compute=_compute_cut_size)
 
     cut_status = fields.Selection(selection=[('new', 'New'), ('under_cutting', 'Under Cutting'),
                                              ('completed', 'Completed'), ('cancel', 'Cancelled')],
-                                  string="Cut Status", default='new',
+                                  string="Cut Status", default='new', tracking=True,
                                   help="This is status of cut operation:\n"
                                        "* New: this is new status for job order where fields is open to edit.\n"
                                        "* Under Cutting: this is status for valid for cutting.\n"
@@ -228,8 +236,32 @@ class StoneJobOrder(models.Model):
                 raise UserError(_("It's not possible to delete job order which is cut status not in new/cancel!!! "))
         return super().unlink()
 
-    # ========== Business methods
-    def start_cutting(self):
+    @api.constrains('width', 'length')
+    def _check_values(self):
         for rec in self:
+            if self.width == 0.0 or self.length == 0.0:
+                raise Warning(_('Values should not be zero.'))
+
+    # ========== Business methods
+    def action_start_cutting_block(self):
+        for rec in self:
+            rec.item_id.cut_status = 'under_cutting'
             rec.cut_status = 'under_cutting'
+
+    def action_done_cutting_block(self):
+        for rec in self:
+            rec.cut_status = 'completed'
+            if rec.item_id.cut_status != 'item_completed' and rec.item_id.remain_size == 0.0:
+                remain_size = rec.item_id.size_value - rec.cut_size_value
+            else:
+                remain_size = rec.item_id.remain_size - rec.cut_size_value
+            rec.item_id.write({
+                'cut_status': 'cutting_completed',
+                'cut_size': rec.item_id.cut_size + rec.cut_size_value,
+                'remain_size': remain_size
+            })
+
+    def action_cancel(self):
+        for rec in self:
+            rec.cut_status = 'completed'
 # Ahmed Salama Code End.
