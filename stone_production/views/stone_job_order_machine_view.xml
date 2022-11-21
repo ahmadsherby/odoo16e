@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record id="stone_job_order_type_form_view" model="ir.ui.view">
-        <field name="name">stone.job.order.type.form.view</field>
-        <field name="model">stone.job.order.type</field>
+    <record id="stone_job_order_machine_form_view" model="ir.ui.view">
+        <field name="name">stone.job.order.machine.form.view</field>
+        <field name="model">stone.job.order.machine</field>
         <field name="arch" type="xml">
-            <form string="Job Order Type">
+            <form string="Job Order Machine">
                 <sheet>
                     <field name="active" invisible="1"/>
                     <div class="oe_button_box" name="button_box">
@@ -44,24 +44,24 @@
         </field>
     </record>
 
-    <record id="stone_job_order_type_tree_view" model="ir.ui.view">
-        <field name="name">stone.job.order.type.tree.view</field>
-        <field name="model">stone.job.order.type</field>
+    <record id="stone_job_order_machine_tree_view" model="ir.ui.view">
+        <field name="name">stone.job.order.machine.tree.view</field>
+        <field name="model">stone.job.order.machine</field>
         <field name="arch" type="xml">
-            <tree multi_edit="1" string="Job Order Type">
+            <tree multi_edit="1" string="Job Order Machine">
                 <field name="name"/>
                 <field name="item_type_id"/>
                 <field name="company_id" groups="base.group_multi_company"/>
             </tree>
         </field>
     </record>
-    <record id="stone_job_order_type_action" model="ir.actions.act_window">
-        <field name="name">Job Order Type</field>
-        <field name="res_model">stone.job.order.type</field>
+    <record id="stone_job_order_machine_action" model="ir.actions.act_window">
+        <field name="name">Job Order Machine</field>
+        <field name="res_model">stone.job.order.machine</field>
         <field name="view_mode">tree,form</field>
-        <field name="view_id" ref="stone_job_order_type_tree_view"/>
+        <field name="view_id" ref="stone_job_order_machine_tree_view"/>
     </record>
-    <menuitem id="stone_job_order_type_menu" name="Job Order Type"
+    <menuitem id="stone_job_order_machine_menu" name="Job Order Machine"
               parent="stone_production.stone_production_config_order"
-              action="stone_job_order_type_action" sequence="1"/>
+              action="stone_job_order_machine_action" sequence="2"/>
 </odoo>

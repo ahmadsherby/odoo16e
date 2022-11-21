@@ -4,8 +4,16 @@
               groups="stock.group_stock_manager,stock.group_stock_user"
               web_icon="stone_production,static/description/icon.png"
               name="Stone Production" sequence="141"/>
-    <menuitem id="stone_production_config"
-              parent="stone_production.stone_production_root"
-              groups="stock.group_stock_manager,stock.group_stock_user"
-              name="Configurations" sequence="1000"/>
+        <menuitem id="stone_production_config"
+                  parent="stone_production.stone_production_root"
+                  groups="stock.group_stock_manager,stock.group_stock_user"
+                  name="Configurations" sequence="1000"/>
+            <menuitem id="stone_production_config_item"
+                      parent="stone_production.stone_production_config"
+                      groups="stock.group_stock_manager,stock.group_stock_user"
+                      name="Items" sequence="1"/>
+            <menuitem id="stone_production_config_order"
+                      parent="stone_production.stone_production_config"
+                      groups="stock.group_stock_manager,stock.group_stock_user"
+                      name="Orders" sequence="2"/>
 </odoo>

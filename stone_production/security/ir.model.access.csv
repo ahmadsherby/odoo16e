@@ -14,3 +14,5 @@ access_stone_job_order_root,stone_job_order_root,model_stone_job_order,stock.gro
 access_stone_job_order_user,stone_job_order_user,model_stone_job_order,,1,0,0,0
 access_stone_job_order_type_root,stone_job_order_type_root,model_stone_job_order_type,stock.group_stock_manager,1,1,1,1
 access_stone_job_order_type_user,stone_job_order_type_user,model_stone_job_order_type,,1,0,0,0
+access_stone_job_order_machine_root,stone_job_order_machine_root,model_stone_job_order_machine,stock.group_stock_manager,1,1,1,1
+access_stone_job_order_machine_user,stone_job_order_machine_user,model_stone_job_order_machine,,1,0,0,0

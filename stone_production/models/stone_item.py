@@ -12,20 +12,23 @@ blue = '\x1b[34m'
 # Ahmed Salama Code Start ---->
 
 
-class StoneItemType(models.Model):
+class StoneItem(models.Model):
     _name = 'stone.item'
     _inherit = ['mail.thread', 'mail.activity.mixin', 'image.mixin']
     _description = "Stone ITem"
-    _rec_names_search = ['name', 'type_id', 'code', 'parent_id']
+    _rec_names_search = ['name', 'item_type_id', 'code', 'parent_id']
 
     # ========== compute methods
     @api.model
     def default_get(self, fields):
-        res = super().default_get(fields)
-        if not res.get('type_id'):
-            default_type = self.env['stone.item.type'].search([('item_default', '=', True)])
+        res = super(StoneItem, self).default_get(fields)
+        if not res.get('item_type_id'):
+            default_type = self.env['stone.item.type'].search([('item_default', '=', True)], limit=1)
             if default_type:
-                res['type_id'] = default_type.id
+                print("default_type:: ", default_type)
+                res['item_type_id'] = default_type.id
+            else:
+                raise UserError(_("No default item type has set!!!"))
         print("RES:: ", res)
         return res
 
@@ -46,7 +49,7 @@ class StoneItemType(models.Model):
         code = "%s-%s-%s%s" % (item_type, item_source, item_color, next_num and "-%s" % next_num or '')
         return code
 
-    @api.depends('type_id', 'color_id', 'source_id')
+    @api.depends('item_type_id', 'color_id', 'source_id')
     def _compute_code(self):
         """
         Compute code of product item from type/source/color/source serial
@@ -55,22 +58,22 @@ class StoneItemType(models.Model):
         for rec in self:
             code = '/'
             # logging.info(blue + "Start Compute code of item: %s" % rec.name + reset)
-            if rec.type_id and rec.source_id and rec.color_id:
+            if rec.item_type_id and rec.source_id and rec.color_id:
                 next_num = rec.source_id.next_num
 
-                code = rec._concat_code(rec.type_id.code, rec.source_id.code, rec.color_id.code, next_num)
+                code = rec._concat_code(rec.item_type_id.code, rec.source_id.code, rec.color_id.code, next_num)
             rec.code_compute = code
 
-    @api.depends('width', 'length', 'height', 'thickness', 'type_id.size', 'num_of_pieces')
+    @api.depends('width', 'length', 'height', 'thickness', 'item_type_id.size', 'num_of_pieces')
     def _compute_size(self):
         """
         Compute size form dimension and total suze according to number of pieces
         """
         for rec in self:
             size_value = 0
-            if rec.type_id.size == 'volume':
+            if rec.item_type_id.size == 'volume':
                 size_value = rec.width * rec.length * rec.height / 1000000
-            if rec.type_id.size == 'surface':
+            if rec.item_type_id.size == 'surface':
                 size_value = rec.width * rec.length / 10000
             rec.size_value = size_value
             rec.total_size = size_value * rec.num_of_pieces
@@ -82,9 +85,25 @@ class StoneItemType(models.Model):
         """
         for rec in self:
             rec.source_id = rec.parent_id.source_id.id
-            rec.type_id = rec.parent_id.type_id.id
+            rec.item_type_id = rec.parent_id.item_type_id.id
             rec.color_id = rec.parent_id.color_id.id
             rec.choice_id = rec.choice_id
+
+    @api.depends('job_order_ids')
+    def _compute_remain_size(self):
+        """
+        Compute beginning size to be used on cut if it's not new or cancelled and created before
+        """
+        for rec in self:
+            cut_size = 0
+            remain_size = rec.size_value
+            if rec.job_order_ids and isinstance(rec.id, int):
+                job_orders = self.env['stone.job.order'].search([('item_id', '=', rec.id),
+                                                                 ('cut_status', 'not in', ['new', 'cancel'])])
+                cut_size = sum(c.cut_size_value for c in job_orders)
+                remain_size -= cut_size
+            rec.cut_size = cut_size
+            rec.remain_size = remain_size
 
     name = fields.Char("Item Code", default='/')
     code_compute = fields.Char("Code CMP", default="/", compute=_compute_code)
@@ -93,9 +112,9 @@ class StoneItemType(models.Model):
     company_id = fields.Many2one('res.company', string='Company')
     parent_id = fields.Many2one('stone.item', "Parent")
     parent_item_code = fields.Char('parent_id.code')
-    type_id = fields.Many2one(comodel_name='stone.item.type', string="Type", required=True)
-    type_size = fields.Selection(related='type_id.size')
-    type_size_uom_id = fields.Many2one(related='type_id.size_uom_id')
+    item_type_id = fields.Many2one(comodel_name='stone.item.type', string="Type", required=True)
+    type_size = fields.Selection(related='item_type_id.size')
+    type_size_uom_id = fields.Many2one(related='item_type_id.size_uom_id')
     source_id = fields.Many2one(comodel_name='stone.item.source', string="Source", required=True)
     color_ids = fields.Many2many(related='source_id.color_ids')
     color_id = fields.Many2one(comodel_name='stone.item.color', string="Color", required=True)
@@ -108,6 +127,11 @@ class StoneItemType(models.Model):
     thickness = fields.Float('Thickness', digits='Stock Weight', readonly=True
                              , states={'draft': [('readonly', False)]})
     size_value = fields.Float("Size", digits='Stock Weight', compute=_compute_size)
+    cut_size = fields.Float("Cut Size", digits='Stock Weight', compute=_compute_remain_size,
+                            help="This field show the sum value for all job orders for this item which not new/cancel")
+    remain_size = fields.Float("Remain Size", digits='Stock Weight', compute=_compute_remain_size,
+                               help="This field show the remain value form "
+                                    "all job orders for this item which not new/cancel")
     dimension_uom_id = fields.Many2one('uom.uom', string="UOM", compute=_compute_dim_uom_name)
 
     choice_id = fields.Many2one('stone.item.choice', "Choice", required=True)
@@ -121,6 +145,7 @@ class StoneItemType(models.Model):
                                   "* Product Created: it mean product has created and uer can't edit it anymore.")
     product_id = fields.Many2one('product.product', "Product", ondelete='cascade')
     product_tmpl_id = fields.Many2one('product.template', "Template", ondelete='cascade')
+    job_order_ids = fields.One2many('stone.job.order', 'item_id', "Job Orders")
 
     # =========== Core Methods
     @api.model
@@ -134,25 +159,15 @@ class StoneItemType(models.Model):
         type_obj = self.env['stone.item.type']
         color_obj = self.env['stone.item.color']
         # logging.info(blue + "=== item write vals %s" % str(vals) + reset)
-        item_id = type_obj.browse(vals.get('type_id'))
+        item_type_id = type_obj.browse(vals.get('item_type_id'))
         color_id = color_obj.browse(vals.get('color_id'))
         source_id = source_obj.browse(vals.get('source_id'))
         next_num = source_id.next_num
-        vals['name'] = self._concat_code(item_id.code, source_id.code, color_id.code, source_id.next_num)
+        vals['name'] = self._concat_code(item_type_id.code, source_id.code, color_id.code, source_id.next_num)
         vals['after_save'] = True
-        item = super(StoneItemType, self).create(vals)
+        item = super(StoneItem, self).create(vals)
         item.source_id.write({'next_num': next_num+1})
         return item
-
-    # def unlink(self):
-    #     """
-    #     Pervent delete not draft items
-    #     :return: SUPER
-    #     """
-    #     for rec in self:
-    #         if rec.state != 'draft':
-    #             raise UserError(_("It's not possible to delete item which is not draft!!! "))
-    #     return super(StoneItemType, self).unlink()
 
     # ========== Business methods
     def create_product(self):
@@ -169,7 +184,7 @@ class StoneItemType(models.Model):
                     'default_code': rec.name,
                     'detailed_type': 'product',
                     'item_id': rec.id,
-                    'type_id': rec.type_id.id,
+                    'item_type_id': rec.item_type_id.id,
                     'source_id': rec.source_id.id,
                     'color_id': rec.color_id.id,
                     'width': rec.width,
@@ -204,6 +219,17 @@ class StoneItemType(models.Model):
                     raise UserError(
                         _("Name Must be Unique!!!\n %s already have this name." % other_ids.mapped(
                             'display_name')))
+
+    def open_orders(self):
+        """
+        open orders that use this item
+        :return: action view
+        """
+        self.ensure_one()
+        action = self.env["ir.actions.actions"]._for_xml_id('stone_production.stone_job_order_action')
+        action['context'] = {'default_item_id': self.id}
+        action['domain'] = [('id', 'in', self.job_order_ids.ids)]
+        return action
 
 
 class StoneItemChoice(models.Model):

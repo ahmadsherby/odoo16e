@@ -16,7 +16,7 @@ class ProductProduct(models.Model):
     _inherit = 'product.template'
 
     item_id = fields.Many2one('stone.item', "Stone Item")
-    type_id = fields.Many2one(comodel_name='stone.item.type', string="Stone Type")
+    item_type_id = fields.Many2one(comodel_name='stone.item.type', string="Stone Type")
     source_id = fields.Many2one(comodel_name='stone.item.source', string="Stone Source")
     color_id = fields.Many2one(comodel_name='stone.item.color', string="Stone Color")
     dimension_uom_id = fields.Many2one('uom.uom', string="UOM")

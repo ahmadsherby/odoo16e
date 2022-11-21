@@ -59,7 +59,7 @@ class StoneItemType(models.Model):
     size_uom_id = fields.Many2one('uom.uom', string="UOM", compute=_compute_size_uom_name)
     categ_id = fields.Many2one('product.category', 'Product Category', required=True,
                                help="Sets a category to be used on create product.")
-    item_ids = fields.One2many('stone.item', 'type_id', "Items")
+    item_ids = fields.One2many('stone.item', 'item_type_id', "Items")
     color = fields.Integer('Color', default=_default_color)
     item_default = fields.Boolean("Item Default?")
     manual_insert = fields.Boolean("Allow Manual Insert?")
@@ -115,7 +115,7 @@ class StoneItemType(models.Model):
     def _constrain_one_type_default(self):
         for rec in self:
             if isinstance(rec.id, int):
-                other_ids = self.search([('item_default', '=', True), ('id', '!=', rec.id)])
-                if other_ids:
+                other_ids = self.search([('item_default', '=', True)])
+                if len(other_ids) > 1:
                     raise UserError(_("Can't have more than 1 default type\n %s already set as default" % other_ids.mapped('display_name')))
 # Ahmed Salama Code End.

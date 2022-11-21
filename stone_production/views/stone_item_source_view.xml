@@ -63,6 +63,6 @@
         <field name="view_id" ref="stone_item_source_tree_view"/>
     </record>
     <menuitem id="stone_item_source_menu" name="Item Source"
-              parent="stone_production.stone_production_config"
+              parent="stone_production.stone_production_config_item"
               action="stone_item_source_action" sequence="3"/>
 </odoo>

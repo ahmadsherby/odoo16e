@@ -12,6 +12,17 @@
                 </header>
                 <sheet>
                     <field name="active" invisible="1"/>
+                    <field name="job_order_ids" invisible="1"/>
+                    <div class="oe_button_box" name="button_box">
+                        <button class="oe_stat_button" name="open_orders"
+                                icon="fa-list-ul"  type="object" attrs="{'invisible':[('job_order_ids','=',[])]}">
+                            <div class="o_field_widget o_stat_info">
+                                <span>
+                                    Job Orders
+                                </span>
+                            </div>
+                        </button>
+                    </div>
                     <field name="after_save" invisible="1"/>
                     <widget name="web_ribbon" title="Archived" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
                     <div class="oe_title">
@@ -25,10 +36,10 @@
                     </div>
                     <group>
                         <group string="Main Details">
-                            <field name="type_id" options="{'no_create': 1, 'no_create_edit': 1}"
+                            <field name="item_type_id" options="{'no_create': 1, 'no_create_edit': 1}"
                                    attrs="{'readonly':['|',('after_save', '=', True),('state', '!=', 'draft')]}"/>
                             <field name="type_size" invisible="1"/>
-                            <field name="source_id" domain="[('type_ids','in',type_id)]"  options="{'no_create': 1, 'no_create_edit': 1}"
+                            <field name="source_id" domain="[('type_ids','in',item_type_id)]"  options="{'no_create': 1, 'no_create_edit': 1}"
                                    attrs="{'readonly':['|',('after_save', '=', True),('state', '!=', 'draft')]}"/>
                             <field name="color_ids" invisible="1"/>
                             <field name="color_id" domain="[('id','in',color_ids)]"  options="{'no_create': 1, 'no_create_edit': 1}"
@@ -60,15 +71,25 @@
                                 <field name="thickness" class="oe_inline"/>
                                 <field name="dimension_uom_id" readonly="1" force_save="1"/>
                             </div>
-                            <b><label for="size_value"/></b>
+                            <label for="size_value" style="border-top:1 solid gray;"/>
                             <div class="o_row" name="size_value">
                                 <field name="size_value" class="oe_inline"/>
+                                <field name="type_size_uom_id" readonly="1" force_save="1"/>
+                            </div>
+                            <label for="cut_size" style="border-top:1 solid gray;"/>
+                            <div class="o_row" name="cut_size">
+                                <field name="cut_size" class="oe_inline"/>
+                                <field name="type_size_uom_id" readonly="1" force_save="1"/>
+                            </div>
+                            <label for="remain_size"/>
+                            <div class="o_row" name="remain_size">
+                                <field name="remain_size" class="oe_inline"/>
                                 <field name="type_size_uom_id" readonly="1" force_save="1"/>
                             </div>
                         </group>
                         <group string="Pieces">
                             <field name="num_of_pieces"
-                            attrs="{'readonly':['|',('type_id', '=', %(stone_production.item_type_block)d),('state', '!=', 'draft')]}"/>
+                            attrs="{'readonly':['|',('item_type_id', '=', %(stone_production.item_type_block)d),('state', '!=', 'draft')]}"/>
                             <b><label for="total_size"/></b>
                             <div class="o_row" name="total_size">
                                 <field name="total_size" class="oe_inline"/>
@@ -98,7 +119,7 @@
                 <!--                <field name="code_num" invisible="1"/>-->
                 <field name="code_compute" invisible="1"/>
                 <field name="name"/>
-                <field name="type_id" optional="show"/>
+                <field name="item_type_id" optional="show"/>
                 <field name="parent_id" optional="hide"/>
                 <field name="type_size" invisible="1"/>
                 <field name="source_id" optional="show"/>

@@ -1,11 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-       <record id="stone_job_order_type_cutting_block" model="stone.job.order.type">
-           <field name="name">Cutting Blocks</field>
-       </record>
+        <record id="seq_job_order" model="ir.sequence">
+            <field name="name">Stone Job Order</field>
+            <field name="code">stone.job.order</field>
+            <field name="prefix">JO/</field>
+            <field name="padding">4</field>
+        </record>
+        <!-- types-->
+        <record id="stone_job_order_type_cutting_block" model="stone.job.order.type">
+            <field name="name">Cutting Blocks</field>
+            <field name="item_type_id" ref="stone_production.item_type_block"/>
+        </record>
         <record id="stone_job_order_type_cutting_slab" model="stone.job.order.type">
-           <field name="name">Cutting Slabs</field>
-       </record>
+            <field name="name">Cutting Slabs</field>
+            <field name="item_type_id" ref="stone_production.item_type_slab"/>
+        </record>
+        <!-- Machines-->
+        <record id="stone_job_order_machine_cutting_block" model="stone.job.order.machine">
+            <field name="name">Block Cutting Machine</field>
+            <field name="item_type_id" ref="stone_production.item_type_block"/>
+        </record>
+        <record id="stone_job_order_machine_cutting_slab" model="stone.job.order.machine">
+            <field name="name">Slab  Cutting Machine</field>
+            <field name="item_type_id" ref="stone_production.item_type_slab"/>
+        </record>
     </data>
 </odoo>

@@ -50,6 +50,6 @@
         <field name="view_id" ref="stone_item_color_tree_view"/>
     </record>
     <menuitem id="stone_item_color_menu" name="Item Color"
-              parent="stone_production.stone_production_config"
+              parent="stone_production.stone_production_config_item"
               action="stone_item_color_action" sequence="2"/>
 </odoo>
