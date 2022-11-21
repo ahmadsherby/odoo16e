@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <menuitem id="stone_job_order_menu_root" name="Job Orders"
-              parent="stone_production.stone_production_root" sequence="1"/>
+
     <record id="stone_job_order_form_view" model="ir.ui.view">
         <field name="name">stone.job.order.form.view</field>
         <field name="model">stone.job.order</field>
@@ -30,9 +29,10 @@
                                    attrs="{'readonly':[('cut_status', '!=', 'new')]}"
                                    domain="[('item_type_id', '=', item_type_id)]"/>
                             <field name="job_type_id" options="{'no_create': 1, 'no_create_edit': 1}"
-                                    readonly="1" force_save="1"/>
+                                   readonly="1" force_save="1"/>
                             <field name="item_type_id" readonly="1" force_save="1"/>
                             <field name="job_machine_id" options="{'no_create': 1, 'no_create_edit': 1}"
+                                   domain="[('item_type_id', '=', item_type_id)]"
                                    attrs="{'readonly':[('cut_status', '!=', 'new')]}"/>
                             <field name="parent_id" readonly="1" force_save="1"/>
                         </group>
@@ -46,7 +46,7 @@
                                 <span class="oe_inline"> / </span>
                                 <field name="beginning_size" class="oe_inline"/>
                                 <span style="color:white">XX</span>
-                                <field name="type_size_uom_id" class="oe_inline" readonly="1" force_save="1"/>
+                                <field name="item_size_uom_id" class="oe_inline" readonly="1" force_save="1"/>
                             </div>
                         </group>
                     </group>
@@ -145,9 +145,131 @@
         <field name="res_model">stone.job.order</field>
         <field name="view_mode">tree,form</field>
         <field name="view_id" ref="stone_job_order_tree_view"/>
+        <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'tree', 'view_id': ref('stone_production.stone_job_order_tree_view')}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('stone_production.stone_job_order_form_view')})]"/>
     </record>
 
     <!--Blocks-->
+    <record id="stone_job_order_block_form_view" model="ir.ui.view">
+        <field name="name">stone.job.order.block.form.view</field>
+        <field name="model">stone.job.order</field>
+        <field name="arch" type="xml">
+            <form string="Job Order(Cutting Block)">
+                <header>
+                    <button name="start_cutting" string="Start Cut" type="object" icon="fa-wrench"
+                            attrs="{'invisible': [('cut_status', '!=', 'new')]}" class="oe_highlight"/>
+                    <field name="cut_status" widget="statusbar" statusbar_visible="new,under_cutting,completed"/>
+                </header>
+                <sheet>
+                    <field name="job_type" invisible="1"/>
+                    <field name="active" invisible="1"/>
+                    <widget name="web_ribbon" title="Archived" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
+                    <div class="oe_title">
+                        <label for="name" string="Item"/>
+                        <h1>
+                            <div class="d-flex">
+                                <field class="text-break" name="name" readonly="1" force_save="1"/>
+                            </div>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Main Details">
+                            <field name="item_id" options="{'no_create': 1, 'no_create_edit': 1}"
+                                   attrs="{'readonly':[('cut_status', '!=', 'new')]}"
+                                   domain="[('item_type_id', '=', item_type_id)]"/>
+                            <field name="job_type_id" options="{'no_create': 1, 'no_create_edit': 1}"
+                                   readonly="1" force_save="1"/>
+                            <field name="item_type_id" readonly="1" force_save="1"/>
+                            <field name="job_machine_id" options="{'no_create': 1, 'no_create_edit': 1}"
+                                   domain="[('item_type_id', '=', item_type_id)]"
+                                   attrs="{'readonly':[('cut_status', '!=', 'new')]}"/>
+                            <field name="parent_id" readonly="1" force_save="1"/>
+                        </group>
+                        <group string="Extra Details">
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="create_date" readonly="1" force_save="1"/>
+                            <field name="item_type_size" invisble="1"/>
+                            <label for="remain_size" />
+                            <div clas="o_row">
+                                <field name="remain_size" class="oe_inline"/>
+                                <span class="oe_inline"> / </span>
+                                <field name="beginning_size" class="oe_inline"/>
+                                <span style="color:white">XX</span>
+                                <field name="item_size_uom_id" class="oe_inline" readonly="1" force_save="1"/>
+                            </div>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Operation">
+                            <group>
+                                <group string="Cut Dimensions">
+                                    <label for="cut_width" />
+                                    <div class="o_row" name="cut_width">
+                                        <field name="cut_width" class="oe_inline" attrs="{'readonly':[('cut_status', '!=', 'new')]}"/>
+                                        <field name="dimension_uom_id" readonly="1" force_save="1"/>
+                                    </div>
+                                    <label for="cut_length"/>
+                                    <div class="o_row" name="cut_length">
+                                        <field name="cut_length" class="oe_inline" attrs="{'readonly':[('cut_status', '!=', 'new')]}"/>
+                                        <field name="dimension_uom_id" readonly="1" force_save="1"/>
+                                    </div>
+                                    <label for="cut_height" attrs="{'invisible':[('item_type_size','!=', 'volume')]}"/>
+                                    <div class="o_row" name="cut_height" attrs="{'invisible':[('item_type_size','!=', 'volume')]}">
+                                        <field name="cut_height" class="oe_inline" attrs="{'readonly':[('cut_status', '!=', 'new')]}"/>
+                                        <field name="dimension_uom_id" readonly="1" force_save="1"/>
+                                    </div>
+                                    <label for="cut_thickness" attrs="{'invisible':[('item_type_size','in', ('volume', 'surface'))]}"/>
+                                    <div class="o_row" name="cut_thickness" attrs="{'invisible':[('item_type_size','in', ('volume', 'surface'))]}">
+                                        <field name="cut_thickness" class="oe_inline" attrs="{'readonly':[('cut_status', '!=', 'new')]}"/>
+                                        <field name="dimension_uom_id" readonly="1" force_save="1"/>
+                                    </div>
+                                    <b><label for="cut_size_value"/></b>
+                                    <div class="o_row" name="cut_size_value">
+                                        <field name="cut_size_value" class="oe_inline"/>
+                                        <field name="type_size_uom_id" readonly="1" force_save="1"/>
+                                    </div>
+                                </group>
+                                <group string="Final Dimensions">
+                                    <label for="job_width" />
+                                    <div class="o_row" name="job_width">
+                                        <field name="job_width" class="oe_inline" attrs="{'readonly':[('cut_status', '!=', 'new')]}"/>
+                                        <field name="dimension_uom_id" readonly="1" force_save="1"/>
+                                    </div>
+                                    <label for="job_length"/>
+                                    <div class="o_row" name="job_length">
+                                        <field name="job_length" class="oe_inline" attrs="{'readonly':[('cut_status', '!=', 'new')]}"/>
+                                        <field name="dimension_uom_id" readonly="1" force_save="1"/>
+                                    </div>
+                                    <label for="job_height" attrs="{'invisible':[('item_type_size','!=', 'volume')]}"/>
+                                    <div class="o_row" name="job_height" attrs="{'invisible':[('item_type_size','!=', 'volume')]}">
+                                        <field name="job_height" class="oe_inline" attrs="{'readonly':[('cut_status', '!=', 'new')]}"/>
+                                        <field name="dimension_uom_id" readonly="1" force_save="1"/>
+                                    </div>
+                                    <label for="job_thickness" attrs="{'invisible':[('item_type_size','in', ('volume', 'surface'))]}"/>
+                                    <div class="o_row" name="job_thickness" attrs="{'invisible':[('item_type_size','in', ('volume', 'surface'))]}">
+                                        <field name="job_thickness" class="oe_inline" attrs="{'readonly':[('cut_status', '!=', 'new')]}"/>
+                                        <field name="dimension_uom_id" readonly="1" force_save="1"/>
+                                    </div>
+                                    <b><label for="job_size_value"/></b>
+                                    <div class="o_row" name="job_size_value">
+                                        <field name="job_size_value" class="oe_inline"/>
+                                        <field name="type_size_uom_id" readonly="1" force_save="1"/>
+                                    </div>
+                                </group>
+
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
     <record id="stone_job_order_action_block" model="ir.actions.act_window">
         <field name="name">Cutting Blocks</field>
         <field name="res_model">stone.job.order</field>
@@ -155,11 +277,140 @@
         <field name="view_id" ref="stone_job_order_tree_view"/>
         <field name="domain">[('job_type','=', 'block')]</field>
         <field name="context">{'default_job_type': 'block'}</field>
+        <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'tree', 'view_id': ref('stone_production.stone_job_order_tree_view')}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('stone_production.stone_job_order_block_form_view')})]"/>
     </record>
     <menuitem id="stone_job_order_menu_block"
               parent="stone_production.stone_job_order_menu_root"
               action="stone_job_order_action_block" sequence="1"/>
     <!--Blocks-->
+    <record id="stone_job_order_slab_form_view" model="ir.ui.view">
+        <field name="name">stone.job.order.form.view</field>
+        <field name="model">stone.job.order</field>
+        <field name="arch" type="xml">
+            <form string="Job Order(Cutting Slab)">
+                <header>
+                    <button name="start_cutting" string="Start Cut" type="object" icon="fa-wrench"
+                            attrs="{'invisible': [('cut_status', '!=', 'new')]}" class="oe_highlight"/>
+                    <field name="cut_status" widget="statusbar" statusbar_visible="new,under_cutting,completed"/>
+                </header>
+                <sheet>
+                    <field name="job_type" invisible="1"/>
+                    <field name="active" invisible="1"/>
+                    <widget name="web_ribbon" title="Archived" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
+                    <div class="oe_title">
+                        <label for="name" string="Item"/>
+                        <h1>
+                            <div class="d-flex">
+                                <field class="text-break" name="name" readonly="1" force_save="1"/>
+                            </div>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Main Details">
+                            <field name="parent_id" required="1" force_save="1"
+                                   domain="[('job_type','=','block')]"/>
+                            <field name="item_id" options="{'no_create': 1, 'no_create_edit': 1}"
+                                   readonly="1" force_save="1" domain="[('item_type_id', '=', item_type_id)]"/>
+                            <field name="job_type_id" options="{'no_create': 1, 'no_create_edit': 1}"
+                                   readonly="1" force_save="1"/>
+                            <field name="item_type_id" readonly="1" force_save="1"/>
+                            <field name="job_machine_id" options="{'no_create': 1, 'no_create_edit': 1}"
+                                   domain="[('item_type_id', '=', item_type_id)]"
+                                   attrs="{'readonly':[('cut_status', '!=', 'new')]}"/>
+                        </group>
+                        <group string="Extra Details">
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="create_date" readonly="1" force_save="1"/>
+                            <field name="item_type_size" invisble="1"/>
+                            <label for="remain_size" />
+                            <div clas="o_row">
+                                <field name="remain_size" class="oe_inline"/>
+                                <span class="oe_inline"> / </span>
+                                <field name="beginning_size" class="oe_inline"/>
+                                <span style="color:white">XX</span>
+                                <field name="item_size_uom_id" class="oe_inline" readonly="1" force_save="1"/>
+                            </div>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Operation">
+                            <group>
+                                <group string="Cut Dimensions">
+                                    <label for="cut_width" />
+                                    <div class="o_row" name="cut_width">
+                                        <field name="cut_width" class="oe_inline" attrs="{'readonly':[('cut_status', '!=', 'new')]}"/>
+                                        <field name="dimension_uom_id" readonly="1" force_save="1"/>
+                                    </div>
+                                    <label for="cut_length"/>
+                                    <div class="o_row" name="cut_length">
+                                        <field name="cut_length" class="oe_inline" attrs="{'readonly':[('cut_status', '!=', 'new')]}"/>
+                                        <field name="dimension_uom_id" readonly="1" force_save="1"/>
+                                    </div>
+                                    <label for="cut_height" attrs="{'invisible':[('item_type_size','!=', 'volume')]}"/>
+                                    <div class="o_row" name="cut_height" attrs="{'invisible':[('item_type_size','!=', 'volume')]}">
+                                        <field name="cut_height" class="oe_inline" attrs="{'readonly':[('cut_status', '!=', 'new')]}"/>
+                                        <field name="dimension_uom_id" readonly="1" force_save="1"/>
+                                    </div>
+                                    <label for="cut_thickness" attrs="{'invisible':[('item_type_size','in', ('volume', 'surface'))]}"/>
+                                    <div class="o_row" name="cut_thickness" attrs="{'invisible':[('item_type_size','in', ('volume', 'surface'))]}">
+                                        <field name="cut_thickness" class="oe_inline" attrs="{'readonly':[('cut_status', '!=', 'new')]}"/>
+                                        <field name="dimension_uom_id" readonly="1" force_save="1"/>
+                                    </div>
+                                    <label for="cut_size_value"/>
+                                    <div class="o_row" name="cut_size_value">
+                                        <field name="cut_size_value" class="oe_inline"/>
+                                        <field name="type_size_uom_id" readonly="1" force_save="1"/>
+                                    </div>
+                                    <field name="num_of_pieces" style="border-top:1px solid rgba(0, 0, 0, 0.15)" required="1"/>
+                                    <label for="total_size"/>
+                                    <div class="o_row" name="total_size">
+                                        <field name="total_size" class="oe_inline"/>
+                                        <span class="oe_inline">PC/</span>
+                                        <field name="type_size_uom_id" readonly="1" force_save="1"/>
+                                    </div>
+                                </group>
+                                <group string="Final Dimensions">
+                                    <label for="job_width" />
+                                    <div class="o_row" name="job_width">
+                                        <field name="job_width" class="oe_inline" attrs="{'readonly':[('cut_status', '!=', 'new')]}"/>
+                                        <field name="dimension_uom_id" readonly="1" force_save="1"/>
+                                    </div>
+                                    <label for="job_length"/>
+                                    <div class="o_row" name="job_length">
+                                        <field name="job_length" class="oe_inline" attrs="{'readonly':[('cut_status', '!=', 'new')]}"/>
+                                        <field name="dimension_uom_id" readonly="1" force_save="1"/>
+                                    </div>
+                                    <label for="job_height" attrs="{'invisible':[('item_type_size','!=', 'volume')]}"/>
+                                    <div class="o_row" name="job_height" attrs="{'invisible':[('item_type_size','!=', 'volume')]}">
+                                        <field name="job_height" class="oe_inline" attrs="{'readonly':[('cut_status', '!=', 'new')]}"/>
+                                        <field name="dimension_uom_id" readonly="1" force_save="1"/>
+                                    </div>
+                                    <label for="job_thickness" attrs="{'invisible':[('item_type_size','in', ('volume', 'surface'))]}"/>
+                                    <div class="o_row" name="job_thickness" attrs="{'invisible':[('item_type_size','in', ('volume', 'surface'))]}">
+                                        <field name="job_thickness" class="oe_inline" attrs="{'readonly':[('cut_status', '!=', 'new')]}"/>
+                                        <field name="dimension_uom_id" readonly="1" force_save="1"/>
+                                    </div>
+                                    <b><label for="job_size_value"/></b>
+                                    <div class="o_row" name="job_size_value">
+                                        <field name="job_size_value" class="oe_inline"/>
+                                        <field name="type_size_uom_id" readonly="1" force_save="1"/>
+                                    </div>
+                                </group>
+
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
     <record id="stone_job_order_action_slab" model="ir.actions.act_window">
         <field name="name">Cutting Slabs</field>
         <field name="res_model">stone.job.order</field>
@@ -167,6 +418,9 @@
         <field name="view_id" ref="stone_job_order_tree_view"/>
         <field name="domain">[('job_type','=', 'slab')]</field>
         <field name="context">{'default_job_type': 'slab'}</field>
+        <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'tree', 'view_id': ref('stone_production.stone_job_order_tree_view')}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('stone_production.stone_job_order_slab_form_view')})]"/>
     </record>
     <menuitem id="stone_job_order_menu_slab"
               parent="stone_production.stone_job_order_menu_root"

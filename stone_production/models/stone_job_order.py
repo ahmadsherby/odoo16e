@@ -93,7 +93,6 @@ class StoneJobOrder(models.Model):
     _description = "Stone Job Order"
     _inherit = ['mail.thread', 'mail.activity.mixin', 'image.mixin']
     _rec_names_search = ['name', 'item_id', 'item_type_id', 'parent_id']
-    _rec_name = 'item_id'
 
     # ========== compute methods
     @api.model
@@ -113,15 +112,30 @@ class StoneJobOrder(models.Model):
         for rec in self:
             beginning_size = 0
             if rec.item_id and isinstance(rec.id, int):
-                before_job_order = self.env['stone.job.order'].search([('item_id', '=', rec.item_id.id),
-                                                                       ('id', '<', rec.id),
-                                                                       ('cut_status', 'not in', ['new', 'cancel'])])
-                before_cut_size = sum(c.cut_size_value for c in before_job_order)
-                beginning_size = rec.item_id.size_value - before_cut_size
+                if rec.job_type == 'block':
+                    # Get previous blocks that is cur from this main item
+                    before_job_order = self.env['stone.job.order'].search([('item_id', '=', rec.item_id.id),
+                                                                           ('job_type', '=', 'block'),
+                                                                           ('id', '<', rec.id),
+                                                                           ('cut_status', 'not in', ['new', 'cancel'])])
+                    beginning_size = rec.item_id.size_value - sum(c.cut_size_value for c in before_job_order)
+                elif rec.job_type == 'slab' and rec.parent_id:
+                    # Get Other slabs that is cut from this block parent
+                    before_job_order = self.env['stone.job.order'].search([('parent_id', '=', rec.parent_id.id),
+                                                                           ('job_type', '=', 'slab'),
+                                                                           ('id', '<', rec.id),
+                                                                           ('cut_status', 'not in', ['new', 'cancel'])])
+                    beginning_size = rec.parent_id.cut_size_value - sum(c.cut_size_value for c in before_job_order)
             rec.beginning_size = beginning_size
 
+    @api.onchange('parent_id')
+    def _onchange_parent_id(self):
+        for rec in self:
+            if rec.parent_id:
+                rec.item_id = rec.parent_id.item_id
+
     @api.depends('cut_width', 'cut_length', 'cut_height', 'cut_thickness',
-                 'item_type_id.size', 'beginning_size')
+                 'item_type_id.size', 'beginning_size', 'num_of_pieces')
     def _compute_cut_size(self):
         """
         Compute size form dimension and total suze according to number of pieces
@@ -133,6 +147,7 @@ class StoneJobOrder(models.Model):
             if rec.item_type_id.size == 'surface':
                 cut_size_value = rec.cut_width * rec.cut_length / 10000
             rec.cut_size_value = cut_size_value
+            rec.total_size = cut_size_value * rec.num_of_pieces
             rec.remain_size = rec.beginning_size - cut_size_value
 
     @api.depends('job_width', 'job_length', 'job_height', 'job_thickness', 'item_type_id.size')
@@ -156,9 +171,14 @@ class StoneJobOrder(models.Model):
     job_type = fields.Selection(job_order_types, "Job Type", required=True)
     job_machine_id = fields.Many2one('stone.job.order.machine', "Job Machine")
     item_id = fields.Many2one('stone.item', "Item", required=True)
-    item_type_size = fields.Selection(related='item_id.item_type_id.size')
-    type_size_uom_id = fields.Many2one(related='item_id.item_type_id.size_uom_id')
-    dimension_uom_id = fields.Many2one(related='item_id.dimension_uom_id')
+    item_type_size = fields.Selection(related='job_type_id.item_type_id.size')
+    type_size_uom_id = fields.Many2one(related='job_type_id.item_type_id.size_uom_id',
+                                       help="UOM of size to be used on current size")
+    item_size_uom_id = fields.Many2one(related='item_id.item_type_id.size_uom_id',
+                                       help="UOM of size of item to be used on remaining")
+
+    dimension_uom_id = fields.Many2one(related='item_id.dimension_uom_id',
+                                       help="UOM of one dimension")
 
     parent_id = fields.Many2one('stone.job.order', "Parent")
 
@@ -170,6 +190,8 @@ class StoneJobOrder(models.Model):
     beginning_size = fields.Float("Beginning Size",
                                   digits='Stock Weight', compute=_get_beginning_size)
     remain_size = fields.Float("Remain Size", digits='Stock Weight', compute=_compute_cut_size, store=True)
+    num_of_pieces = fields.Float("Pieces", default=1)
+    total_size = fields.Float("Total Size", compute=_compute_cut_size)
 
     cut_status = fields.Selection(selection=[('new', 'New'), ('under_cutting', 'Under Cutting'),
                                              ('completed', 'Completed'), ('cancel', 'Cancelled')],

@@ -55,12 +55,14 @@
             </tree>
         </field>
     </record>
+
     <record id="stone_job_order_machine_action" model="ir.actions.act_window">
         <field name="name">Job Order Machine</field>
         <field name="res_model">stone.job.order.machine</field>
         <field name="view_mode">tree,form</field>
         <field name="view_id" ref="stone_job_order_machine_tree_view"/>
     </record>
+
     <menuitem id="stone_job_order_machine_menu" name="Job Order Machine"
               parent="stone_production.stone_production_config_order"
               action="stone_job_order_machine_action" sequence="2"/>

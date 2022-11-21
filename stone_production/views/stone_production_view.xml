@@ -4,6 +4,9 @@
               groups="stock.group_stock_manager,stock.group_stock_user"
               web_icon="stone_production,static/description/icon.png"
               name="Stone Production" sequence="141"/>
+        <menuitem id="stone_job_order_menu_root" name="Job Orders"
+                  parent="stone_production.stone_production_root"
+                  sequence="1"/>
         <menuitem id="stone_production_config"
                   parent="stone_production.stone_production_root"
                   groups="stock.group_stock_manager,stock.group_stock_user"
