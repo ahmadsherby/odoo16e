@@ -12,6 +12,7 @@
             <field name="name">Block</field>
             <field name="code">BL</field>
             <field name="size" >volume</field>
+            <field name="manual_insert" >1</field>
             <field name="item_default" >1</field>
             <field name="categ_id" ref="product_category_stones"/>
         </record>

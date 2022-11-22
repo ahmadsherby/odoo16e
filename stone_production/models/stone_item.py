@@ -59,9 +59,11 @@ class StoneItem(models.Model):
             code = '/'
             # logging.info(blue + "Start Compute code of item: %s" % rec.name + reset)
             if rec.item_type_id and rec.source_id and rec.color_id:
-                next_num = rec.source_id.next_num
-
-                code = rec._concat_code(rec.item_type_id.code, rec.source_id.code, rec.color_id.code, next_num)
+                if rec.item_type_id == self.env.ref('stone_production.item_type_block'):
+                    next_num = rec.source_id.next_num
+                    code = rec._concat_code(rec.item_type_id.code, rec.source_id.code, rec.color_id.code, next_num)
+                if rec.item_type_id == self.env.ref('stone_production.item_type_slab'):
+                    code = "%s-%s*%s*%s" % (rec.color_id.code, rec.length, rec.width, rec.thickness)
             rec.code_compute = code
 
     @api.depends('width', 'length', 'height', 'thickness', 'item_type_id.size', 'num_of_pieces')
@@ -84,10 +86,11 @@ class StoneItem(models.Model):
         Load Details of type and source and color from parent
         """
         for rec in self:
-            rec.source_id = rec.parent_id.source_id.id
-            rec.item_type_id = rec.parent_id.item_type_id.id
-            rec.color_id = rec.parent_id.color_id.id
-            rec.choice_id = rec.choice_id
+            if rec.parent_id:
+                rec.source_id = rec.parent_id.source_id.id
+                rec.item_type_id = rec.parent_id.item_type_id.id
+                rec.color_id = rec.parent_id.color_id.id
+                rec.choice_id = rec.choice_id
 
     name = fields.Char("Item Code", default='/')
     code_compute = fields.Char("Code CMP", default="/", compute=_compute_code)
@@ -137,6 +140,7 @@ class StoneItem(models.Model):
     product_id = fields.Many2one('product.product', "Product", ondelete='cascade')
     product_tmpl_id = fields.Many2one('product.template', "Template", ondelete='cascade')
     job_order_ids = fields.One2many('stone.job.order', 'item_id', "Job Orders")
+    cut_job_order_id = fields.Many2one('stone.job.order', "Cut Job Order")
 
     # =========== Core Methods
     @api.model
@@ -153,11 +157,18 @@ class StoneItem(models.Model):
         item_type_id = type_obj.browse(vals.get('item_type_id'))
         color_id = color_obj.browse(vals.get('color_id'))
         source_id = source_obj.browse(vals.get('source_id'))
-        next_num = source_id.next_num
-        vals['name'] = self._concat_code(item_type_id.code, source_id.code, color_id.code, source_id.next_num)
+        code = "/"
+        next_num = False
+        if item_type_id == self.env.ref('stone_production.item_type_block'):
+            next_num = source_id.next_num
+            code = self._concat_code(item_type_id.code, source_id.code, color_id.code, source_id.next_num)
+        elif item_type_id == self.env.ref('stone_production.item_type_slab'):
+            code = "%s-%s*%s*%s" % (color_id.code, vals.get('length'), vals.get('width'), vals.get('thickness'))
+        vals['name'] = code
         vals['after_save'] = True
         item = super(StoneItem, self).create(vals)
-        item.source_id.write({'next_num': next_num+1})
+        if next_num:
+            item.source_id.write({'next_num': next_num+1})
         return item
 
     # ========== Business methods
@@ -194,7 +205,7 @@ class StoneItem(models.Model):
                 rec.product_tmpl_id = rec.product_id.product_tmpl_id.id
                 rec.state = 'product'
                 # update it's remain size with cut size
-                rec.remain_size = rec.cut_size_value
+                rec.remain_size = rec.size_value
                 # Add qty as stock for location of source with num_of_pieces
                 quant = quant_obj.create({'product_id': rec.product_id.id,
                                           'inventory_quantity': rec.total_size,

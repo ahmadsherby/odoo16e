@@ -7,7 +7,7 @@
             <form string="Item">
                 <header>
                     <button name="action_block_cut" string="Start Block Cut" icon="fa-wrench" type="object" class="btn-warning rounded"
-                            attrs="{'invisible':['|',('cut_status','not in',('new', 'cutting_completed')),('item_type_id','!=', %(stone_production.item_type_block)d)]}"
+                            attrs="{'invisible':['|','|',('state','!=','product'),('cut_status','not in',('new', 'cutting_completed')),('item_type_id','!=', %(stone_production.item_type_block)d)]}"
                             help="This Action will start create Job order with this block details"/>
                     <button name="create_product" string="Create Product" states="draft"
                             icon="fa-plus" type="object" class="oe_highlight"/>
@@ -49,6 +49,7 @@
                     <group>
                         <group string="Main Details">
                             <field name="item_type_id" options="{'no_create': 1, 'no_create_edit': 1}"
+                                   domain="[('manual_insert', '=', True)]"
                                    attrs="{'readonly':['|',('after_save', '=', True),('state', '!=', 'draft')]}"/>
                             <field name="type_size" invisible="1"/>
                             <field name="source_id" domain="[('type_ids','in',item_type_id)]"
@@ -80,7 +81,7 @@
                                 <field name="dimension_uom_id" readonly="1" force_save="1"/>
                             </div>
                             <label for="thickness" attrs="{'invisible':[('type_size','!=', 'surface')]}"/>
-                            <div class="o_row" name="thickness" attrs="{'invisible':[('type_size','in', ('volume', 'surface'))]}">
+                            <div class="o_row" name="thickness" attrs="{'invisible':[('type_size','!=', 'surface')]}">
                                 <field name="thickness" class="oe_inline"/>
                                 <field name="dimension_uom_id" readonly="1" force_save="1"/>
                             </div>
@@ -113,6 +114,7 @@
                         <group string="Other Details">
                             <field name="company_id" groups="base.group_multi_company"/>
                             <field name="parent_id" readonly="1" force_save="1"/>
+                            <field name="cut_job_order_id" readonly="1" force_save="1" attrs="{'invisible':[('cut_job_order_id','=', False)]}"/>
                         </group>
                     </group>
                 </sheet>
@@ -134,6 +136,7 @@
                 <field name="name"/>
                 <field name="item_type_id" optional="show" attrs="{'readonly':['|',('after_save', '=', True),('state', '!=', 'draft')]}"/>
                 <field name="parent_id" optional="hide" attrs="{'readonly':['|',('after_save', '=', True),('state', '!=', 'draft')]}"/>
+                <field name="cut_job_order_id" optional="hide" attrs="{'readonly':['|',('after_save', '=', True),('state', '!=', 'draft')]}"/>
                 <field name="type_size" invisible="1"/>
                 <field name="source_id" optional="show" attrs="{'readonly':['|',('after_save', '=', True),('state', '!=', 'draft')]}"/>
                 <field name="color_ids" invisible="1"/>
@@ -153,7 +156,7 @@
                 <field name="cut_status" optional="show" widget="badge" decoration-info="state == ('new', 'cutting_completed')"
                        decoration-warning="state == 'under_cutting'" decoration-success="state == 'item_completed'"/>
                 <button name="action_block_cut" string="Start Block Cut" icon="fa-wrench" type="object" class="btn-warning rounded"
-                        attrs="{'invisible':['|',('cut_status','not in',('new', 'cutting_completed')),('item_type_id','!=', %(stone_production.item_type_block)d)]}"
+                        attrs="{'invisible':['|','|',('state','!=','product'),('cut_status','not in',('new', 'cutting_completed')),('item_type_id','!=', %(stone_production.item_type_block)d)]}"
                         help="This Action will start create Job order with this block details"/>
             </tree>
         </field>

@@ -135,7 +135,7 @@ class StoneJobOrder(models.Model):
                 rec.item_id = rec.parent_id.item_id
 
     @api.depends('cut_width', 'cut_length', 'cut_height', 'cut_thickness',
-                 'item_type_id.size', 'num_of_pieces')
+                 'item_type_id.size', 'cut_num_of_pieces')
     def _compute_cut_size(self):
         """
         Compute size form dimension and total suze according to number of pieces
@@ -147,12 +147,12 @@ class StoneJobOrder(models.Model):
             if rec.item_type_id.size == 'surface':
                 cut_size_value = rec.cut_length * rec.cut_width / 10000
             rec.cut_size_value = cut_size_value
-            rec.total_size = cut_size_value * rec.num_of_pieces
+            rec.cut_total_size = cut_size_value * rec.cut_num_of_pieces
 
-    @api.depends( 'job_length', 'job_width', 'job_height', 'job_thickness', 'item_type_id.size')
+    @api.depends('job_length', 'job_width', 'job_height', 'job_thickness', 'item_type_id.size')
     def _compute_job_size(self):
         """
-        Compute size form dimension and total suze according to number of pieces
+        Compute size form dimension and total size according to number of pieces
         """
         for rec in self:
             job_size_value = 0
@@ -161,6 +161,21 @@ class StoneJobOrder(models.Model):
             if rec.item_type_id.size == 'surface':
                 job_size_value = rec.job_length * rec.job_width / 10000
             rec.job_size_value = job_size_value
+
+    @api.depends('conv_width', 'conv_length', 'conv_height', 'conv_thickness',
+                 'conv_type_id.item_type_id.size', 'conv_num_of_pieces')
+    def _compute_conv_size(self):
+        """
+        Compute Convert size dimension and total size according to number of pieces
+        """
+        for rec in self:
+            conv_size_value = 0
+            if rec.conv_type_id.item_type_id.size == 'volume':
+                conv_size_value = rec.conv_length * rec.conv_width * rec.conv_height / 1000000
+            if rec.conv_type_id.item_type_id.size == 'surface':
+                conv_size_value = rec.conv_length * rec.conv_width / 10000
+            rec.conv_size_value = conv_size_value
+            rec.conv_total_size = conv_size_value * rec.conv_num_of_pieces
 
     name = fields.Char("Job Order", default="/", required=True)
     active = fields.Boolean('Active', default=True)
@@ -181,39 +196,65 @@ class StoneJobOrder(models.Model):
 
     parent_id = fields.Many2one('stone.job.order', "Parent")
     # Auto Filling Fields
-    width = fields.Integer('Width', digits='Stock Weight', readonly=True)
     length = fields.Integer('Length', digits='Stock Weight', readonly=True)
+    width = fields.Integer('Width', digits='Stock Weight', readonly=True)
     height = fields.Integer('Height', digits='Stock Weight', readonly=True)
     thickness = fields.Float('Thickness', digits='Stock Weight', readonly=True)
     size_value = fields.Float("Size", digits='Stock Weight', readonly=True)
     remain_size = fields.Float("Remain Size", digits='Stock Weight', readonly=1)
+    num_of_pieces = fields.Float("Pieces", default=1)
     color_id = fields.Many2one(comodel_name='stone.item.color', string="Color", readonly=True)
     choice_id = fields.Many2one('stone.item.choice', "Choice")
     remarks = fields.Text("Remarks")
 
     # User Filling Fields
-    cut_width = fields.Integer('Cut Width', digits='Stock Weight')
     cut_length = fields.Integer('Cut Length', digits='Stock Weight')
+    cut_width = fields.Integer('Cut Width', digits='Stock Weight')
     cut_height = fields.Integer('Cut Height', digits='Stock Weight')
     cut_thickness = fields.Float('Cut Thickness', digits='Stock Weight')
     cut_size_value = fields.Float("Cut Size", digits='Stock Weight', compute=_compute_cut_size)
+    cut_remain_size = fields.Float("Cute Remain Size", digits='Stock Weight', readonly=1)
+    cut_num_of_pieces = fields.Float("Pieces", default=1)
+    cut_total_size = fields.Float("Total Size", compute=_compute_cut_size)
 
-    num_of_pieces = fields.Float("Pieces", default=1)
-    total_size = fields.Float("Total Size", compute=_compute_cut_size)
+    job_length = fields.Integer('Job Length', digits='Stock Weight')
+    job_width = fields.Integer('Job Width', digits='Stock Weight')
+    job_height = fields.Integer('Job Height', digits='Stock Weight')
+    job_thickness = fields.Float('Job Thickness', digits='Stock Weight')
+    job_size_value = fields.Float("Job Size", digits='Stock Weight', compute=_compute_job_size)
 
     cut_status = fields.Selection(selection=[('new', 'New'), ('under_cutting', 'Under Cutting'),
                                              ('completed', 'Completed'), ('cancel', 'Cancelled')],
-                                  string="Cut Status", default='new', tracking=True,
-                                  help="This is status of cut operation:\n"
+                                  string="Cutting Status", default='new', tracking=True,
+                                  help="This is status of cutting operation:\n"
                                        "* New: this is new status for job order where fields is open to edit.\n"
                                        "* Under Cutting: this is status for valid for cutting.\n"
                                        "* Completed: this is status done jobs which not valid to use.\n")
 
-    job_width = fields.Integer('Job Width', digits='Stock Weight')
-    job_length = fields.Integer('Job Length', digits='Stock Weight')
-    job_height = fields.Integer('Job Height', digits='Stock Weight')
-    job_thickness = fields.Float('Job Thickness', digits='Stock Weight')
-    job_size_value = fields.Float("Job Size", digits='Stock Weight', compute=_compute_job_size)
+    conv_type_id = fields.Many2one('stone.job.order.type', "Convert Type")
+    conv_type_size = fields.Selection(related='conv_type_id.item_type_id.size',
+                                      help="The Equation of ")
+    conv_size_uom_id = fields.Many2one(related='conv_type_id.item_type_id.size_uom_id',
+                                       help="UOM of size of item to be used on remaining")
+    conv_length = fields.Integer('Convert Length', digits='Stock Weight')
+    conv_width = fields.Integer('Convert Width', digits='Stock Weight')
+    conv_height = fields.Integer('Convert Height', digits='Stock Weight')
+    conv_thickness = fields.Float('Convert Thickness', digits='Stock Weight')
+    conv_size_value = fields.Float("Convert Size", digits='Stock Weight', compute=_compute_conv_size)
+    conv_num_of_pieces = fields.Float("Pieces", default=1)
+    conv_total_size = fields.Float("Total Size", compute=_compute_conv_size)
+
+    job_order_status = fields.Selection(selection=[('new', 'New'), ('under_converting', 'Under Converting'),
+                                                   ('convert_completed', 'Convert Completed'),
+                                                   ('job_completed', 'Job Order Completed'),
+                                                   ('cancel', 'Cancelled')],
+                                        string="Job Order Status", default='new', tracking=True,
+                                        help="This is status of converting:\n"
+                                             "* New: this is new status for job order where fit's ready to start convert it.\n"
+                                             "* Under Converting: this is status for valid for converting.\n"
+                                             "* Converting Completed: this is status done jobs which is valid to re-use.\n"
+                                             "* Job Order Completed: this is status done jobs which is not valid to re-use.\n")
+    cut_item_ids = fields.One2many(comodel_name='stone.item', inverse_name='cut_job_order_id', string="Cut Items")
 
     # =========== Core Methods
     @api.model
@@ -245,15 +286,22 @@ class StoneJobOrder(models.Model):
                 raise UserError(_('Values should not be zero.'))
 
     # ========== Business methods
-    def action_start_cutting_block(self):
+    # The Next action if response on create job order itself
+    # ================================================
+    def action_start_cutting_job_order(self):
+        """
+        This action is to set job order ready to be cut itself
+        """
         for rec in self:
             rec.item_id.cut_status = 'under_cutting'
             rec.cut_status = 'under_cutting'
 
-    def action_done_cutting_block(self):
+    def action_done_cutting_job_order(self):
+        """
+        This action is to set job order done cutting and ready to be converted
+        """
         for rec in self:
             rec.cut_status = 'completed'
-            # Todo comment from Sherby: This part of calculation needs review
             item_remain_size = rec.item_id.remain_size - rec.cut_size_value
             rec.item_id.write({
                 'cut_status': 'cutting_completed',
@@ -261,38 +309,81 @@ class StoneJobOrder(models.Model):
                 'remain_size': item_remain_size
             })
             # update it's remain size with cut size
-            rec.remain_size = rec.cut_size_value
+            rec.remain_size = item_remain_size
+            rec.cut_remain_size = rec.cut_size_value
 
     def action_cancel(self):
         for rec in self:
-            rec.cut_status = 'completed'
+            rec.cut_status = 'cancel'
+            rec.job_order_status = 'cancel'
 
-    def action_slab_cut(self):
-        job_order_obj = self.env['stone.job.order']
+    # The Next action if response on convert job order
+    # ================================================
+    def action_start_convert_job_order(self):
+        """
+        This action is to set job order ready to be cute which remove if from valid to convert results
+        """
         for rec in self:
-            job_order_id = job_order_obj.create({
-                'parent_id': rec.id,
-                'job_type_id': self.env.ref('stone_production.stone_job_order_type_cutting_slab').id,
-                'job_type': 'slab',
-                'job_machine_id': self.env.ref('stone_production.stone_job_order_machine_cutting_slab').id,
-                'color_id': rec.color_id.id,
-                'item_id': rec.id,
-                'width': rec.width,
-                'length': rec.length,
-                'height': rec.height,
-                'thickness': rec.thickness,
-                'size_value': rec.size_value,
-                'remain_size': rec.remain_size,
+            write_vals = {'job_order_status': 'under_converting'}
+            if rec.job_type_id == self.env.ref('stone_production.stone_job_order_type_cutting_block'):
+                write_vals['conv_type_id'] = self.env.ref('stone_production.stone_job_order_type_cutting_slab')
+            # TODO: To be add other new converted types such as tills, strips
+            # elif rec.job_type_id == self.env.ref('stone_production.stone_job_order_type_cutting_slab'):
+            #     write_vals['conv_type_id'] = self.env.ref('stone_production.')
+            rec.write(write_vals)
+
+    def action_create_converted(self):
+        stone_item_obj = self.env['stone.item']
+        for rec in self:
+
+            item_type_id = False
+            # TODO: To be add other new converted types such as tills, strips
+            if rec.job_type_id == self.env.ref('stone_production.stone_job_order_type_cutting_block'):
+                item_type_id = self.env.ref('stone_production.item_type_slab')
+            # elif rec.job_type_id == self.env.ref('stone_production.stone_job_order_type_cutting_slab'):
+            #     item_type_id = self.env.ref('stone_production.')
+            stone_item_id = stone_item_obj.create({
+                'parent_id': rec.item_id.id,
+                'item_type_id': item_type_id.id,
+                'choice_id': rec.choice_id.id,
+                'source_id': rec.item_id.source_id.id,
+                'color_id': rec.item_id.color_id.id,
+                'width': rec.conv_width,
+                'length': rec.conv_length,
+                'height': rec.conv_height,
+                'thickness': rec.conv_thickness,
+                'num_of_pieces': rec.conv_num_of_pieces,
+                'remain_size': rec.conv_size_value,
                 'remarks': rec.remarks,
+                'cut_job_order_id': rec.id,
             })
-            compose_form = self.env.ref('stone_production.stone_job_order_slab_form_view', False)
+            compose_form = self.env.ref('stone_production.stone_item_form_view', False)
+            rec.write({'conv_length': 0,
+                       'conv_width': 0,
+                       'conv_height': 0,
+                       'conv_thickness': 0,
+                       'conv_num_of_pieces': 1,
+                       'job_order_status': 'convert_completed',
+                       'cut_remain_size': rec.cut_size_value - rec.conv_total_size})
             return {
-                'name': 'Slab Cutting',
+                'name': 'Slab',
                 'type': 'ir.actions.act_window',
                 'view_mode': 'form',
-                'res_model': 'stone.job.order',
+                'res_model': 'stone.item',
                 'views': [(compose_form.id, 'form')],
                 'view_id': compose_form.id,
-                'res_id': job_order_id.id,
+                'res_id': stone_item_id.id,
             }
+
+    def action_job_completed(self):
+        for rec in self:
+            rec.job_order_status = 'job_completed'
+
+    def action_open_items(self):
+        self.ensure_one()
+        action = self.env["ir.actions.actions"]._for_xml_id('stone_production.stone_item_action')
+        action['context'] = {'default_cut_job_order_id': self.id}
+        action['domain'] = [('cut_job_order_id', '=', self.id)]
+        return action
+
 # Ahmed Salama Code End.

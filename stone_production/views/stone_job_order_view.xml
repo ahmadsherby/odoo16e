@@ -9,9 +9,15 @@
                     <field name="cut_status" widget="statusbar" statusbar_visible="new,under_cutting,completed"/>
                 </header>
                 <sheet>
+                    <field name="job_order_status" invisible="1"/>
                     <field name="job_type" invisible="1"/>
                     <field name="active" invisible="1"/>
-                    <widget name="web_ribbon" title="Archived" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
+                    <widget name="web_ribbon" title="Archived" bg_color="bg-dark" attrs="{'invisible': [('active', '=', True)]}"/>
+                    <widget name="web_ribbon" title="New" bg_color="bg-info" attrs="{'invisible': [('job_order_status', '!=', 'new')]}"/>
+                    <widget name="web_ribbon" title="Under Converting" bg_color="bg-danger" attrs="{'invisible': [('job_order_status', '!=', 'under_converting')]}"/>
+                    <widget name="web_ribbon" title="Convert Completed" bg_color="bg-info" attrs="{'invisible': [('job_order_status', '!=', 'convert_completed')]}"/>
+                    <widget name="web_ribbon" title="Job Order Completed" bg_color="bg-success" attrs="{'invisible': [('job_order_status', '!=', 'job_completed')]}"/>
+                    <widget name="web_ribbon" title="Canceled" bg_color="bg-dark" attrs="{'invisible': [('job_order_status', '!=', 'cancel')]}"/>
                     <div class="oe_title">
                         <label for="name" string="Item"/>
                         <h1>
@@ -101,7 +107,6 @@
                                         <field name="type_size_uom_id" readonly="1" force_save="1"/>
                                     </div>
                                 </group>
-
                             </group>
                         </page>
                     </notebook>
@@ -134,9 +139,18 @@
                 <field name="job_size_value" optional="show" sum="job_size_value"/>
                 <field name="cut_status" widget="badge" optional="show" decoration-info="cut_status == 'under_cutting'"
                        decoration-success="cut_status == 'completed'" decoration-muted="cut_status in ['new', 'cancel']" />
-                <button name="action_slab_cut" string="Start Slab Cut" icon="fa-wrench" type="object" class="btn-warning rounded"
-                        attrs="{'invisible':['|',('cut_status','not in',('new', 'cutting_completed')),('job_type','!=', 'block')]}"
+                <field name="job_order_status" widget="badge" optional="show" decoration-danger="cut_status == 'under_converting'" decoration-muted="cut_status == 'cancel'"
+                       decoration-info="cut_status in ('new','convert_completed')" decoration-success="cut_status == 'job_completed'"/>
+                <button name="action_start_convert_job_order" string="Start Slab Cut" icon="fa-refresh"
+                        type="object" class="btn-warning rounded"
+                        attrs="{'invisible':['|',('job_order_status','!=','new'),('cut_status','!=','completed')]}"
+                        help="This Action will start set job order under converting"/>
+                <button name="action_create_converted" string="Create Slab" icon="fa-plus" type="object" class="btn-info rounded"
+                        attrs="{'invisible':['|',('job_order_status','!=','under_converting'),('cut_status','!=','completed')]}"
                         help="This Action will start create Job order with this block details"/>
+                <button name="action_job_completed" string="Job Completed" icon="fa-check" type="object" class="btn-success rounded"
+                        attrs="{'invisible':['|',('job_order_status','!=','convert_completed'),('cut_status','!=','completed')]}"
+                        help="This Action will set job order as completed"/>
             </tree>
         </field>
     </record>
@@ -157,19 +171,46 @@
         <field name="arch" type="xml">
             <form string="Job Order(Cutting Block)">
                 <header>
-                    <button name="action_start_cutting_block" string="Start Cut Block" type="object" icon="fa-wrench"
-                            attrs="{'invisible': ['|',('cut_status', '!=', 'new'),('job_type', '!=', 'block')]}" class="oe_highlight"/>
-                    <button name="action_done_cutting_block" string="Done Cut Block" type="object" icon="fa-check"
+                    <button name="action_start_cutting_job_order" string="Start Cut" type="object" icon="fa-wrench"
+                            attrs="{'invisible': [('cut_status', '!=', 'new')]}" class="oe_highlight"/>
+                    <button name="action_done_cutting_job_order" string="Done Cut" type="object" icon="fa-check"
                             attrs="{'invisible': ['|',('cut_status', '!=', 'under_cutting'),('job_type', '!=', 'block')]}" class="oe_highlight"/>
                     <button name="action_cancel" string="Cancel" type="object"
                             attrs="{'invisible': [('cut_status', 'not in', ('under_cutting', 'new'))]}" class="btn-danger"
-                            confirm="Are you sure of cancel this Job ORder!!!"/>
+                            confirm="Are you sure of cancel this Job Order!!!"/>
+                    <button name="action_start_convert_job_order" string="Start Slab Cut" icon="fa-refresh"
+                            type="object" class="btn-warning rounded"
+                            attrs="{'invisible':['|',('job_order_status','!=','new'),('cut_status','!=','completed')]}"
+                            help="This Action will start set job order under converting"/>
+                    <button name="action_create_converted" string="Create Slab" icon="fa-plus" type="object" class="btn-info rounded"
+                            attrs="{'invisible':['|',('job_order_status','!=','under_converting'),('cut_status','!=','completed')]}"
+                            help="This Action will start create Job order with this block details"/>
+                    <button name="action_job_completed" string="Job Completed" icon="fa-check" type="object" class="btn-success rounded"
+                            attrs="{'invisible':['|',('job_order_status','!=','convert_completed'),('cut_status','!=','completed')]}"
+                            help="This Action will set job order as completed"/>
                     <field name="cut_status" widget="statusbar" statusbar_visible="new,under_cutting,completed"/>
                 </header>
                 <sheet>
+                    <field name="job_order_status" invisible="1"/>
                     <field name="job_type" invisible="1"/>
                     <field name="active" invisible="1"/>
-                    <widget name="web_ribbon" title="Archived" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
+                    <field name="cut_item_ids" invisible="1"/>
+                    <div class="oe_button_box" name="button_box">
+                        <button class="oe_stat_button" name="action_open_items"
+                                icon="fa-cubes"  type="object" attrs="{'invisible':[('cut_item_ids','=',[])]}">
+                            <div class="o_field_widget o_stat_info">
+                                <span>
+                                    Cut Items
+                                </span>
+                            </div>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Archived" bg_color="bg-dark" attrs="{'invisible': [('active', '=', True)]}"/>
+                    <widget name="web_ribbon" title="New" bg_color="bg-info" attrs="{'invisible': [('job_order_status', '!=', 'new')]}"/>
+                    <widget name="web_ribbon" title="Under Converting" bg_color="bg-danger" attrs="{'invisible': [('job_order_status', '!=', 'under_converting')]}"/>
+                    <widget name="web_ribbon" title="Convert Completed" bg_color="bg-info" attrs="{'invisible': [('job_order_status', '!=', 'convert_completed')]}"/>
+                    <widget name="web_ribbon" title="Job Order Completed" bg_color="bg-success" attrs="{'invisible': [('job_order_status', '!=', 'job_completed')]}"/>
+                    <widget name="web_ribbon" title="Canceled" bg_color="bg-dark" attrs="{'invisible': [('job_order_status', '!=', 'cancel')]}"/>
                     <div class="oe_title">
                         <label for="name" string="Item"/>
                         <h1>
@@ -193,7 +234,37 @@
                             <field name="item_type_size" invisble="1"/>
                             <field name="company_id" groups="base.group_multi_company"/>
                         </group>
-                        <group string="Item Details">
+                        <group string="Cut Dimensions" attrs="{'invisible':[('cut_status','!=','completed')]}">
+                            <label for="cut_length"/>
+                            <div class="o_row" name="cut_length">
+                                <field name="cut_length" required="1" class="oe_inline"
+                                       attrs="{'readonly':[('cut_status', 'in', ('completed','cancel'))]}"/>
+                                <field name="dimension_uom_id" readonly="1" force_save="1"/>
+                            </div>
+                            <label for="cut_width" />
+                            <div class="o_row" name="cut_width">
+                                <field name="cut_width" required="1" class="oe_inline"
+                                       attrs="{'readonly':[('cut_status', 'in', ('completed','cancel'))]}"/>
+                                <field name="dimension_uom_id" readonly="1" force_save="1"/>
+                            </div>
+                            <label for="cut_height"/>
+                            <div class="o_row" name="cut_height">
+                                <field name="cut_height" required="1" class="oe_inline"
+                                       attrs="{'readonly':[('cut_status', 'in', ('completed','cancel'))]}"/>
+                                <field name="dimension_uom_id" readonly="1" force_save="1"/>
+                            </div>
+                            <label for="cut_size_value"/>
+                            <div class="o_row" name="cut_size_value">
+                                <field name="cut_size_value" class="oe_inline"/>
+                                <field name="type_size_uom_id" readonly="1" force_save="1"/>
+                            </div>
+                            <label for="cut_remain_size"/>
+                            <div class="o_row" name="cut_remain_size">
+                                <field name="cut_remain_size" class="oe_inline"/>
+                                <field name="type_size_uom_id" readonly="1" force_save="1"/>
+                            </div>
+                        </group>
+                        <group string="Item Details"  attrs="{'invisible':[('cut_status','=','completed')]}">
                             <field name="color_id" force_save="1"/>
                             <field name="length" force_save="1"/>
                             <field name="width" force_save="1"/>
@@ -210,14 +281,15 @@
                                 <field name="remain_size" class="oe_inline"/>
                                 <field name="item_size_uom_id" class="oe_inline" readonly="1" force_save="1"/>
                             </div>
-                            <field name="choice_id" force_save="1"/>
-                            <field name="remarks" force_save="1"/>
+                            <field name="choice_id" readonly="1" force_save="1"/>
+                            <field name="remarks" readonly="1" force_save="1"/>
                         </group>
                     </group>
                     <notebook>
                         <page string="Operation">
                             <group>
-                                <group string="Cut Dimensions">
+                                <group string="Cut Dimensions" attrs="{'invisible':[('cut_status','=','completed')]}">
+                                    <field name="item_type_size" readonly="1" force_save="1"/>
                                     <label for="cut_length"/>
                                     <div class="o_row" name="cut_length">
                                         <field name="cut_length" required="1" class="oe_inline"
@@ -240,6 +312,40 @@
                                     <div class="o_row" name="cut_size_value">
                                         <field name="cut_size_value" class="oe_inline"/>
                                         <field name="type_size_uom_id" readonly="1" force_save="1"/>
+                                    </div>
+                                </group>
+                                <group string="Convert Dimensions" attrs="{'invisible':['|',('cut_status','!=','completed'),
+                                                                                    ('job_order_status','!=','under_converting')]}">
+                                    <field name="conv_type_size" readonly="1" force_save="1"/>
+                                    <label for="conv_length"/>
+                                    <div class="o_row" name="conv_length">
+                                        <field name="conv_length" class="oe_inline"
+                                               attrs="{'readonly':[('job_order_status', 'not in', ('under_converting','new'))]}"/>
+                                        <field name="dimension_uom_id" readonly="1" force_save="1"/>
+                                    </div>
+                                    <label for="conv_width" />
+                                    <div class="o_row" name="conv_width">
+                                        <field name="conv_width" class="oe_inline"
+                                               attrs="{'readonly':[('job_order_status', 'not in', ('under_converting','new'))]}"/>
+                                        <field name="dimension_uom_id" readonly="1" force_save="1"/>
+                                    </div>
+                                    <label for="conv_thickness"/>
+                                    <div class="o_row" name="conv_thickness">
+                                        <field name="conv_thickness" class="oe_inline"
+                                               attrs="{'readonly':[('job_order_status', 'not in', ('under_converting','new'))]}"/>
+                                        <field name="dimension_uom_id" readonly="1" force_save="1"/>
+                                    </div>
+                                    <label for="conv_size_value"/>
+                                    <div class="o_row" name="conv_size_value">
+                                        <field name="conv_size_value" class="oe_inline"/>
+                                        <field name="conv_size_uom_id" readonly="1" force_save="1"/>
+                                    </div>
+                                    <field name="conv_num_of_pieces"  attrs="{'readonly':[('job_order_status', 'not in', ('under_converting','new'))]}"/>
+                                    <label for="conv_total_size"/>
+                                    <div class="o_row" name="conv_total_size">
+                                        <field name="conv_total_size" class="oe_inline"/>
+                                        <span class="oe_inline">PC/</span>
+                                        <field name="conv_size_uom_id" readonly="1" force_save="1"/>
                                     </div>
                                 </group>
                                 <group string="Final Dimensions">
@@ -267,7 +373,28 @@
                                         <field name="type_size_uom_id" readonly="1" force_save="1"/>
                                     </div>
                                 </group>
-
+                            </group>
+                        </page>
+                        <page string="Item Details" attrs="{'invisible':[('cut_status','!=','completed')]}">
+                            <group string="Item Details" >
+                                <field name="color_id" force_save="1"/>
+                                <field name="length" force_save="1"/>
+                                <field name="width" force_save="1"/>
+                                <field name="height" force_save="1"/>
+                                <field name="thickness" force_save="1"/>
+                                <field name="thickness" force_save="1"/>
+                                <label for="size_value" />
+                                <div clas="o_row">
+                                    <field name="size_value" class="oe_inline"/>
+                                    <field name="item_size_uom_id" class="oe_inline" readonly="1" force_save="1"/>
+                                </div>
+                                <label for="remain_size" />
+                                <div clas="o_row">
+                                    <field name="remain_size" class="oe_inline"/>
+                                    <field name="item_size_uom_id" class="oe_inline" readonly="1" force_save="1"/>
+                                </div>
+                                <field name="choice_id" readonly="1" force_save="1"/>
+                                <field name="remarks" readonly="1" force_save="1"/>
                             </group>
                         </page>
                     </notebook>
@@ -304,15 +431,28 @@
         <field name="arch" type="xml">
             <form string="Job Order(Cutting Slab)">
                 <header>
-                    <button name="action_slab_cut" string="Start Slab Cut" icon="fa-wrench" type="object" class="btn-warning rounded"
-                            attrs="{'invisible':['|',('cut_status','not in',('new', 'cutting_completed')),('job_type','!=', 'block')]}"
+                    <button name="action_start_convert_job_order" string="Start Slab Cut" icon="fa-refresh"
+                            type="object" class="btn-warning rounded"
+                            attrs="{'invisible':['|',('job_order_status','!=','new'),('cut_status','!=','completed')]}"
+                            help="This Action will start set job order under converting"/>
+                    <button name="action_create_converted" string="Create Slab" icon="fa-plus" type="object" class="btn-info rounded"
+                            attrs="{'invisible':['|',('job_order_status','!=','under_converting'),('cut_status','!=','completed')]}"
                             help="This Action will start create Job order with this block details"/>
+                    <button name="action_job_completed" string="Job Completed" icon="fa-check" type="object" class="btn-success rounded"
+                            attrs="{'invisible':['|',('job_order_status','!=','convert_completed'),('cut_status','!=','completed')]}"
+                            help="This Action will set job order as completed"/>
                     <field name="cut_status" widget="statusbar" statusbar_visible="new,under_cutting,completed"/>
                 </header>
                 <sheet>
+                    <field name="job_order_status" invisible="1"/>
                     <field name="job_type" invisible="1"/>
                     <field name="active" invisible="1"/>
-                    <widget name="web_ribbon" title="Archived" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
+                    <widget name="web_ribbon" title="Archived" bg_color="bg-dark" attrs="{'invisible': [('active', '=', True)]}"/>
+                    <widget name="web_ribbon" title="New" bg_color="bg-info" attrs="{'invisible': [('job_order_status', '!=', 'new')]}"/>
+                    <widget name="web_ribbon" title="Under Converting" bg_color="bg-danger" attrs="{'invisible': [('job_order_status', '!=', 'under_converting')]}"/>
+                    <widget name="web_ribbon" title="Convert Completed" bg_color="bg-info" attrs="{'invisible': [('job_order_status', '!=', 'convert_completed')]}"/>
+                    <widget name="web_ribbon" title="Job Order Completed" bg_color="bg-success" attrs="{'invisible': [('job_order_status', '!=', 'job_completed')]}"/>
+                    <widget name="web_ribbon" title="Canceled" bg_color="bg-dark" attrs="{'invisible': [('job_order_status', '!=', 'cancel')]}"/>
                     <div class="oe_title">
                         <label for="name" string="Item"/>
                         <h1>
@@ -336,7 +476,6 @@
                         </group>
                         <group string="Item Details">
                             <field name="color_id" force_save="1"/>
-
                             <field name="length" force_save="1"/>
                             <field name="width" force_save="1"/>
                             <field name="height" force_save="1"/>
@@ -347,6 +486,7 @@
                                 <field name="size_value" class="oe_inline"/>
                                 <field name="item_size_uom_id" class="oe_inline" readonly="1" force_save="1"/>
                             </div>
+                            <field name="num_of_pieces" readonly="1" force_save="1"/>
                             <label for="remain_size" />
                             <div clas="o_row">
                                 <field name="remain_size" class="oe_inline"/>
@@ -391,10 +531,10 @@
                                         <field name="cut_size_value" class="oe_inline"/>
                                         <field name="type_size_uom_id" readonly="1" force_save="1"/>
                                     </div>
-                                    <field name="num_of_pieces" style="border-top:1px solid rgba(0, 0, 0, 0.15)" required="1"/>
-                                    <label for="total_size"/>
-                                    <div class="o_row" name="total_size">
-                                        <field name="total_size" class="oe_inline"/>
+                                    <field name="cut_num_of_pieces"/>
+                                    <label for="cut_total_size"/>
+                                    <div class="o_row" name="cut_total_size">
+                                        <field name="cut_total_size" class="oe_inline"/>
                                         <span class="oe_inline">PC/</span>
                                         <field name="type_size_uom_id" readonly="1" force_save="1"/>
                                     </div>
@@ -442,7 +582,7 @@
         <field name="res_model">stone.job.order</field>
         <field name="view_mode">tree,form</field>
         <field name="view_id" ref="stone_job_order_tree_view"/>
-        <field name="domain">[('cut_status','in',('new', 'cutting_completed')),('job_type','=', 'block')]</field>
+        <field name="domain">[('job_order_status','in',('new', 'convert_completed')),('cut_status','in',('new', 'completed')),('job_type','=', 'block')]</field>
         <field name="context">{'default_job_type': 'block'}</field>
         <field name="view_ids" eval="[(5, 0, 0),
             (0, 0, {'view_mode': 'tree', 'view_id': ref('stone_production.stone_job_order_tree_view')}),
@@ -451,18 +591,19 @@
     <menuitem id="stone_job_order_menu_slab"
               parent="stone_production.stone_job_order_menu_root"
               action="stone_job_order_action_slab" sequence="3"/>
-    <record id="stone_job_order_action_slab_lines" model="ir.actions.act_window">
-        <field name="name">Slab Cutting Lines</field>
-        <field name="res_model">stone.job.order</field>
-        <field name="view_mode">tree,form</field>
-        <field name="view_id" ref="stone_job_order_tree_view"/>
-        <field name="domain">[('job_type','=', 'slab')]</field>
-        <field name="context">{'default_job_type': 'slab'}</field>
-        <field name="view_ids" eval="[(5, 0, 0),
-            (0, 0, {'view_mode': 'tree', 'view_id': ref('stone_production.stone_job_order_tree_view')}),
-            (0, 0, {'view_mode': 'form', 'view_id': ref('stone_production.stone_job_order_slab_form_view')})]"/>
-    </record>
-    <menuitem id="stone_job_order_menu_slab_lines"
-              parent="stone_production.stone_job_order_menu_root"
-              action="stone_job_order_action_slab_lines" sequence="4"/>
+
+    <!--        <record id="stone_job_order_action_slab_lines" model="ir.actions.act_window">-->
+    <!--            <field name="name">Slab Cutting Lines</field>-->
+    <!--            <field name="res_model">stone.job.order</field>-->
+    <!--            <field name="view_mode">tree,form</field>-->
+    <!--            <field name="view_id" ref="stone_job_order_tree_view"/>-->
+    <!--            <field name="domain">[('job_type','=', 'slab')]</field>-->
+    <!--            <field name="context">{'default_job_type': 'slab'}</field>-->
+    <!--            <field name="view_ids" eval="[(5, 0, 0),-->
+    <!--                (0, 0, {'view_mode': 'tree', 'view_id': ref('stone_production.stone_job_order_tree_view')}),-->
+    <!--                (0, 0, {'view_mode': 'form', 'view_id': ref('stone_production.stone_job_order_slab_form_view')})]"/>-->
+    <!--        </record>-->
+    <!--        <menuitem id="stone_job_order_menu_slab_lines"-->
+    <!--                  parent="stone_production.stone_job_order_menu_root"-->
+    <!--                  action="stone_job_order_action_slab_lines" sequence="4"/>-->
 </odoo>
