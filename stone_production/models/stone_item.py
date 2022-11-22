@@ -193,6 +193,8 @@ class StoneItem(models.Model):
                 })
                 rec.product_tmpl_id = rec.product_id.product_tmpl_id.id
                 rec.state = 'product'
+                # update it's remain size with cut size
+                rec.remain_size = rec.cut_size_value
                 # Add qty as stock for location of source with num_of_pieces
                 quant = quant_obj.create({'product_id': rec.product_id.id,
                                           'inventory_quantity': rec.total_size,

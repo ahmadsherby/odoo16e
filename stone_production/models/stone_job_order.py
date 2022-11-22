@@ -188,8 +188,8 @@ class StoneJobOrder(models.Model):
     size_value = fields.Float("Size", digits='Stock Weight', readonly=True)
     remain_size = fields.Float("Remain Size", digits='Stock Weight', readonly=1)
     color_id = fields.Many2one(comodel_name='stone.item.color', string="Color", readonly=True)
-    choice_id = fields.Many2one('stone.item.choice', "Choice", readonly=True)
-    remarks = fields.Text("Remarks", readonly=True)
+    choice_id = fields.Many2one('stone.item.choice', "Choice")
+    remarks = fields.Text("Remarks")
 
     # User Filling Fields
     cut_width = fields.Integer('Cut Width', digits='Stock Weight')
@@ -241,8 +241,8 @@ class StoneJobOrder(models.Model):
     @api.constrains('width', 'length')
     def _check_values(self):
         for rec in self:
-            if self.width == 0.0 or self.length == 0.0:
-                raise Warning(_('Values should not be zero.'))
+            if rec.width == 0.0 or rec.length == 0.0:
+                raise UserError(_('Values should not be zero.'))
 
     # ========== Business methods
     def action_start_cutting_block(self):
@@ -254,17 +254,45 @@ class StoneJobOrder(models.Model):
         for rec in self:
             rec.cut_status = 'completed'
             # Todo comment from Sherby: This part of calculation needs review
-            if rec.item_id.cut_status != 'item_completed' and rec.item_id.remain_size == 0.0:
-                remain_size = rec.item_id.size_value - rec.cut_size_value
-            else:
-                remain_size = rec.item_id.remain_size - rec.cut_size_value
+            item_remain_size = rec.item_id.remain_size - rec.cut_size_value
             rec.item_id.write({
                 'cut_status': 'cutting_completed',
                 'cut_size': rec.item_id.cut_size + rec.cut_size_value,
-                'remain_size': remain_size
+                'remain_size': item_remain_size
             })
+            # update it's remain size with cut size
+            rec.remain_size = rec.cut_size_value
 
     def action_cancel(self):
         for rec in self:
             rec.cut_status = 'completed'
+
+    def action_slab_cut(self):
+        job_order_obj = self.env['stone.job.order']
+        for rec in self:
+            job_order_id = job_order_obj.create({
+                'parent_id': rec.id,
+                'job_type_id': self.env.ref('stone_production.stone_job_order_type_cutting_slab').id,
+                'job_type': 'slab',
+                'job_machine_id': self.env.ref('stone_production.stone_job_order_machine_cutting_slab').id,
+                'color_id': rec.color_id.id,
+                'item_id': rec.id,
+                'width': rec.width,
+                'length': rec.length,
+                'height': rec.height,
+                'thickness': rec.thickness,
+                'size_value': rec.size_value,
+                'remain_size': rec.remain_size,
+                'remarks': rec.remarks,
+            })
+            compose_form = self.env.ref('stone_production.stone_job_order_slab_form_view', False)
+            return {
+                'name': 'Slab Cutting',
+                'type': 'ir.actions.act_window',
+                'view_mode': 'form',
+                'res_model': 'stone.job.order',
+                'views': [(compose_form.id, 'form')],
+                'view_id': compose_form.id,
+                'res_id': job_order_id.id,
+            }
 # Ahmed Salama Code End.

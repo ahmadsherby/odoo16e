@@ -6,6 +6,9 @@
         <field name="arch" type="xml">
             <form string="Item">
                 <header>
+                    <button name="action_block_cut" string="Start Block Cut" icon="fa-wrench" type="object" class="btn-warning rounded"
+                            attrs="{'invisible':['|',('cut_status','not in',('new', 'cutting_completed')),('item_type_id','!=', %(stone_production.item_type_block)d)]}"
+                            help="This Action will start create Job order with this block details"/>
                     <button name="create_product" string="Create Product" states="draft"
                             icon="fa-plus" type="object" class="oe_highlight"/>
                     <button name="action_item_completed" string="Cutting Completed" attrs="{'invisible':[('cut_status','!=', 'cutting_completed')]}"
@@ -26,12 +29,12 @@
                             </div>
                         </button>
                     </div>
-                     <widget name="web_ribbon" title="Draft"
-                                bg_color="bg-info"
-                                attrs="{'invisible': [('state', '!=', 'draft')]}"/>
+                    <widget name="web_ribbon" title="Draft"
+                            bg_color="bg-info"
+                            attrs="{'invisible': [('state', '!=', 'draft')]}"/>
                     <widget name="web_ribbon" title="Product Created"
-                                bg_color="bg-success"
-                                attrs="{'invisible': [('state', '!=', 'product')]}"/>
+                            bg_color="bg-success"
+                            attrs="{'invisible': [('state', '!=', 'product')]}"/>
                     <field name="after_save" invisible="1"/>
                     <widget name="web_ribbon" title="Archived" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
                     <div class="oe_title">
@@ -66,7 +69,7 @@
                                 <field name="length" class="oe_inline" required="1"/>
                                 <field name="dimension_uom_id" readonly="1" force_save="1"/>
                             </div>
-                              <label for="width" />
+                            <label for="width" />
                             <div class="o_row" name="width">
                                 <field name="width" class="oe_inline" required="1"/>
                                 <field name="dimension_uom_id" readonly="1" force_save="1"/>
@@ -149,8 +152,9 @@
                        decoration-info="state == 'draft'" decoration-success="state == 'product'"/>
                 <field name="cut_status" optional="show" widget="badge" decoration-info="state == ('new', 'cutting_completed')"
                        decoration-warning="state == 'under_cutting'" decoration-success="state == 'item_completed'"/>
-                <button name="action_block_cut" string="Start Block Cut" icon="fa-wrench" type="object"
-                        attrs="{'invisible':['|',('cut_status','not in',('new', 'cutting_completed')),('item_type_id','!=', %(stone_production.item_type_block)d)]}"/>
+                <button name="action_block_cut" string="Start Block Cut" icon="fa-wrench" type="object" class="btn-warning rounded"
+                        attrs="{'invisible':['|',('cut_status','not in',('new', 'cutting_completed')),('item_type_id','!=', %(stone_production.item_type_block)d)]}"
+                        help="This Action will start create Job order with this block details"/>
             </tree>
         </field>
     </record>
