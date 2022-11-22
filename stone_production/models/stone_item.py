@@ -67,14 +67,14 @@ class StoneItem(models.Model):
     @api.depends('width', 'length', 'height', 'thickness', 'item_type_id.size', 'num_of_pieces')
     def _compute_size(self):
         """
-        Compute size form dimension and total suze according to number of pieces
+        Compute size form dimension and total size according to number of pieces
         """
         for rec in self:
             size_value = 0
             if rec.item_type_id.size == 'volume':
-                size_value = rec.width * rec.length * rec.height / 1000000
+                size_value = rec.length * rec.width * rec.height / 1000000
             if rec.item_type_id.size == 'surface':
-                size_value = rec.width * rec.length / 10000
+                size_value = rec.length * rec.width / 10000
             rec.size_value = size_value
             rec.total_size = size_value * rec.num_of_pieces
 
@@ -102,10 +102,10 @@ class StoneItem(models.Model):
     source_id = fields.Many2one(comodel_name='stone.item.source', string="Source", required=True)
     color_ids = fields.Many2many(related='source_id.color_ids')
     color_id = fields.Many2one(comodel_name='stone.item.color', string="Color", required=True)
-    width = fields.Integer('Width', digits='Stock Weight', readonly=True
-                           , states={'draft': [('readonly', False)]})
     length = fields.Integer('Length', digits='Stock Weight', readonly=True
                             , states={'draft': [('readonly', False)]})
+    width = fields.Integer('Width', digits='Stock Weight', readonly=True
+                           , states={'draft': [('readonly', False)]})
     height = fields.Integer('Height', digits='Stock Weight', readonly=True
                             , states={'draft': [('readonly', False)]})
     thickness = fields.Float('Thickness', digits='Stock Weight', readonly=True

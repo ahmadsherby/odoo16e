@@ -14,14 +14,14 @@
                 <field name="remarks" readonly="1" force_save="1"/>
             </xpath>
             <xpath expr="//group[@name='group_lots_and_weight']//div" position="after">
-                <label for="width" attrs="{'invisible':[('product_variant_count', '>', 1), ('is_product_variant', '=', False)]}"/>
-                <div class="o_row" name="weight" attrs="{'invisible':[('product_variant_count', '>', 1), ('is_product_variant', '=', False)]}">
-                    <field name="width" class="oe_inline"/>
-                    <field name="dimension_uom_id"/>
-                </div>
                 <label for="length" attrs="{'invisible':[('product_variant_count', '>', 1), ('is_product_variant', '=', False)]}"/>
                 <div class="o_row" name="weight" attrs="{'invisible':[('product_variant_count', '>', 1), ('is_product_variant', '=', False)]}">
                     <field name="length" class="oe_inline"/>
+                    <field name="dimension_uom_id"/>
+                </div>
+                <label for="width" attrs="{'invisible':[('product_variant_count', '>', 1), ('is_product_variant', '=', False)]}"/>
+                <div class="o_row" name="weight" attrs="{'invisible':[('product_variant_count', '>', 1), ('is_product_variant', '=', False)]}">
+                    <field name="width" class="oe_inline"/>
                     <field name="dimension_uom_id"/>
                 </div>
                 <label for="height" attrs="{'invisible':[('product_variant_count', '>', 1), ('is_product_variant', '=', False)]}"/>

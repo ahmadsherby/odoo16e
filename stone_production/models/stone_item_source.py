@@ -9,8 +9,8 @@ bold_red = '\x1b[31;1m'
 reset = '\x1b[0m'
 green = '\x1b[32m'
 blue = '\x1b[34m'
-_eq_selections = [('volume', "Volume equation = (W * L * H)"),
-                  ('surface', "Surface equation = (W * L)")]
+_eq_selections = [('volume', "Volume equation = (L * W * H)"),
+                  ('surface', "Surface equation = (L * W)")]
 # Ahmed Salama Code Start ---->
 
 

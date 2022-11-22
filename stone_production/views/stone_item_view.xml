@@ -61,14 +61,14 @@
                             <field name="product_tmpl_id" readonly="1" force_save="1" attrs="{'invisible':[('product_id','=',False)]}"/>
                         </group>
                         <group string="Dimensions">
-                            <label for="width" />
-                            <div class="o_row" name="width">
-                                <field name="width" class="oe_inline" required="1"/>
-                                <field name="dimension_uom_id" readonly="1" force_save="1"/>
-                            </div>
                             <label for="length"/>
                             <div class="o_row" name="length">
                                 <field name="length" class="oe_inline" required="1"/>
+                                <field name="dimension_uom_id" readonly="1" force_save="1"/>
+                            </div>
+                              <label for="width" />
+                            <div class="o_row" name="width">
+                                <field name="width" class="oe_inline" required="1"/>
                                 <field name="dimension_uom_id" readonly="1" force_save="1"/>
                             </div>
                             <label for="height" attrs="{'invisible':[('type_size','!=', 'volume')]}"/>
@@ -137,8 +137,8 @@
                 <field name="color_id" optional="show" attrs="{'readonly':['|',('after_save', '=', True),('state', '!=', 'draft')]}"/>
                 <field name="choice_id" optional="show" attrs="{'readonly':['|',('after_save', '=', True),('state', '!=', 'draft')]}"/>
                 <field name="remarks" optional="hide" attrs="{'readonly':['|',('after_save', '=', True),('state', '!=', 'draft')]}"/>
-                <field name="width" optional="hide"/>
                 <field name="length" optional="hide"/>
+                <field name="width" optional="hide"/>
                 <field name="height" optional="hide"/>
                 <field name="thickness" optional="hide"/>
                 <field name="size_value" sum="size_value"/>

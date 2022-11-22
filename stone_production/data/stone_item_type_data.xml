@@ -10,7 +10,7 @@
         </record>
         <record id="item_type_block" model="stone.item.type">
             <field name="name">Block</field>
-            <field name="code">BLC</field>
+            <field name="code">BL</field>
             <field name="size" >volume</field>
             <field name="item_default" >1</field>
             <field name="categ_id" ref="product_category_stones"/>
@@ -21,7 +21,7 @@
         </record>
         <record id="item_type_slab" model="stone.item.type">
             <field name="name">Slab</field>
-            <field name="code">SLB</field>
+            <field name="code">SL</field>
             <field name="size" >surface</field>
             <field name="manual_insert" >1</field>
             <field name="categ_id" ref="product_category_slab"/>
