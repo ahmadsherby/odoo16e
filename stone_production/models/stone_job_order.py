@@ -143,13 +143,13 @@ class StoneJobOrder(models.Model):
         for rec in self:
             cut_size_value = 0
             if rec.item_type_id.size == 'volume':
-                cut_size_value = rec.cut_width * rec.cut_length * rec.cut_height / 1000000
+                cut_size_value = rec.cut_length * rec.cut_width * rec.cut_height / 1000000
             if rec.item_type_id.size == 'surface':
-                cut_size_value = rec.cut_width * rec.cut_length / 10000
+                cut_size_value = rec.cut_length * rec.cut_width / 10000
             rec.cut_size_value = cut_size_value
             rec.total_size = cut_size_value * rec.num_of_pieces
 
-    @api.depends('job_width', 'job_length', 'job_height', 'job_thickness', 'item_type_id.size')
+    @api.depends( 'job_length', 'job_width', 'job_height', 'job_thickness', 'item_type_id.size')
     def _compute_job_size(self):
         """
         Compute size form dimension and total suze according to number of pieces
@@ -157,9 +157,9 @@ class StoneJobOrder(models.Model):
         for rec in self:
             job_size_value = 0
             if rec.item_type_id.size == 'volume':
-                job_size_value = rec.job_width * rec.job_length * rec.job_height / 1000000
+                job_size_value = rec.job_length * rec.job_width * rec.job_height / 1000000
             if rec.item_type_id.size == 'surface':
-                job_size_value = rec.job_width * rec.job_length / 10000
+                job_size_value = rec.job_length * rec.job_width / 10000
             rec.job_size_value = job_size_value
 
     name = fields.Char("Job Order", default="/", required=True)
@@ -168,7 +168,7 @@ class StoneJobOrder(models.Model):
     job_type_id = fields.Many2one('stone.job.order.type', "Job Type")
     item_type_id = fields.Many2one(related='job_type_id.item_type_id')
     job_type = fields.Selection(job_order_types, "Job Type", required=True)
-    job_machine_id = fields.Many2one('stone.job.order.machine', "Job Machine")
+    job_machine_id = fields.Many2one('stone.job.order.machine', "Job Machine",required=True)
     item_id = fields.Many2one('stone.item', "Item", required=True)
     item_type_size = fields.Selection(related='job_type_id.item_type_id.size')
     type_size_uom_id = fields.Many2one(related='job_type_id.item_type_id.size_uom_id',
@@ -218,6 +218,8 @@ class StoneJobOrder(models.Model):
     # =========== Core Methods
     @api.model
     def create(self, vals):
+        # Todo comment from Sherby: you need to check that no created JO for the same
+        # Todo: block in any status rather than completed
         """
         This will be used to generate code
         :param vals: create vals
@@ -232,8 +234,8 @@ class StoneJobOrder(models.Model):
         :return: SUPER
         """
         for rec in self:
-            if rec.cut_status not in ('new', 'cancel'):
-                raise UserError(_("It's not possible to delete job order which is cut status not in new/cancel!!! "))
+            if rec.cut_status not in ('cancel'):
+                raise UserError(_("It's not possible to delete job order which is cut status not in cancel!!! "))
         return super().unlink()
 
     @api.constrains('width', 'length')
@@ -251,6 +253,7 @@ class StoneJobOrder(models.Model):
     def action_done_cutting_block(self):
         for rec in self:
             rec.cut_status = 'completed'
+            # Todo comment from Sherby: This part of calculation needs review
             if rec.item_id.cut_status != 'item_completed' and rec.item_id.remain_size == 0.0:
                 remain_size = rec.item_id.size_value - rec.cut_size_value
             else:
