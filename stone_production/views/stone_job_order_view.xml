@@ -49,14 +49,14 @@
                         <page string="Operation">
                             <group>
                                 <group string="Cut Dimensions">
-                                    <label for="cut_width" />
-                                    <div class="o_row" name="cut_width">
-                                        <field name="cut_width" class="oe_inline" attrs="{'readonly':[('cut_status', '!=', 'new')]}"/>
-                                        <field name="dimension_uom_id" readonly="1" force_save="1"/>
-                                    </div>
                                     <label for="cut_length"/>
                                     <div class="o_row" name="cut_length">
                                         <field name="cut_length" class="oe_inline" attrs="{'readonly':[('cut_status', '!=', 'new')]}"/>
+                                        <field name="dimension_uom_id" readonly="1" force_save="1"/>
+                                    </div>
+                                    <label for="cut_width" />
+                                    <div class="o_row" name="cut_width">
+                                        <field name="cut_width" class="oe_inline" attrs="{'readonly':[('cut_status', '!=', 'new')]}"/>
                                         <field name="dimension_uom_id" readonly="1" force_save="1"/>
                                     </div>
                                     <label for="cut_height" attrs="{'invisible':[('item_type_size','!=', 'volume')]}"/>
@@ -190,8 +190,8 @@
                         <group string="Item Details">
                             <field name="color_id" force_save="1"/>
                             <field name="choice_id" force_save="1"/>
-                            <field name="width" force_save="1"/>
                             <field name="length" force_save="1"/>
+                            <field name="width" force_save="1"/>
                             <field name="height" force_save="1"/>
                             <field name="thickness" force_save="1"/>
                             <field name="thickness" force_save="1"/>
@@ -212,15 +212,15 @@
                         <page string="Operation">
                             <group>
                                 <group string="Cut Dimensions">
-                                    <label for="cut_width" />
-                                    <div class="o_row" name="cut_width">
-                                        <field name="cut_width" required="1" class="oe_inline"
-                                               attrs="{'readonly':[('cut_status', 'in', ('completed','cancel'))]}"/>
-                                        <field name="dimension_uom_id" readonly="1" force_save="1"/>
-                                    </div>
                                     <label for="cut_length"/>
                                     <div class="o_row" name="cut_length">
                                         <field name="cut_length" required="1" class="oe_inline"
+                                               attrs="{'readonly':[('cut_status', 'in', ('completed','cancel'))]}"/>
+                                        <field name="dimension_uom_id" readonly="1" force_save="1"/>
+                                    </div>
+                                    <label for="cut_width" />
+                                    <div class="o_row" name="cut_width">
+                                        <field name="cut_width" required="1" class="oe_inline"
                                                attrs="{'readonly':[('cut_status', 'in', ('completed','cancel'))]}"/>
                                         <field name="dimension_uom_id" readonly="1" force_save="1"/>
                                     </div>
@@ -237,15 +237,15 @@
                                     </div>
                                 </group>
                                 <group string="Final Dimensions">
-                                    <label for="job_width" />
-                                    <div class="o_row" name="job_width">
-                                        <field name="job_width" class="oe_inline"
-                                               attrs="{'readonly':[('cut_status', 'in', ('completed','cancel'))]}"/>
-                                        <field name="dimension_uom_id" readonly="1" force_save="1"/>
-                                    </div>
                                     <label for="job_length"/>
                                     <div class="o_row" name="job_length">
                                         <field name="job_length" class="oe_inline"
+                                               attrs="{'readonly':[('cut_status', 'in', ('completed','cancel'))]}"/>
+                                        <field name="dimension_uom_id" readonly="1" force_save="1"/>
+                                    </div>
+                                    <label for="job_width" />
+                                    <div class="o_row" name="job_width">
+                                        <field name="job_width" class="oe_inline"
                                                attrs="{'readonly':[('cut_status', 'in', ('completed','cancel'))]}"/>
                                         <field name="dimension_uom_id" readonly="1" force_save="1"/>
                                     </div>
