@@ -124,6 +124,7 @@ class StoneItem(models.Model):
     choice_id = fields.Many2one('stone.item.choice', "Choice", required=True)
     remarks = fields.Text("Remarks")
     num_of_pieces = fields.Float("Pieces", default=1)
+    cost = fields.Float("Cost")
     total_size = fields.Float("Total Size", compute=_compute_size)
     state = fields.Selection(selection=[('draft', 'Draft'), ('product', 'Product Created')],
                              string="Status", default='draft', tracking=True,
@@ -162,8 +163,18 @@ class StoneItem(models.Model):
         if item_type_id == self.env.ref('stone_production.item_type_block'):
             next_num = source_id.next_num
             code = self._concat_code(item_type_id.code, source_id.code, color_id.code, source_id.next_num)
-        elif item_type_id == self.env.ref('stone_production.item_type_slab'):
-            code = "%s-%s*%s*%s" % (color_id.code, vals.get('length'), vals.get('width'), vals.get('thickness'))
+            vals['cost'] = source_id.estimate_hour
+        elif item_type_id in (self.env.ref('stone_production.item_type_slab'),
+                              self.env.ref('stone_production.item_type_tile'),
+                              self.env.ref('stone_production.item_type_strip')):
+            thickness = vals.get('thickness') and str(vals.get('thickness')) or 1
+            if '.' in thickness:
+                thickness = thickness.split('.')[0]
+            code = "%s-%s*%s*%s" % (color_id.code, vals.get('length'), vals.get('width'), thickness)
+            if item_type_id == self.env.ref('stone_production.item_type_tile'):
+                code = "Tiles-%s" % code
+            elif item_type_id == self.env.ref('stone_production.item_type_strip'):
+                code = "Stripes-%s" % code
         vals['name'] = code
         vals['after_save'] = True
         item = super(StoneItem, self).create(vals)
@@ -177,10 +188,6 @@ class StoneItem(models.Model):
         quant_obj = self.env['stock.quant']
         for rec in self:
             if rec.state == 'draft':
-                # TODO: add price of product from source_id.estimate_hour
-                #      - If it's block the price will be source_id.estimate_hour * size_value
-                #      - If it's others the price will be !!!!!!!!
-                cost = rec.source_id.estimate_hour
                 rec.product_id = product_obj.create({
                     'name': rec.name,
                     'default_code': rec.name,
@@ -195,7 +202,7 @@ class StoneItem(models.Model):
                     'thickness': rec.thickness,
                     'dimension_uom_id': rec.dimension_uom_id.id,
                     'volume': rec.size_value,
-                    'standard_price': cost,
+                    'standard_price': rec.cost,
                     'num_of_pieces': rec.num_of_pieces,
                     'uom_id': rec.type_size_uom_id.id,
                     'uom_po_id': rec.type_size_uom_id.id,
@@ -203,9 +210,11 @@ class StoneItem(models.Model):
                     'remarks': rec.remarks,
                 })
                 rec.product_tmpl_id = rec.product_id.product_tmpl_id.id
-                rec.state = 'product'
-                # update it's remain size with cut size
-                rec.remain_size = rec.size_value
+                # update it's remain size with cut size, cost with cost equation, and state
+                rec.write({
+                    'state': 'product',
+                    'remain_size': rec.size_value,
+                })
                 # Add qty as stock for location of source with num_of_pieces
                 quant = quant_obj.create({'product_id': rec.product_id.id,
                                           'inventory_quantity': rec.total_size,
@@ -213,18 +222,33 @@ class StoneItem(models.Model):
                 quant.action_apply_inventory()
                 # quant_obj._update_available_quantity(rec.product_id, rec.source_id.location_id, rec.total_size)
 
-    @api.constrains('name')
+    @api.constrains('name', 'parent_id')
     def _constrain_name(self):
         """
         Constrain Name
         """
         for rec in self:
             if isinstance(rec.id, int):
-                other_ids = self.search([('name', '=', rec.name), ('id', '!=', rec.id)])
+                domain = [('name', '=', rec.name), ('id', '!=', rec.id)]
+                if rec.parent_id:
+                    domain.append(('parent_id', '=', rec.parent_id.id))
+                other_ids = self.search(domain)
                 if other_ids:
                     raise UserError(
                         _("Name Must be Unique!!!\n %s already have this name." % other_ids.mapped(
                             'display_name')))
+
+    # =========== Core Methods
+    @api.constrains('width', 'length')
+    def _check_values(self):
+        for rec in self:
+            if isinstance(rec.id, int) and rec.cut_status == 'under_cutting':
+                print('hereeeeee')
+                if rec.width == 0.0 or rec.length == 0.0:
+                    raise UserError(_('Item Details (Length & Width) Values should not be zero.'))
+            if rec.item_type_id == self.env.ref('stone_production.item_type_block') and \
+                    rec.height == 0.0:
+                raise UserError(_('Item Height should not be zero.'))
 
     def open_orders(self):
         """
@@ -254,8 +278,45 @@ class StoneItem(models.Model):
                 'size_value': rec.size_value,
                 'remain_size': rec.remain_size,
                 'remarks': rec.remarks,
+                'cost': rec.size_value * rec.cost,
+                'cut_status': 'under_cutting',
             })
+            rec.cut_status = 'under_cutting'
             compose_form = self.env.ref('stone_production.stone_job_order_block_form_view', False)
+            return {
+                'name': 'Block Cutting',
+                'type': 'ir.actions.act_window',
+                'view_mode': 'form',
+                'res_model': 'stone.job.order',
+                'views': [(compose_form.id, 'form')],
+                'view_id': compose_form.id,
+                'res_id': job_order_id.id,
+            }
+
+    def action_slab_cut(self):
+        job_order_obj = self.env['stone.job.order']
+        for rec in self:
+            job_order_id = job_order_obj.create({
+                'job_type_id': self.env.ref('stone_production.stone_job_order_type_cutting_slab').id,
+                'job_type': 'slab',
+                'job_machine_id': self.env.ref('stone_production.stone_job_order_machine_cutting_slab').id,
+                'parent_id': rec.cut_job_order_id.id,
+                'color_id': rec.color_id.id,
+                'choice_id': rec.choice_id.id,
+                'item_id': rec.id,
+                'width': rec.width,
+                'length': rec.length,
+                'height': rec.height,
+                'thickness': rec.thickness,
+                'size_value': rec.size_value,
+                'remain_size': rec.remain_size,
+                'remarks': rec.remarks,
+                'cost': rec.size_value * rec.cost,
+                'job_order_status': 'job_completed',
+                'cut_status': 'under_cutting',
+            })
+            rec.cut_status = 'under_cutting'
+            compose_form = self.env.ref('stone_production.stone_job_order_slab_form_view', False)
             return {
                 'name': 'Block Cutting',
                 'type': 'ir.actions.act_window',

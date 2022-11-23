@@ -16,6 +16,14 @@
             <field name="name">Slab Cutting</field>
             <field name="item_type_id" ref="stone_production.item_type_slab"/>
         </record>
+        <record id="stone_job_order_type_cutting_tile" model="stone.job.order.type">
+            <field name="name">Tile Cutting</field>
+            <field name="item_type_id" ref="stone_production.item_type_tile"/>
+        </record>
+        <record id="stone_job_order_type_cutting_strip" model="stone.job.order.type">
+            <field name="name">Strip Cutting</field>
+            <field name="item_type_id" ref="stone_production.item_type_strip"/>
+        </record>
         <!-- Machines-->
         <record id="stone_job_order_machine_cutting_block" model="stone.job.order.machine">
             <field name="name">Block Cutting Machine</field>

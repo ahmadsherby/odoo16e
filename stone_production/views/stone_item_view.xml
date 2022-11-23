@@ -9,6 +9,9 @@
                     <button name="action_block_cut" string="Start Block Cut" icon="fa-wrench" type="object" class="btn-warning rounded"
                             attrs="{'invisible':['|','|',('state','!=','product'),('cut_status','not in',('new', 'cutting_completed')),('item_type_id','!=', %(stone_production.item_type_block)d)]}"
                             help="This Action will start create Job order with this block details"/>
+                    <button name="action_slab_cut" string="Start Slab Cut" icon="fa-wrench" type="object" class="btn-warning rounded"
+                            attrs="{'invisible':['|','|',('state','!=','product'),('cut_status','not in',('new', 'cutting_completed')),('item_type_id','!=', %(stone_production.item_type_slab)d)]}"
+                            help="This Action will start create Job order with this block details"/>
                     <button name="create_product" string="Create Product" states="draft"
                             icon="fa-plus" type="object" class="oe_highlight"/>
                     <button name="action_item_completed" string="Cutting Completed" attrs="{'invisible':[('cut_status','!=', 'cutting_completed')]}"
@@ -100,6 +103,7 @@
                                 <field name="remain_size" class="oe_inline" readonly="1" force_save="1"/>
                                 <field name="type_size_uom_id" readonly="1" force_save="1"/>
                             </div>
+                            <field name="cost" readonly="1" force_save="1"/>
                         </group>
                         <group string="Pieces">
                             <field name="num_of_pieces"
@@ -107,7 +111,6 @@
                             <b><label for="total_size"/></b>
                             <div class="o_row" name="total_size">
                                 <field name="total_size" class="oe_inline"/>
-                                <span class="oe_inline">PC/</span>
                                 <field name="type_size_uom_id" readonly="1" force_save="1"/>
                             </div>
                         </group>
@@ -150,6 +153,9 @@
                 <field name="size_value" sum="size_value"/>
                 <field name="num_of_pieces" sum="num_of_pieces"/>
                 <field name="total_size" sum="total_size"/>
+                <field name="cut_size" sum="cut_size"/>
+                <field name="remain_size" sum="remain_size"/>
+                <field name="cost" sum="cost"/>
                 <field name="company_id" groups="base.group_multi_company" optional="hide"/>
                 <field name="state" optional="show" widget="badge"
                        decoration-info="state == 'draft'" decoration-success="state == 'product'"/>
@@ -162,10 +168,10 @@
         </field>
     </record>
     <record id="stone_item_search_view" model="ir.ui.view">
-        <field name="name">stone.item.tree.view</field>
+        <field name="name">stone.item.search.view</field>
         <field name="model">stone.item</field>
         <field name="arch" type="xml">
-            <search string="Search Taxes">
+            <search string="Search Stone Item">
                 <field name="name" string="Name"/>
                 <field name="item_type_id" />
                 <field name="source_id" />
@@ -173,6 +179,8 @@
                 <field name="company_id" groups="base.group_multi_company"/>
                 <filter string="Block" name="block" domain="[('item_type_id','=',%(stone_production.item_type_block)d)]" />
                 <filter string="Slab" name="slab" domain="[('item_type_id','=',%(stone_production.item_type_slab)d)]" />
+                <filter string="Tile" name="tile" domain="[('item_type_id','=',%(stone_production.item_type_tile)d)]" />
+                <filter string="Strip" name="strip" domain="[('item_type_id','=',%(stone_production.item_type_strip)d)]" />
                 <separator/>
                 <filter name="active" string="Active" domain="[('active','=',True)]" help="Show active items"/>
                 <filter name="inactive" string="Inactive" domain="[('active','=',False)]" help="Show inactive items"/>
@@ -190,6 +198,7 @@
         <field name="res_model">stone.item</field>
         <field name="view_mode">tree,form</field>
         <field name="view_id" ref="stone_item_tree_view"/>
+        <field name="context">{'search_default_group_item_type':1}</field>
         <field name="help" type="html">
             <p class="oe_view_nocontent_create">
                 Add New Item
@@ -206,6 +215,6 @@
         <field name="view_mode">tree,form</field>
         <field name="view_id" ref="stone_item_tree_view"/>
         <field name="domain">[('item_type_id.name','=','Block'),('state','=','product'),
-            ('cut_status','in',('new', 'cutting_completed'))]</field>
+            ('cut_status','in',('new','under_cutting' ,'cutting_completed'))]</field>
     </record>
 </odoo>

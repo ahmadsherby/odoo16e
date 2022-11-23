@@ -27,5 +27,27 @@
             <field name="manual_insert" >1</field>
             <field name="categ_id" ref="product_category_slab"/>
         </record>
+        <record id="product_category_tile" model="product.category">
+            <field name="name">Tile</field>
+            <field name="parent_id" ref="product_category_stones"/>
+        </record>
+        <record id="item_type_tile" model="stone.item.type">
+            <field name="name">Tile</field>
+            <field name="code">TL</field>
+            <field name="size" >surface</field>
+            <field name="manual_insert" >1</field>
+            <field name="categ_id" ref="product_category_tile"/>
+        </record>
+        <record id="product_category_strip" model="product.category">
+            <field name="name">Strip</field>
+            <field name="parent_id" ref="product_category_stones"/>
+        </record>
+        <record id="item_type_strip" model="stone.item.type">
+            <field name="name">Strip</field>
+            <field name="code">ST</field>
+            <field name="size" >surface</field>
+            <field name="manual_insert" >1</field>
+            <field name="categ_id" ref="product_category_strip"/>
+        </record>
     </data>
 </odoo>
