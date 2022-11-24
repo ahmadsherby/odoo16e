@@ -297,13 +297,13 @@ class StoneJobOrderLine(models.Model):
 
     # ========== compute methods
     @api.depends('conv_width', 'conv_length', 'conv_height', 'conv_thickness',
-                 'conv_type_id.size', 'conv_num_of_pieces', 'job_order_id.cost')
+                 'conv_type_id.size', 'conv_num_of_pieces', 'job_order_id.main_item_cost')
     def _compute_conv_size(self):
         """
         Compute Convert size dimension and total size according to number of pieces
         """
         for rec in self:
-            conv_size_value = cost = 0
+            conv_size_value = main_item_cost = 0
             if rec.conv_type_id.size == 'volume':
                 conv_size_value = rec.conv_length * rec.conv_width * rec.conv_height / 1000000
             if rec.conv_type_id.size == 'surface':
