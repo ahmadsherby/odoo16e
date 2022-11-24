@@ -104,7 +104,7 @@ class StoneJobOrder(models.Model):
                 res['job_type_id'] = default_type.id
         return res
 
-    @api.depends('cut_width', 'cut_length', 'cut_height', 'cut_thickness',
+    @api.depends('cut_width', 'cut_length', 'cut_height', 'cut_thickness', 'line_ids',
                  'item_type_id.size', 'cut_num_of_pieces')
     def _compute_cut_size(self):
         """
