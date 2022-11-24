@@ -178,6 +178,7 @@ class StoneJobOrder(models.Model):
                                              "* Job Order Completed: this is status done jobs which is not valid to re-use.\n")
     cut_item_ids = fields.One2many(comodel_name='stone.item', inverse_name='cut_job_order_id', string="Cut Items")
     line_ids = fields.One2many('stone.job.order.line', 'job_order_id', "Convert Lines")
+    cut_total_size_for_line_ids = fields.Float("Total Size for All lines", compute=_compute_cut_size)
 
     # =========== Core Methods
     @api.model
@@ -297,30 +298,41 @@ class StoneJobOrderLine(models.Model):
     _rec_name = 'job_order_id'
 
     # ========== compute methods
-    @api.depends('conv_width', 'conv_length', 'conv_height', 'conv_thickness',
+    @api.depends('conv_width', 'conv_length',
                  'conv_type_id.size', 'conv_num_of_pieces', 'job_order_id.main_item_cost')
     def _compute_conv_size(self):
         """
         Compute Convert size dimension and total size according to number of pieces
         """
         for rec in self:
-            conv_size_value = main_item_cost = 0
+
+            conv_size_value = main_item_cost = conv_total_size_for_all_job_order_lines = 0
             if rec.conv_type_id.size == 'volume':
                 conv_size_value = rec.conv_length * rec.conv_width * rec.conv_height / 1000000
             if rec.conv_type_id.size == 'surface':
                 conv_size_value = rec.conv_length * rec.conv_width / 10000
             rec.conv_size_value = conv_size_value
             rec.conv_total_size = conv_size_value * rec.conv_num_of_pieces
+            logging.info(red + "2 %s" % rec.conv_total_size + reset)
             if rec.conv_total_size:
+                logging.info(blue + "1 %s" %  rec.conv_total_size + reset)
                 # Todo Sherby comment : you need to sum total of conv_total_size of all job_order_lines
-                conv_total_size_for_all_job_order_lines = 0
+
                 if rec.job_order_id.line_ids:
-                    conv_total_size_for_all_job_order_lines = sum(rec.job_order_id.line_ids.conv_total_size)
+                    conv_total_size_for_all_job_order_lines = sum(i.conv_total_size for i in rec.job_order_id.line_ids)
+                    logging.info(yellow + "3 %s" %  conv_total_size_for_all_job_order_lines + reset)
                 else:
                     conv_total_size_for_all_job_order_lines = rec.conv_total_size
-                conv_total_size_for_all_job_order_lines = sum(rec.job_order_id.line_ids.conv_total_size)
+                    logging.info(green + "4 %s" %  conv_total_size_for_all_job_order_lines + reset)
+
                 uom_cost = rec.job_order_id.cut_total_cost / conv_total_size_for_all_job_order_lines
+                logging.info(green + "5 %s" %  uom_cost + reset)
+                logging.info(yellow + "6 %s" %  conv_total_size_for_all_job_order_lines + reset)
                 rec.conv_cost = uom_cost * rec.conv_total_size
+                logging.info(green + "7 %s" %  rec.conv_total_size + reset)
+            else:
+                rec.conv_cost = 0
+
 
     # =========== Core Methods
     @api.constrains('conv_width', 'conv_length')
