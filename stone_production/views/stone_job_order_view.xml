@@ -281,7 +281,7 @@
                             </div>
                             <field name="choice_id" readonly="1" force_save="1"/>
                             <field name="remarks" readonly="1" force_save="1"/>
-                            <field name="cost" readonly="1" force_save="1"/>
+                            <field name="main_item_cost" readonly="1" force_save="1"/>
                         </group>
                     </group>
                     <notebook>
