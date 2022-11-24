@@ -312,8 +312,15 @@ class StoneJobOrderLine(models.Model):
             rec.conv_size_value = conv_size_value
             rec.conv_total_size = conv_size_value * rec.conv_num_of_pieces
             if rec.conv_total_size:
-                main_item_cost = rec.job_order_id.main_item_cost / rec.conv_total_size
-            rec.conv_cost = main_item_cost
+                # Todo Sherby comment : you need to sum total of conv_totla_size of all job_order_lines
+                conv_total_size_for_all_job_order_lines = 0
+                if rec.job_order_id.line_ids:
+                    conv_total_size_for_all_job_order_lines = sum(rec.job_order_id.line_ids.conv_total_size)
+                else:
+                    conv_total_size_for_all_job_order_lines = rec.conv_total_size
+                conv_total_size_for_all_job_order_lines = sum(rec.job_order_id.line_ids.conv_total_size)
+                uom_cost = rec.job_order_id.cut_total_cost / conv_total_size_for_all_job_order_lines
+            rec.conv_cost = uom_cost * rec.conv_total_size
 
     # =========== Core Methods
     @api.constrains('conv_width', 'conv_length')
@@ -342,7 +349,7 @@ class StoneJobOrderLine(models.Model):
     conv_num_of_pieces = fields.Float("Pieces", default=1, readonly=True
                                       , states={'draft': [('readonly', False)]})
     conv_total_size = fields.Float("Total Size", compute=_compute_conv_size)
-    conv_cost = fields.Float("Cost", compute=_compute_conv_size)
+    conv_cost = fields.Float("Order Line Cost", compute=_compute_conv_size)
     state = fields.Selection(selection=[('draft', 'Draft'), ('item', 'Item Created')],
                              string="Status", default='draft', tracking=True,
                              help="This is used to check the status of item\n"
