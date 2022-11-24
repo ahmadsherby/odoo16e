@@ -312,7 +312,7 @@ class StoneJobOrderLine(models.Model):
             rec.conv_size_value = conv_size_value
             rec.conv_total_size = conv_size_value * rec.conv_num_of_pieces
             if rec.conv_total_size:
-                # Todo Sherby comment : you need to sum total of conv_totla_size of all job_order_lines
+                # Todo Sherby comment : you need to sum total of conv_total_size of all job_order_lines
                 conv_total_size_for_all_job_order_lines = 0
                 if rec.job_order_id.line_ids:
                     conv_total_size_for_all_job_order_lines = sum(rec.job_order_id.line_ids.conv_total_size)
