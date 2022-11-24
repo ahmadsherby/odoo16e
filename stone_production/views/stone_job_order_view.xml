@@ -111,13 +111,15 @@
                 <field name="thickness" optional="hide" sum="_thickness"/>
                 <field name="size_value" optional="show" sum="size_value"/>
                 <field name="remain_size" optional="show" sum="size_value"/>
-                <field name="cost" optional="show" sum="cost"/>
+                <field name="main_item_cost" optional="show" sum="cost"/>
                 <field name="cut_length" optional="hide" sum="cut_length"/>
                 <field name="cut_width" optional="hide" sum="cut_width"/>
                 <field name="cut_height" optional="hide" sum="cut_height"/>
                 <field name="cut_thickness" optional="hide" sum="cut_thickness"/>
                 <field name="cut_size_value" optional="show" sum="cut_size_value"/>
                 <field name="remain_size" optional="show" sum="remain_size"/>
+                <field name="cut_total_cost" optional="show" sum="cut_total_cost"/>
+
                 <field name="cut_status" widget="badge" optional="show" decoration-info="cut_status == 'under_cutting'"
                        decoration-success="cut_status == 'completed'" decoration-muted="cut_status in ['new', 'cancel']" />
                 <field name="job_order_status" widget="badge" optional="show" decoration-danger="cut_status == 'under_converting'" decoration-muted="cut_status == 'cancel'"

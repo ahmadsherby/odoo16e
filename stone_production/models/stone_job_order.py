@@ -148,7 +148,7 @@ class StoneJobOrder(models.Model):
     color_id = fields.Many2one(comodel_name='stone.item.color', string="Color", readonly=True)
     choice_id = fields.Many2one('stone.item.choice', "Choice")
     remarks = fields.Text("Remarks")
-    cost = fields.Float("Cost")
+    main_item_cost = fields.Float("Main Item Cost")
 
     # User Filling Fields
     cut_length = fields.Integer('Cut Length', digits='Stock Weight')
@@ -158,6 +158,7 @@ class StoneJobOrder(models.Model):
     cut_size_value = fields.Float("Cut Size", digits='Stock Weight', compute=_compute_cut_size)
     cut_num_of_pieces = fields.Float("Pieces", default=1)
     cut_total_size = fields.Float("Total Size", compute=_compute_cut_size)
+    cut_total_cost = fields.Float("Cut Total Cost")
 
     cut_status = fields.Selection(selection=[('new', 'New'), ('under_cutting', 'Under Cutting'),
                                              ('completed', 'Completed'), ('cancel', 'Cancelled')],

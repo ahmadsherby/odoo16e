@@ -1,0 +1,29 @@
+we have items each item has (item_cost , uom_cost, pice_size ,nof_pices and pice_cost)
+job_order on item has ( item_cost,item_uom_cost, result_total_size, result_uom_cost , result_total_cost,order_lines_total_size,order_line_uom_cost)
+job_order_line (job_order_id.order_line_uom_cost,order_line_total_size, order_line_pice_size,order_line_nof_pices,order_line_total_cost)
+
+created new item from job_order_line:
+item_cost = order_line_total_cost , 
+uom_cost =  job_order_id.order_line_uom_cost
+pice_cost = order_line_pice_size * job_order_id.order_line_uom_cost
+
+
+scinario with numbers:
+
+Block item: 2794 / 3.42 = 816.96
+
+uom_cost = hour_rate or purchase cost = 816.96
+item_cost = uom_cost * pice_size * nof_pices = 816.96 * 3.42 * 1 = 2,794
+
+Blck cutting 1:
+item_cost= 2,794
+item_uom_cost = 816.96
+result_total_size = 1.22
+result_uom_cost = item_uom_cost ( type is block ) 
+result_total_cost= item_uom_cost * result_total_size = 816.96 * 1.22 = 996.6912
+order_lines_total_size =0
+order_line_uom_cost = 0
+
+
+
+

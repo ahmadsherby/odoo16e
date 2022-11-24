@@ -278,7 +278,7 @@ class StoneItem(models.Model):
                 'size_value': rec.size_value,
                 'remain_size': rec.remain_size,
                 'remarks': rec.remarks,
-                'cost': rec.size_value * rec.cost,
+                'main_item_cost': rec.size_value * rec.cost,
                 'cut_status': 'under_cutting',
             })
             rec.cut_status = 'under_cutting'
