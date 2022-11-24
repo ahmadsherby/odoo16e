@@ -301,7 +301,7 @@ class StoneJobOrderLine(models.Model):
     _rec_name = 'job_order_id'
 
     # ========== compute methods
-    @api.depends('conv_width', 'conv_length',
+    @api.depends('conv_width', 'conv_length', 'job_order_id.line_ids_uom_cost',
                  'conv_type_id.size', 'conv_num_of_pieces', 'job_order_id.main_item_cost')
     def _compute_conv_size(self):
         """
