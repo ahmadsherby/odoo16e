@@ -111,7 +111,7 @@
                 <field name="thickness" optional="hide" sum="_thickness"/>
                 <field name="size_value" optional="show" sum="size_value"/>
                 <field name="remain_size" optional="show" sum="size_value"/>
-                <field name="main_item_cost" optional="show" sum="cost"/>
+                <field name="main_item_cost" optional="show" sum="main_item_cost"/>
                 <field name="cut_length" optional="hide" sum="cut_length"/>
                 <field name="cut_width" optional="hide" sum="cut_width"/>
                 <field name="cut_height" optional="hide" sum="cut_height"/>
