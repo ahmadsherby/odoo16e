@@ -119,7 +119,7 @@ class StoneJobOrder(models.Model):
             rec.cut_size_value = cut_size_value
             rec.cut_total_size = cut_size_value * rec.cut_num_of_pieces
             rec.cut_total_cost = cut_size_value * rec.cut_num_of_pieces * (rec.main_item_cost/rec.size_value)
-            rec.cut_total_size_for_line_ids = sum(i.conv_cost for i in rec.line_ids) if rec.line_ids else 0
+            rec.cut_total_size_for_line_ids = sum(i.conv_total_size for i in rec.line_ids) if rec.line_ids else 0
             rec.line_ids_uom_cost = rec.cut_total_cost / rec.cut_total_size_for_line_ids if rec.cut_total_size_for_line_ids else 0
 
     name = fields.Char("Job Order", default="/", required=True)
@@ -181,7 +181,7 @@ class StoneJobOrder(models.Model):
     cut_item_ids = fields.One2many(comodel_name='stone.item', inverse_name='cut_job_order_id', string="Cut Items")
     line_ids = fields.One2many('stone.job.order.line', 'job_order_id', "Convert Lines")
     cut_total_size_for_line_ids = fields.Float("Total Size for All lines", compute=_compute_cut_size)
-    line_ids_uom_cost = fields.Float("Total Size for All lines", compute=_compute_cut_size)
+    line_ids_uom_cost = fields.Float("Line Ids UOM Cost", compute=_compute_cut_size)
 
     # =========== Core Methods
     @api.model
