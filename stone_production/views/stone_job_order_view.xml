@@ -261,7 +261,8 @@
                                 <field name="cut_size_value" class="oe_inline"/>
                                 <field name="type_size_uom_id" readonly="1" force_save="1"/>
                             </div>
-                            <field name="main_item_cost" readonly="1" force_save="1"/>
+
+                            <field name="cut_total_cost" readonly="1" force_save="1"/>
                         </group>
                         <group string="Item Details"  attrs="{'invisible':[('cut_status','=','completed')]}">
                             <field name="color_id" force_save="1"/>
