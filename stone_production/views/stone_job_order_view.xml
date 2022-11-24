@@ -331,6 +331,7 @@
                                     <field name="conv_size_value" sum="conv_size_value"/>
                                     <field name="conv_num_of_pieces" sum="conv_num_of_pieces"/>
                                     <field name="conv_total_size" sum="conv_total_size" />
+                                    <field name="line_ids_uom_cost" sum="line_ids_uom_cost" />
                                     <field name="conv_cost" sum="conv_cost" />
                                     <field name="state" invisible="1" />
                                 </tree>
