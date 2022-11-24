@@ -119,7 +119,7 @@ class StoneJobOrder(models.Model):
             rec.cut_size_value = cut_size_value
             rec.cut_total_size = cut_size_value * rec.cut_num_of_pieces
             rec.cut_total_cost = cut_size_value * rec.cut_num_of_pieces * (rec.main_item_cost/rec.size_value)
-            rec.cut_total_size_for_line_ids = sum(i.cut_total_cost for i in rec.line_ids) if rec.line_ids else 0
+            rec.cut_total_size_for_line_ids = sum(i.conv_cost for i in rec.line_ids) if rec.line_ids else 0
 
     name = fields.Char("Job Order", default="/", required=True)
     active = fields.Boolean('Active', default=True)
