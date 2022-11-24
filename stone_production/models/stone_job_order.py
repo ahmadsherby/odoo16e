@@ -301,7 +301,7 @@ class StoneJobOrderLine(models.Model):
     _rec_name = 'job_order_id'
 
     # ========== compute methods
-    @api.depends('conv_width', 'conv_length', 'job_order_id.line_ids_uom_cost',
+    @api.depends('conv_width', 'conv_length', 'line_ids_uom_cost',
                  'conv_type_id.size', 'conv_num_of_pieces', 'job_order_id.main_item_cost')
     def _compute_conv_size(self):
         """
@@ -365,6 +365,7 @@ class StoneJobOrderLine(models.Model):
                                       , states={'draft': [('readonly', False)]})
     conv_total_size = fields.Float("Total Size", compute=_compute_conv_size)
     conv_cost = fields.Float("Order Line Cost", compute=_compute_conv_size)
+    line_ids_uom_cost = fields.Float(related='job_order_id.line_ids_uom_cost')
     state = fields.Selection(selection=[('draft', 'Draft'), ('item', 'Item Created')],
                              string="Status", default='draft', tracking=True,
                              help="This is used to check the status of item\n"
