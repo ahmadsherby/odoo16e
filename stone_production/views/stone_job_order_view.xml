@@ -263,6 +263,8 @@
                             </div>
 
                             <field name="cut_total_cost" readonly="1" force_save="1"/>
+                            <field name="cut_total_size_for_line_ids" readonly="1" force_save="0"/>
+                            <field name="line_ids_uom_cost" readonly="1" force_save="0"/>
                         </group>
                         <group string="Item Details"  attrs="{'invisible':[('cut_status','=','completed')]}">
                             <field name="color_id" force_save="1"/>
