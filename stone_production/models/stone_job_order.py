@@ -320,7 +320,7 @@ class StoneJobOrderLine(models.Model):
                     conv_total_size_for_all_job_order_lines = rec.conv_total_size
                 conv_total_size_for_all_job_order_lines = sum(rec.job_order_id.line_ids.conv_total_size)
                 uom_cost = rec.job_order_id.cut_total_cost / conv_total_size_for_all_job_order_lines
-            rec.conv_cost = uom_cost * rec.conv_total_size
+                rec.conv_cost = uom_cost * rec.conv_total_size
 
     # =========== Core Methods
     @api.constrains('conv_width', 'conv_length')
