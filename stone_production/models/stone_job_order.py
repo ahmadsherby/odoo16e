@@ -118,6 +118,7 @@ class StoneJobOrder(models.Model):
                 cut_size_value = rec.cut_length * rec.cut_width / 10000
             rec.cut_size_value = cut_size_value
             rec.cut_total_size = cut_size_value * rec.cut_num_of_pieces
+            rec.cut_total_cost = cut_size_value * rec.cut_num_of_pieces * (rec.main_item_cost/rec.size_value)
 
     name = fields.Char("Job Order", default="/", required=True)
     active = fields.Boolean('Active', default=True)
@@ -158,7 +159,7 @@ class StoneJobOrder(models.Model):
     cut_size_value = fields.Float("Cut Size", digits='Stock Weight', compute=_compute_cut_size)
     cut_num_of_pieces = fields.Float("Pieces", default=1)
     cut_total_size = fields.Float("Total Size", compute=_compute_cut_size)
-    cut_total_cost = fields.Float("Cut Total Cost")
+    cut_total_cost = fields.Float("Cut Total Cost", compute=_compute_cut_size)
 
     cut_status = fields.Selection(selection=[('new', 'New'), ('under_cutting', 'Under Cutting'),
                                              ('completed', 'Completed'), ('cancel', 'Cancelled')],
