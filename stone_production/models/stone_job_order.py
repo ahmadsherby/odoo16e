@@ -279,7 +279,7 @@ class StoneJobOrder(models.Model):
                 'thickness': rec.conv_thickness,
                 'num_of_pieces': rec.conv_num_of_pieces,
                 'remain_size': rec.conv_size_value,
-                'cost': rec.conv_cost,
+                'cost': rec.line_ids_uom_cost, # Todo: set the unit of measure cost of converted item
             })
         self.write({'job_order_status': 'job_completed'})
         action = self.env["ir.actions.actions"]._for_xml_id('stone_production.stone_item_action')
