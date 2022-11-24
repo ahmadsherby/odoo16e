@@ -119,6 +119,7 @@ class StoneJobOrder(models.Model):
             rec.cut_size_value = cut_size_value
             rec.cut_total_size = cut_size_value * rec.cut_num_of_pieces
             rec.cut_total_cost = cut_size_value * rec.cut_num_of_pieces * (rec.main_item_cost/rec.size_value)
+            rec.cut_total_size_for_line_ids = sum(i.cut_total_cost for i in rec.line_ids) if rec.line_ids else 0
 
     name = fields.Char("Job Order", default="/", required=True)
     active = fields.Boolean('Active', default=True)
@@ -313,23 +314,23 @@ class StoneJobOrderLine(models.Model):
                 conv_size_value = rec.conv_length * rec.conv_width / 10000
             rec.conv_size_value = conv_size_value
             rec.conv_total_size = conv_size_value * rec.conv_num_of_pieces
-            logging.info(red + "2 %s" % rec.conv_total_size + reset)
+            logging.info(red + "1 %s" % rec.conv_total_size + reset)
             if rec.conv_total_size:
-                logging.info(blue + "1 %s" %  rec.conv_total_size + reset)
+                logging.info(blue + "rec.conv_total_size %s" % rec.conv_total_size + reset)
                 # Todo Sherby comment : you need to sum total of conv_total_size of all job_order_lines
 
-                if rec.job_order_id.line_ids:
-                    conv_total_size_for_all_job_order_lines = sum(i.conv_total_size for i in rec.job_order_id.line_ids)
-                    logging.info(yellow + "3 %s" %  conv_total_size_for_all_job_order_lines + reset)
+                if rec.job_order_id.cut_total_size_for_line_ids:
+                    conv_total_size_for_all_job_order_lines = rec.job_order_id.cut_total_size_for_line_ids
+                    logging.info(yellow + "3 %s" % conv_total_size_for_all_job_order_lines + reset)
                 else:
                     conv_total_size_for_all_job_order_lines = rec.conv_total_size
-                    logging.info(green + "4 %s" %  conv_total_size_for_all_job_order_lines + reset)
+                    logging.info(green + "4 %s" % conv_total_size_for_all_job_order_lines + reset)
 
                 uom_cost = rec.job_order_id.cut_total_cost / conv_total_size_for_all_job_order_lines
-                logging.info(green + "5 %s" %  uom_cost + reset)
-                logging.info(yellow + "6 %s" %  conv_total_size_for_all_job_order_lines + reset)
+                logging.info(green + "5 %s" % uom_cost + reset)
+                logging.info(yellow + "6 %s" % conv_total_size_for_all_job_order_lines + reset)
                 rec.conv_cost = uom_cost * rec.conv_total_size
-                logging.info(green + "7 %s" %  rec.conv_total_size + reset)
+                logging.info(green + "7 %s" % rec.conv_total_size + reset)
             else:
                 rec.conv_cost = 0
 
