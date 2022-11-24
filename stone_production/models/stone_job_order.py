@@ -311,8 +311,8 @@ class StoneJobOrderLine(models.Model):
             rec.conv_size_value = conv_size_value
             rec.conv_total_size = conv_size_value * rec.conv_num_of_pieces
             if rec.conv_total_size:
-                cost = rec.job_order_id.cost / rec.conv_total_size
-            rec.conv_cost = cost
+                main_item_cost = rec.job_order_id.main_item_cost / rec.conv_total_size
+            rec.conv_cost = main_item_cost
 
     # =========== Core Methods
     @api.constrains('conv_width', 'conv_length')
