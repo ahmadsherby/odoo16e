@@ -329,7 +329,8 @@ class StoneJobOrderLine(models.Model):
                     logging.info(green + "4 %s" % conv_total_size_for_all_job_order_lines + reset)
 
                 uom_cost = rec.job_order_id.line_ids_uom_cost
-                logging.info(green + "5 %s" % uom_cost + reset)
+                rec.line_ids_uom_cost = uom_cost
+                logging.info(green + "rec.line_ids_uom_cost %s" % rec.line_ids_uom_cost + reset)
                 logging.info(yellow + "6 %s" % conv_total_size_for_all_job_order_lines + reset)
                 rec.conv_cost = uom_cost * rec.conv_total_size
                 logging.info(green + "7 %s" % rec.conv_total_size + reset)
