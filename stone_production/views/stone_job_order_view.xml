@@ -306,8 +306,6 @@
                             <div clas="o_row" name="main_item_cost">
                                 <field name="main_item_cost" class="oe_inline" readonly="1" force_save="1"/>
                                 <field name="currency_name" class="oe_inline" readonly="1" force_save="1" attrs="{'invisible':[('currency_id','=',False)]}"/>
-                                <span class="oe_inline"> / </span>
-                                <field name="item_size_uom_name" class="oe_inline" readonly="1" force_save="1"/>
                             </div>
                         </group>
                     </group>
@@ -403,8 +401,6 @@
                                     <div clas="o_row">
                                         <field name="main_item_cost" class="oe_inline" readonly="1" force_save="1"/>
                                         <field name="currency_name" class="oe_inline" readonly="1" force_save="1" attrs="{'invisible':[('currency_id','=',False)]}"/>
-                                        <span class="oe_inline"> / </span>
-                                        <field name="item_size_uom_name" class="oe_inline" readonly="1" force_save="1"/>
                                     </div>
                                 </group>
                             </group>
@@ -532,8 +528,6 @@
                             <div clas="o_row" name="main_item_cost">
                                 <field name="main_item_cost" class="oe_inline" readonly="1" force_save="1"/>
                                 <field name="currency_name" class="oe_inline" readonly="1" force_save="1" attrs="{'invisible':[('currency_id','=',False)]}"/>
-                                <span class="oe_inline"> / </span>
-                                <field name="item_size_uom_name" class="oe_inline" readonly="1" force_save="1"/>
                             </div>
                             <label for="cut_size_value"/>
                             <div class="o_row" name="cut_size_value">

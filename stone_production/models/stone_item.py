@@ -125,7 +125,7 @@ class StoneItem(models.Model):
     choice_id = fields.Many2one('stone.item.choice', "Choice", required=True)
     remarks = fields.Text("Remarks")
     num_of_pieces = fields.Float("Pieces", default=1)
-    cost = fields.Float("Cost")
+    cost = fields.Float("UOM Cost")
     total_size = fields.Float("Total Size", compute=_compute_size)
     state = fields.Selection(selection=[('draft', 'Draft'), ('product', 'Product Created')],
                              string="Status", default='draft', tracking=True,

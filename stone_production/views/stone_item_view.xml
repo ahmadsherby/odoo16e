@@ -192,6 +192,7 @@
                     <filter string="Item Type" name="group_item_type" domain="[]" context="{'group_by':'item_type_id'}"/>
                     <filter string="Item Color" name="group_item_color" domain="[]" context="{'group_by':'color_id'}"/>
                     <filter string="Item Source" name="group_item_source" domain="[]" context="{'group_by':'source_id'}"/>
+                    <filter string="Item Ballet" name="group_item_ballet" domain="[]" context="{'group_by':'ballet_id'}"/>
                 </group>
             </search>
         </field>

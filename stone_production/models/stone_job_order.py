@@ -48,6 +48,8 @@ class StoneJobOrderType(models.Model):
         action = self.env["ir.actions.actions"]._for_xml_id('stone_production.stone_job_order_action')
         action['context'] = {'default_job_type_id': self.id}
         action['domain'] = [('id', 'in', self.job_order_ids.ids)]
+        action['views'] = [(self.env.ref('stone_production.stone_job_order_tree_view').id, 'tree'),
+                           (self.env.ref('stone_production.stone_job_order_slab_form_view').id, 'form')]
         return action
 
 
