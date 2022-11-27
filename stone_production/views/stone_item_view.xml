@@ -88,11 +88,13 @@
                                 <field name="thickness" class="oe_inline"/>
                                 <field name="dimension_uom_name" readonly="1" force_save="1"/>
                             </div>
-                            <label for="size_value" style="border-top:1 solid gray;"/>
-                            <div class="o_row" name="size_value">
-                                <field name="size_value" class="oe_inline"/>
+                            <field name="uom_cost" readonly="1" force_save="1" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                            <label for="piece_size"/>
+                            <div class="o_row" name="piece_size">
+                                <field name="piece_size" class="oe_inline" readonly="1" force_save="1"/>
                                 <field name="type_size_uom_name" readonly="1" force_save="1"/>
                             </div>
+                            <field name="piece_cost" widget="monetary" options="{'currency_field': 'currency_id'}"/>
                             <label for="cut_size" style="border-top:1 solid gray;"/>
                             <div class="o_row" name="cut_size">
                                 <field name="cut_size" class="oe_inline" readonly="1" force_save="1"/>
@@ -103,16 +105,16 @@
                                 <field name="remain_size" class="oe_inline" readonly="1" force_save="1"/>
                                 <field name="type_size_uom_name" readonly="1" force_save="1"/>
                             </div>
-                            <field name="cost" readonly="1" force_save="1" widget="monetary" options="{'currency_field': 'currency_id'}"/>
                         </group>
                         <group string="Pieces">
                             <field name="num_of_pieces"
                                    attrs="{'readonly':['|',('item_type_id', '=', %(stone_production.item_type_block)d),('state', '!=', 'draft')]}"/>
-                            <b><label for="total_size"/></b>
+                            <label for="total_size"/>
                             <div class="o_row" name="total_size">
                                 <field name="total_size" class="oe_inline"/>
                                 <field name="type_size_uom_name" readonly="1" force_save="1"/>
                             </div>
+                            <field name="item_total_cost"  widget="monetary" options="{'currency_field': 'currency_id'}"/>
                         </group>
                         <group string="Other Details">
                             <field name="currency_id" invisible="1"/>
@@ -147,17 +149,19 @@
                 <field name="color_id" optional="show" attrs="{'readonly':['|',('after_save', '=', True),('state', '!=', 'draft')]}"/>
                 <field name="choice_id" optional="show" attrs="{'readonly':['|',('after_save', '=', True),('state', '!=', 'draft')]}"/>
                 <field name="remarks" optional="hide" attrs="{'readonly':['|',('after_save', '=', True),('state', '!=', 'draft')]}"/>
-                <field name="ballet_id" optional="hide" attrs="{'readonly':['|',('after_save', '=', True),('state', '!=', 'draft')]}"/>
+                <field name="pallet_id" optional="hide" attrs="{'readonly':['|',('after_save', '=', True),('state', '!=', 'draft')]}"/>
                 <field name="length" optional="hide"/>
                 <field name="width" optional="hide"/>
                 <field name="height" optional="hide"/>
                 <field name="thickness" optional="hide"/>
-                <field name="size_value" sum="size_value"/>
+                <field name="piece_size" sum="piece_size"/>
+                <field name="piece_cost" sum="piece_cost"/>
                 <field name="num_of_pieces" sum="num_of_pieces"/>
                 <field name="total_size" sum="total_size"/>
+                <field name="uom_cost" sum="uom_cost" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                <field name="item_total_cost" sum="item_total_cost" widget="monetary" options="{'currency_field': 'currency_id'}"/>
                 <field name="cut_size" sum="cut_size"/>
                 <field name="remain_size" sum="remain_size"/>
-                <field name="cost" sum="cost" widget="monetary" options="{'currency_field': 'currency_id'}"/>
                 <field name="company_id" groups="base.group_multi_company" optional="hide"/>
                 <field name="currency_id" invisible="1"/>
                 <field name="state" optional="show" widget="badge"
@@ -192,7 +196,7 @@
                     <filter string="Item Type" name="group_item_type" domain="[]" context="{'group_by':'item_type_id'}"/>
                     <filter string="Item Color" name="group_item_color" domain="[]" context="{'group_by':'color_id'}"/>
                     <filter string="Item Source" name="group_item_source" domain="[]" context="{'group_by':'source_id'}"/>
-                    <filter string="Item Ballet" name="group_item_ballet" domain="[]" context="{'group_by':'ballet_id'}"/>
+                    <filter string="Item Pallet" name="group_item_pallet" domain="[]" context="{'group_by':'pallet_id'}"/>
                 </group>
             </search>
         </field>

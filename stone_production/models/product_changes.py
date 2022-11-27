@@ -27,6 +27,6 @@ class ProductProduct(models.Model):
     num_of_pieces = fields.Float("Pieces")
     choice_id = fields.Many2one('stone.item.choice', "Choice")
     remarks = fields.Text("Remarks")
-    ballet_id = fields.Many2one('stone.item.ballet', "Ballet")
+    pallet_id = fields.Many2one('stone.item.pallet', "Pallet")
 
 # Ahmed Salama Code End.

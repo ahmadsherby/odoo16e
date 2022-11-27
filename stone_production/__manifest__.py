@@ -19,7 +19,7 @@
         'views/stone_item_type_view.xml',
         'views/stone_item_color_view.xml',
         'views/stone_item_source_view.xml',
-        'views/stone_item_ballet_view.xml',
+        'views/stone_item_pallet_view.xml',
         'views/stone_item_view.xml',
         'views/product_view_changes.xml',
         'views/stone_job_order_type_view.xml',

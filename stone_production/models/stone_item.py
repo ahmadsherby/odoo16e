@@ -64,19 +64,24 @@ class StoneItem(models.Model):
                     code = "%s-%s*%s*%s" % (rec.color_id.code, rec.length, rec.width, rec.thickness)
             rec.code_compute = code
 
-    @api.depends('width', 'length', 'height', 'thickness', 'item_type_id.size', 'num_of_pieces')
+    @api.depends('width', 'length', 'height', 'thickness', 'uom_cost',
+                 'item_type_id.size', 'num_of_pieces')
     def _compute_size(self):
         """
         Compute size form dimension and total size according to number of pieces
         """
         for rec in self:
-            size_value = 0
+            piece_size = 0
             if rec.item_type_id.size == 'volume':
-                size_value = rec.length * rec.width * rec.height / 1000000
+                piece_size = rec.length * rec.width * rec.height / 1000000
             if rec.item_type_id.size == 'surface':
-                size_value = rec.length * rec.width / 10000
-            rec.size_value = size_value
-            rec.total_size = size_value * rec.num_of_pieces
+                piece_size = rec.length * rec.width / 10000
+            rec.piece_size = piece_size
+            piece_cost = piece_size * rec.uom_cost
+            rec.piece_cost = piece_cost
+
+            rec.total_size = piece_size * rec.num_of_pieces
+            rec.item_total_cost = piece_cost * rec.num_of_pieces
 
     @api.onchange('parent_id')
     def _onchange_parent_id(self):
@@ -113,7 +118,8 @@ class StoneItem(models.Model):
                             , states={'draft': [('readonly', False)]})
     thickness = fields.Float('Thickness', digits='Stock Weight', readonly=True
                              , states={'draft': [('readonly', False)]})
-    size_value = fields.Float("Size", digits='Stock Weight', compute=_compute_size)
+    piece_size = fields.Float("Piece Size", digits='Stock Weight', compute=_compute_size)
+    piece_cost = fields.Float("Piece Cost", digits='Stock Weight', compute=_compute_size)
     cut_size = fields.Float("Cut Size", digits='Stock Weight',
                             help="This field show the sum value for all job orders for this item which not new/cancel")
     remain_size = fields.Float("Remain Size", digits='Stock Weight',
@@ -125,8 +131,9 @@ class StoneItem(models.Model):
     choice_id = fields.Many2one('stone.item.choice', "Choice", required=True)
     remarks = fields.Text("Remarks")
     num_of_pieces = fields.Float("Pieces", default=1)
-    cost = fields.Float("UOM Cost")
-    total_size = fields.Float("Total Size", compute=_compute_size)
+    uom_cost = fields.Float("UOM Cost")
+    total_size = fields.Float("Item Total Size", compute=_compute_size)
+    item_total_cost = fields.Float("Item Total Cost", compute=_compute_size)
     state = fields.Selection(selection=[('draft', 'Draft'), ('product', 'Product Created')],
                              string="Status", default='draft', tracking=True,
                              help="This is used to check the status of item\n"
@@ -143,7 +150,7 @@ class StoneItem(models.Model):
     product_tmpl_id = fields.Many2one('product.template', "Template", ondelete='cascade')
     job_order_ids = fields.One2many('stone.job.order', 'item_id', "Job Orders")
     cut_job_order_id = fields.Many2one('stone.job.order', "Cut Job Order")
-    ballet_id = fields.Many2one('stone.item.ballet', "Ballet")
+    pallet_id = fields.Many2one('stone.item.pallet', "Pallet")
 
     # =========== Core Methods
     @api.model
@@ -169,7 +176,7 @@ class StoneItem(models.Model):
         if item_type_id == self.env.ref('stone_production.item_type_block'):
             next_num = source_id.next_num
             code = self._concat_code(item_type_id.code, source_id.code, color_id.code, source_id.next_num)
-            vals['cost'] = source_id.estimate_hour
+            vals['uom_cost'] = source_id.estimate_hour
         elif item_type_id in (self.env.ref('stone_production.item_type_slab'),
                               self.env.ref('stone_production.item_type_tile'),
                               self.env.ref('stone_production.item_type_strip')):
@@ -207,20 +214,20 @@ class StoneItem(models.Model):
                     'height': rec.height,
                     'thickness': rec.thickness,
                     'dimension_uom_id': rec.dimension_uom_id.id,
-                    'volume': rec.size_value,
-                    'standard_price': rec.cost,
+                    'volume': rec.piece_size,
+                    'standard_price': rec.uom_cost,
                     'num_of_pieces': rec.num_of_pieces,
                     'uom_id': rec.type_size_uom_id.id,
                     'uom_po_id': rec.type_size_uom_id.id,
                     'choice_id': rec.choice_id.id,
                     'remarks': rec.remarks,
-                    'ballet_id': rec.ballet_id and rec.ballet_id.id or False,
+                    'pallet_id': rec.pallet_id and rec.pallet_id.id or False,
                 })
                 rec.product_tmpl_id = rec.product_id.product_tmpl_id.id
                 # update it's remain size with cut size, cost with cost equation, and state
                 rec.write({
                     'state': 'product',
-                    'remain_size': rec.size_value,
+                    'remain_size': rec.piece_size,
                 })
                 # Add qty as stock for location of source with num_of_pieces
                 quant = quant_obj.create({'product_id': rec.product_id.id,
@@ -250,7 +257,6 @@ class StoneItem(models.Model):
     def _check_values(self):
         for rec in self:
             if isinstance(rec.id, int) and rec.cut_status == 'under_cutting':
-                print('hereeeeee')
                 if rec.width == 0.0 or rec.length == 0.0:
                     raise UserError(_('Item Details (Length & Width) Values should not be zero.'))
             if rec.item_type_id == self.env.ref('stone_production.item_type_block') and \
@@ -291,10 +297,10 @@ class StoneItem(models.Model):
                 'length': rec.length,
                 'height': rec.height,
                 'thickness': rec.thickness,
-                'size_value': rec.size_value,
+                'item_size': rec.piece_size,
                 'remain_size': rec.remain_size,
                 'remarks': rec.remarks,
-                'main_item_cost': rec.size_value * rec.cost,
+                'main_item_cost': rec.item_total_cost,
                 'cut_status': 'under_cutting',
             })
             rec.cut_status = 'under_cutting'
@@ -324,11 +330,11 @@ class StoneItem(models.Model):
                 'length': rec.length,
                 'height': rec.height,
                 'thickness': rec.thickness,
-                'size_value': rec.size_value,
+                'num_of_pieces': rec.num_of_pieces,
+                'item_size': rec.total_size,
                 'remain_size': rec.remain_size,
                 'remarks': rec.remarks,
-                'main_item_cost': rec.size_value * rec.cost,
-                'cut_total_cost': rec.size_value * rec.cost,
+                'main_item_cost': rec.item_total_cost,
                 'job_order_status': 'under_converting',
                 'cut_status': 'under_cutting',
             })

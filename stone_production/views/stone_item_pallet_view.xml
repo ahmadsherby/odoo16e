@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record id="stone_item_ballet_form_view" model="ir.ui.view">
-        <field name="name">stone.item.ballet.form.view</field>
-        <field name="model">stone.item.ballet</field>
+    <record id="stone_item_pallet_form_view" model="ir.ui.view">
+        <field name="name">stone.item.pallet.form.view</field>
+        <field name="model">stone.item.pallet</field>
         <field name="arch" type="xml">
-            <form string="Item Ballet">
+            <form string="Item Pallet">
                 <sheet>
                     <field name="active" invisible="1"/>
                     <widget name="web_ribbon" title="Archived" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
                     <div class="oe_title">
-                        <label for="name" string="Item Ballet"/>
+                        <label for="name" string="Item Pallet"/>
                         <h1>
                             <div class="d-flex">
                                 <field class="text-break" name="name" placeholder="e.g. Block"/>
@@ -30,28 +30,28 @@
             </form>
         </field>
     </record>
-    <record id="stone_item_ballet_tree_view" model="ir.ui.view">
-        <field name="name">stone.item.ballet.tree.view</field>
-        <field name="model">stone.item.ballet</field>
+    <record id="stone_item_pallet_tree_view" model="ir.ui.view">
+        <field name="name">stone.item.pallet.tree.view</field>
+        <field name="model">stone.item.pallet</field>
         <field name="arch" type="xml">
-            <tree multi_edit="1" string="Item Ballets">
+            <tree multi_edit="1" string="Item Pallets">
                 <field name="name"/>
                 <field name="company_id" groups="base.group_multi_company" readonly="1" optional="hide"/>
             </tree>
         </field>
     </record>
-    <record id="stone_item_ballet_action" model="ir.actions.act_window">
-        <field name="name">Item Ballet</field>
-        <field name="res_model">stone.item.ballet</field>
+    <record id="stone_item_pallet_action" model="ir.actions.act_window">
+        <field name="name">Item Pallet</field>
+        <field name="res_model">stone.item.pallet</field>
         <field name="view_mode">tree,form</field>
-        <field name="view_id" ref="stone_item_ballet_tree_view"/>
+        <field name="view_id" ref="stone_item_pallet_tree_view"/>
         <field name="help" type="html">
             <p class="oe_view_nocontent_create">
                 Add New Type
             </p>
         </field>
     </record>
-    <menuitem id="stone_item_ballet_menu" name="Item Ballet"
+    <menuitem id="stone_item_pallet_menu" name="Item Pallet"
               parent="stone_production.stone_production_config_item"
-              action="stone_item_ballet_action" sequence="4"/>
+              action="stone_item_pallet_action" sequence="4"/>
 </odoo>

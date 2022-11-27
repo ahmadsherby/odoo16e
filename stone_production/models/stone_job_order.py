@@ -107,26 +107,29 @@ class StoneJobOrder(models.Model):
         return res
 
     @api.depends('cut_width', 'cut_length', 'cut_height', 'cut_thickness', 'line_ids.conv_total_size',
-                 'item_type_id.size', 'cut_num_of_pieces', 'size_value', 'main_item_cost')
+                 'item_type_id.size', 'cut_num_of_pieces', 'item_size', 'main_item_cost')
     def _compute_cut_size(self):
         """
         Compute size form dimension and total suze according to number of pieces
         """
         for rec in self:
-            cut_size_value = cut_num_of_pieces =  0
+            piece_cut_size_value =  0
+            cut_num_of_pieces = rec.cut_num_of_pieces
             if rec.job_type_id == self.env.ref('stone_production.stone_job_order_type_cutting_block'):
                 if rec.item_type_id.size == 'volume':
-                    cut_size_value = rec.cut_length * rec.cut_width * rec.cut_height / 1000000
+                    piece_cut_size_value = rec.cut_length * rec.cut_width * rec.cut_height / 1000000
                 if rec.item_type_id.size == 'surface':
-                    cut_size_value = rec.cut_length * rec.cut_width / 10000
+                    piece_cut_size_value = rec.cut_length * rec.cut_width / 10000
                 cut_num_of_pieces = rec.cut_num_of_pieces
             elif rec.job_type_id == self.env.ref('stone_production.stone_job_order_type_cutting_slab'):
-                cut_size_value = sum(i.conv_size_value for i in rec.line_ids)
-                cut_num_of_pieces = sum(i.conv_num_of_pieces for i in rec.line_ids)
-            rec.cut_size_value = cut_size_value
-            rec.cut_total_size = cut_size_value * cut_num_of_pieces
-
-            rec.cut_total_cost = rec.size_value and  cut_size_value * cut_num_of_pieces * (rec.main_item_cost/rec.size_value) or 0
+                if rec.item_type_id.size == 'volume':
+                    piece_cut_size_value = rec.length * rec.width * rec.height / 1000000
+                if rec.item_type_id.size == 'surface':
+                    piece_cut_size_value = rec.length * rec.width / 10000
+                cut_num_of_pieces = rec.num_of_pieces
+            rec.cut_size_value = piece_cut_size_value
+            rec.cut_total_cost = rec.item_size and \
+                                 piece_cut_size_value * cut_num_of_pieces * (rec.main_item_cost / rec.item_size) or 0
             rec.cut_total_size_for_line_ids = sum(i.conv_total_size for i in rec.line_ids) if rec.line_ids else 0
             line_ids_uom_cost = rec.cut_total_cost / rec.cut_total_size_for_line_ids if rec.cut_total_size_for_line_ids else 0
             rec.line_ids_uom_cost = line_ids_uom_cost
@@ -163,13 +166,13 @@ class StoneJobOrder(models.Model):
     width = fields.Integer('Width', digits='Stock Weight', readonly=True)
     height = fields.Integer('Height', digits='Stock Weight', readonly=True)
     thickness = fields.Float('Thickness', digits='Stock Weight', readonly=True)
-    size_value = fields.Float("Size", digits='Stock Weight', readonly=True)
+    item_size = fields.Float("Item Size", digits='Stock Weight', readonly=True)
     remain_size = fields.Float("Remain Size", digits='Stock Weight', readonly=1)
     num_of_pieces = fields.Float("Pieces", default=1)
     color_id = fields.Many2one(comodel_name='stone.item.color', string="Color", readonly=True)
     choice_id = fields.Many2one('stone.item.choice', "Choice")
     remarks = fields.Text("Remarks")
-    main_item_cost = fields.Float("Main Item Cost")
+    main_item_cost = fields.Float("Job Order Cost(Main Item)")
 
     # User Filling Fields
     cut_length = fields.Integer('Cut Length', digits='Stock Weight')
@@ -178,7 +181,6 @@ class StoneJobOrder(models.Model):
     cut_thickness = fields.Float('Cut Thickness', digits='Stock Weight')
     cut_size_value = fields.Float("Cut Size", digits='Stock Weight', compute=_compute_cut_size)
     cut_num_of_pieces = fields.Float("Pieces", default=1)
-    cut_total_size = fields.Float("Total Size", compute=_compute_cut_size)
     cut_total_cost = fields.Float("Cut Total Cost")
 
     cut_status = fields.Selection(selection=[('new', 'New'), ('under_cutting', 'Under Cutting'),
@@ -297,8 +299,8 @@ class StoneJobOrder(models.Model):
                 'thickness': rec.conv_thickness,
                 'num_of_pieces': rec.conv_num_of_pieces,
                 'remain_size': rec.conv_size_value,
-                'cost': rec.line_ids_uom_cost,  # Todo: set the unit of measure cost of converted item
-                'ballet_id': rec.ballet_id and rec.ballet_id.id or False,
+                'uom_cost': rec.line_ids_uom_cost,
+                'pallet_id': rec.pallet_id and rec.pallet_id.id or False,
             })
         write_vals = {'job_order_status': 'job_completed'}
         # in case of slab
@@ -383,15 +385,15 @@ class StoneJobOrderLine(models.Model):
                              help="This is used to check the status of item\n"
                                   "* Draft: it mean it has no related item yet and can be edited\n"
                                   "* Item Created: it mean item has created and uer can't edit it anymore.")
-    ballet_id = fields.Many2one('stone.item.ballet', "Ballet")
+    pallet_id = fields.Many2one('stone.item.pallet', "Pallet")
 
 
-class StoneItemBallet(models.Model):
-    _name = 'stone.item.ballet'
-    _description = "Stone Item Ballet"
+class StoneItemPallet(models.Model):
+    _name = 'stone.item.pallet'
+    _description = "Stone Item Pallet"
     _inherit = ['mail.thread', 'mail.activity.mixin', 'image.mixin']
 
-    name = fields.Char("Ballet")
+    name = fields.Char("Pallet")
     active = fields.Boolean('Active', default=True)
     company_id = fields.Many2one('res.company', string='Company')
 
