@@ -143,6 +143,7 @@ class StoneItem(models.Model):
     product_tmpl_id = fields.Many2one('product.template', "Template", ondelete='cascade')
     job_order_ids = fields.One2many('stone.job.order', 'item_id', "Job Orders")
     cut_job_order_id = fields.Many2one('stone.job.order', "Cut Job Order")
+    ballet_id = fields.Many2one('stone.item.ballet', "Ballet")
 
     # =========== Core Methods
     @api.model
@@ -175,7 +176,7 @@ class StoneItem(models.Model):
             thickness = vals.get('thickness') and str(vals.get('thickness')) or 1
             if '.' in thickness:
                 thickness = thickness.split('.')[0]
-            code = "%s-%s*%s*%s" % (color_id.code, vals.get('length'), vals.get('width'), thickness)
+            code = "%s-%s*%s*%s-%s" % (color_id.code, vals.get('length'), vals.get('width'), thickness, "%s" % self.env.context.get('job_order_line') or '')
             if item_type_id == self.env.ref('stone_production.item_type_tile'):
                 code = "Tiles-%s" % code
             elif item_type_id == self.env.ref('stone_production.item_type_strip'):
@@ -213,6 +214,7 @@ class StoneItem(models.Model):
                     'uom_po_id': rec.type_size_uom_id.id,
                     'choice_id': rec.choice_id.id,
                     'remarks': rec.remarks,
+                    'ballet_id': rec.ballet_id and rec.ballet_id.id or False,
                 })
                 rec.product_tmpl_id = rec.product_id.product_tmpl_id.id
                 # update it's remain size with cut size, cost with cost equation, and state
@@ -264,6 +266,14 @@ class StoneItem(models.Model):
         action = self.env["ir.actions.actions"]._for_xml_id('stone_production.stone_job_order_action')
         action['context'] = {'default_item_id': self.id}
         action['domain'] = [('id', 'in', self.job_order_ids.ids)]
+        if self.item_type_id == self.env.ref('stone_production.item_type_block'):
+            action['views'] = [(self.env.ref('stone_production.stone_job_order_tree_view').id, 'tree'),
+                               (self.env.ref('stone_production.stone_job_order_block_form_view').id, 'form')]
+
+        elif self.item_type_id == self.env.ref('stone_production.item_type_slab'):
+            action['views'] = [(self.env.ref('stone_production.stone_job_order_tree_view').id, 'tree'),
+                               (self.env.ref('stone_production.stone_job_order_slab_form_view').id, 'form')]
+
         return action
 
     def action_block_cut(self):
@@ -318,7 +328,8 @@ class StoneItem(models.Model):
                 'remain_size': rec.remain_size,
                 'remarks': rec.remarks,
                 'main_item_cost': rec.size_value * rec.cost,
-                'job_order_status': 'job_completed',
+                'cut_total_cost': rec.size_value * rec.cost,
+                'job_order_status': 'under_converting',
                 'cut_status': 'under_cutting',
             })
             rec.cut_status = 'under_cutting'

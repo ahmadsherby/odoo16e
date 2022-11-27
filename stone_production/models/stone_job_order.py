@@ -105,20 +105,26 @@ class StoneJobOrder(models.Model):
         return res
 
     @api.depends('cut_width', 'cut_length', 'cut_height', 'cut_thickness', 'line_ids.conv_total_size',
-                 'item_type_id.size', 'cut_num_of_pieces')
+                 'item_type_id.size', 'cut_num_of_pieces', 'size_value', 'main_item_cost')
     def _compute_cut_size(self):
         """
         Compute size form dimension and total suze according to number of pieces
         """
         for rec in self:
-            cut_size_value = 0
-            if rec.item_type_id.size == 'volume':
-                cut_size_value = rec.cut_length * rec.cut_width * rec.cut_height / 1000000
-            if rec.item_type_id.size == 'surface':
-                cut_size_value = rec.cut_length * rec.cut_width / 10000
+            cut_size_value = cut_num_of_pieces =  0
+            if rec.job_type_id == self.env.ref('stone_production.stone_job_order_type_cutting_block'):
+                if rec.item_type_id.size == 'volume':
+                    cut_size_value = rec.cut_length * rec.cut_width * rec.cut_height / 1000000
+                if rec.item_type_id.size == 'surface':
+                    cut_size_value = rec.cut_length * rec.cut_width / 10000
+                cut_num_of_pieces = rec.cut_num_of_pieces
+            elif rec.job_type_id == self.env.ref('stone_production.stone_job_order_type_cutting_slab'):
+                cut_size_value = sum(i.conv_size_value for i in rec.line_ids)
+                cut_num_of_pieces = sum(i.conv_num_of_pieces for i in rec.line_ids)
             rec.cut_size_value = cut_size_value
-            rec.cut_total_size = cut_size_value * rec.cut_num_of_pieces
-            rec.cut_total_cost = cut_size_value * rec.cut_num_of_pieces * (rec.main_item_cost/rec.size_value)
+            rec.cut_total_size = cut_size_value * cut_num_of_pieces
+
+            rec.cut_total_cost = rec.size_value and  cut_size_value * cut_num_of_pieces * (rec.main_item_cost/rec.size_value) or 0
             rec.cut_total_size_for_line_ids = sum(i.conv_total_size for i in rec.line_ids) if rec.line_ids else 0
             line_ids_uom_cost = rec.cut_total_cost / rec.cut_total_size_for_line_ids if rec.cut_total_size_for_line_ids else 0
             rec.line_ids_uom_cost = line_ids_uom_cost
@@ -275,7 +281,7 @@ class StoneJobOrder(models.Model):
         if not self.line_ids:
             raise UserError(_("IT's Mandatory to have Converted lines to be convert!!!"))
         for rec in self.line_ids:
-            item_id = stone_item_obj.create({
+            item_id = stone_item_obj.with_context(job_order_line=rec.id).create({
                 'cut_job_order_id': self.id,
                 'parent_id': self.item_id.id,
                 'choice_id': self.choice_id.id,
@@ -290,8 +296,13 @@ class StoneJobOrder(models.Model):
                 'num_of_pieces': rec.conv_num_of_pieces,
                 'remain_size': rec.conv_size_value,
                 'cost': rec.line_ids_uom_cost,  # Todo: set the unit of measure cost of converted item
+                'ballet_id': rec.ballet_id and rec.ballet_id.id or False,
             })
-        self.write({'job_order_status': 'job_completed'})
+        write_vals = {'job_order_status': 'job_completed'}
+        # in case of slab
+        if self.job_type_id == self.env.ref('stone_production.stone_job_order_type_cutting_slab'):
+            write_vals['cut_status'] = 'completed'
+        self.write(write_vals)
         action = self.env["ir.actions.actions"]._for_xml_id('stone_production.stone_item_action')
         action['domain'] = [('cut_job_order_id', '=', self.id)]
         return action
@@ -370,5 +381,17 @@ class StoneJobOrderLine(models.Model):
                              help="This is used to check the status of item\n"
                                   "* Draft: it mean it has no related item yet and can be edited\n"
                                   "* Item Created: it mean item has created and uer can't edit it anymore.")
+    ballet_id = fields.Many2one('stone.item.ballet', "Ballet")
+
+
+class StoneItemBallet(models.Model):
+    _name = 'stone.item.ballet'
+    _description = "Stone Item Ballet"
+    _inherit = ['mail.thread', 'mail.activity.mixin', 'image.mixin']
+
+    name = fields.Char("Ballet")
+    active = fields.Boolean('Active', default=True)
+    company_id = fields.Many2one('res.company', string='Company')
+
 
 # Ahmed Salama Code End.

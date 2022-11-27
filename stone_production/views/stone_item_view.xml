@@ -147,6 +147,7 @@
                 <field name="color_id" optional="show" attrs="{'readonly':['|',('after_save', '=', True),('state', '!=', 'draft')]}"/>
                 <field name="choice_id" optional="show" attrs="{'readonly':['|',('after_save', '=', True),('state', '!=', 'draft')]}"/>
                 <field name="remarks" optional="hide" attrs="{'readonly':['|',('after_save', '=', True),('state', '!=', 'draft')]}"/>
+                <field name="ballet_id" optional="hide" attrs="{'readonly':['|',('after_save', '=', True),('state', '!=', 'draft')]}"/>
                 <field name="length" optional="hide"/>
                 <field name="width" optional="hide"/>
                 <field name="height" optional="hide"/>

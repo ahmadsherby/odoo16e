@@ -450,7 +450,7 @@
                             attrs="{'invisible':['|',('job_order_status','!=','new'),('cut_status','!=','completed')]}"
                             help="This Action will start set job order under converting"/>
                     <button name="action_create_converted" string="Create Items" icon="fa-plus" type="object" class="btn-info rounded"
-                            attrs="{'invisible':['|',('job_order_status','!=','under_converting'),('cut_status','!=','completed')]}"
+                            attrs="{'invisible':['|',('job_order_status','!=','under_converting'),('cut_status','!=','under_cutting')]}"
                             help="This Action will start create Job order with this block details"/>
                     <field name="cut_status" widget="statusbar" statusbar_visible="new,under_cutting,completed"/>
                 </header>
@@ -511,11 +511,6 @@
                                 <field name="width" required="1" class="oe_inline" readonly="1" force_save="1"/>
                                 <field name="dimension_uom_name" readonly="1" force_save="1"/>
                             </div>
-                            <label for="height" force_save="1"/>
-                            <div class="o_row" name="height">
-                                <field name="height" required="1" class="oe_inline" readonly="1" force_save="1"/>
-                                <field name="dimension_uom_name" readonly="1" force_save="1"/>
-                            </div>
                             <label for="thickness" force_save="1"/>
                             <div class="o_row" name="thickness">
                                 <field name="thickness" required="1" class="oe_inline" readonly="1" force_save="1"/>
@@ -533,18 +528,21 @@
                             </div>
                             <field name="choice_id" readonly="1" force_save="1"/>
                             <field name="remarks" readonly="1" force_save="1"/>
-                            <div clas="o_row">
-                                <field name="main_item_cost" class="oe_inline"/>
+                            <label for="main_item_cost"/>
+                            <div clas="o_row" name="main_item_cost">
+                                <field name="main_item_cost" class="oe_inline" readonly="1" force_save="1"/>
                                 <field name="currency_name" class="oe_inline" readonly="1" force_save="1" attrs="{'invisible':[('currency_id','=',False)]}"/>
-                                <span>/</span>
+                                <span class="oe_inline"> / </span>
                                 <field name="item_size_uom_name" class="oe_inline" readonly="1" force_save="1"/>
                             </div>
-                            <!--                            <field name="main_item_cost" readonly="1" force_save="1" widget="monetary" options="{'currency_field': 'currency_id'}"/>-->
-
+                            <label for="cut_size_value"/>
+                            <div class="o_row" name="cut_size_value">
+                                <field name="cut_size_value" class="oe_inline"/>
+                                <field name="type_size_uom_name" class="oe_inline" readonly="1" force_save="1"/>
+                            </div>
                             <field name="cut_total_cost" readonly="1" force_save="1"/>
-                            <field name="cut_total_size_for_line_ids" readonly="1" force_save="1"/>
-                            <field name="line_ids_uom_cost" readonly="1" force_save="1" widget="monetary" options="{'currency_field': 'currency_id'}"/>
-
+                            <field name="cut_total_size_for_line_ids" readonly="1" force_save="1" attrs="{'invisible':[('line_ids','=',[])]}"/>
+                            <field name="line_ids_uom_cost" readonly="1" force_save="1" attrs="{'invisible':[('line_ids','=',[])]}"/>
                         </group>
                     </group>
                     <notebook>
@@ -556,6 +554,7 @@
                                            options="{'no_create': 1, 'no_create_edit': 1}"
                                            domain="[('id','in',(%(stone_production.item_type_tile)d,%(stone_production.item_type_strip)d))]"/>
                                     <field name="conv_type_size" readonly="1" force_save="1" optional="hide"/>
+                                    <field name="ballet_id" required="1" options="{'no_create': 1, 'no_create_edit': 1}"/>
                                     <field name="conv_length" sum="conv_length"/>
                                     <field name="conv_width" sum="conv_width"/>
                                     <field name="conv_thickness" sum="conv_thickness" readonly="1" force_save="1"/>
