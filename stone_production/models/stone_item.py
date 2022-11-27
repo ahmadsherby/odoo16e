@@ -25,11 +25,9 @@ class StoneItem(models.Model):
         if not res.get('item_type_id'):
             default_type = self.env['stone.item.type'].search([('item_default', '=', True)], limit=1)
             if default_type:
-                print("default_type:: ", default_type)
                 res['item_type_id'] = default_type.id
             else:
                 raise UserError(_("No default item type has set!!!"))
-        print("RES:: ", res)
         return res
 
     def _compute_dim_uom_name(self):
@@ -97,11 +95,13 @@ class StoneItem(models.Model):
     after_save = fields.Boolean("Readonly after save", default=False)
     active = fields.Boolean('Active', default=True)
     company_id = fields.Many2one('res.company', string='Company')
+    currency_id = fields.Many2one('res.currency', "Currency")
     parent_id = fields.Many2one('stone.item', "Parent")
     parent_item_code = fields.Char('parent_id.code')
     item_type_id = fields.Many2one(comodel_name='stone.item.type', string="Type", required=True)
     type_size = fields.Selection(related='item_type_id.size')
     type_size_uom_id = fields.Many2one(related='item_type_id.size_uom_id')
+    type_size_uom_name = fields.Char(related='type_size_uom_id.name')
     source_id = fields.Many2one(comodel_name='stone.item.source', string="Source", required=True)
     color_ids = fields.Many2many(related='source_id.color_ids')
     color_id = fields.Many2one(comodel_name='stone.item.color', string="Color", required=True)
@@ -120,6 +120,7 @@ class StoneItem(models.Model):
                                help="This field show the remain value form "
                                     "all job orders for this item which not new/cancel")
     dimension_uom_id = fields.Many2one('uom.uom', string="UOM", compute=_compute_dim_uom_name)
+    dimension_uom_name = fields.Char(related='dimension_uom_id.name')
 
     choice_id = fields.Many2one('stone.item.choice', "Choice", required=True)
     remarks = fields.Text("Remarks")
@@ -160,6 +161,10 @@ class StoneItem(models.Model):
         source_id = source_obj.browse(vals.get('source_id'))
         code = "/"
         next_num = False
+        company_id = self.env.user.company_id
+        if vals.get('company_id'):
+            company_id = self.env['res.company'].browse(vals.get('company_id'))
+        vals['currency_id'] = company_id.currency_id.id
         if item_type_id == self.env.ref('stone_production.item_type_block'):
             next_num = source_id.next_num
             code = self._concat_code(item_type_id.code, source_id.code, color_id.code, source_id.next_num)
@@ -270,6 +275,7 @@ class StoneItem(models.Model):
                 'job_machine_id': self.env.ref('stone_production.stone_job_order_machine_cutting_block').id,
                 'color_id': rec.color_id.id,
                 'choice_id': rec.choice_id.id,
+                'currency_id': rec.currency_id and rec.currency_id.id or False,
                 'item_id': rec.id,
                 'width': rec.width,
                 'length': rec.length,

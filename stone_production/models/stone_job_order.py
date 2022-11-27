@@ -104,7 +104,7 @@ class StoneJobOrder(models.Model):
                 res['job_type_id'] = default_type.id
         return res
 
-    @api.depends('cut_width', 'cut_length', 'cut_height', 'cut_thickness', 'line_ids',
+    @api.depends('cut_width', 'cut_length', 'cut_height', 'cut_thickness', 'line_ids.conv_total_size',
                  'item_type_id.size', 'cut_num_of_pieces')
     def _compute_cut_size(self):
         """
@@ -120,11 +120,19 @@ class StoneJobOrder(models.Model):
             rec.cut_total_size = cut_size_value * rec.cut_num_of_pieces
             rec.cut_total_cost = cut_size_value * rec.cut_num_of_pieces * (rec.main_item_cost/rec.size_value)
             rec.cut_total_size_for_line_ids = sum(i.conv_total_size for i in rec.line_ids) if rec.line_ids else 0
-            rec.line_ids_uom_cost = rec.cut_total_cost / rec.cut_total_size_for_line_ids if rec.cut_total_size_for_line_ids else 0
+            line_ids_uom_cost = rec.cut_total_cost / rec.cut_total_size_for_line_ids if rec.cut_total_size_for_line_ids else 0
+            rec.line_ids_uom_cost = line_ids_uom_cost
+            for line in rec.line_ids:
+                line.write({
+                    'line_ids_uom_cost': line_ids_uom_cost,
+                    'conv_cost': line_ids_uom_cost * line.conv_total_size
+                })
 
     name = fields.Char("Job Order", default="/", required=True)
     active = fields.Boolean('Active', default=True)
     company_id = fields.Many2one('res.company', string='Company')
+    currency_id = fields.Many2one('res.currency', "Currency")
+    currency_name = fields.Char(related='currency_id.name')
     job_type_id = fields.Many2one('stone.job.order.type', "Job Type")
     item_type_id = fields.Many2one(related='job_type_id.item_type_id')
     job_type = fields.Selection(job_order_types, "Job Type", required=True)
@@ -133,12 +141,14 @@ class StoneJobOrder(models.Model):
     item_type_size = fields.Selection(related='job_type_id.item_type_id.size')
     type_size_uom_id = fields.Many2one(related='job_type_id.item_type_id.size_uom_id',
                                        help="UOM of size to be used on current size")
+    type_size_uom_name = fields.Char(related='type_size_uom_id.name')
     item_size_uom_id = fields.Many2one(related='item_id.item_type_id.size_uom_id',
                                        help="UOM of size of item to be used on remaining")
+    item_size_uom_name = fields.Char(related='item_size_uom_id.name')
 
     dimension_uom_id = fields.Many2one(related='item_id.dimension_uom_id',
                                        help="UOM of one dimension")
-
+    dimension_uom_name = fields.Char(related='dimension_uom_id.name')
     parent_id = fields.Many2one('stone.job.order', "Parent")
     # Auto Filling Fields
     length = fields.Integer('Length', digits='Stock Weight', readonly=True)
@@ -181,7 +191,7 @@ class StoneJobOrder(models.Model):
     cut_item_ids = fields.One2many(comodel_name='stone.item', inverse_name='cut_job_order_id', string="Cut Items")
     line_ids = fields.One2many('stone.job.order.line', 'job_order_id', "Convert Lines")
     cut_total_size_for_line_ids = fields.Float("Total Size for All lines", compute=_compute_cut_size)
-    line_ids_uom_cost = fields.Float("Line Ids UOM Cost", compute=_compute_cut_size)
+    line_ids_uom_cost = fields.Float("Line UOM Cost", compute=_compute_cut_size)
 
     # =========== Core Methods
     @api.model
@@ -279,7 +289,7 @@ class StoneJobOrder(models.Model):
                 'thickness': rec.conv_thickness,
                 'num_of_pieces': rec.conv_num_of_pieces,
                 'remain_size': rec.conv_size_value,
-                'cost': rec.line_ids_uom_cost, # Todo: set the unit of measure cost of converted item
+                'cost': rec.line_ids_uom_cost,  # Todo: set the unit of measure cost of converted item
             })
         self.write({'job_order_status': 'job_completed'})
         action = self.env["ir.actions.actions"]._for_xml_id('stone_production.stone_item_action')
@@ -301,8 +311,8 @@ class StoneJobOrderLine(models.Model):
     _rec_name = 'job_order_id'
 
     # ========== compute methods
-    @api.depends('conv_width', 'conv_length', 'line_ids_uom_cost',
-                 'conv_type_id.size', 'conv_num_of_pieces', 'job_order_id.main_item_cost')
+    @api.depends('conv_width', 'conv_length', 'conv_num_of_pieces',
+                 'conv_type_id.size')
     def _compute_conv_size(self):
         """
         Compute Convert size dimension and total size according to number of pieces
@@ -316,27 +326,15 @@ class StoneJobOrderLine(models.Model):
                 conv_size_value = rec.conv_length * rec.conv_width / 10000
             rec.conv_size_value = conv_size_value
             rec.conv_total_size = conv_size_value * rec.conv_num_of_pieces
-            logging.info(red + "1 %s" % rec.conv_total_size + reset)
-            if rec.conv_total_size:
-                logging.info(blue + "rec.conv_total_size %s" % rec.conv_total_size + reset)
-                # Todo Sherby comment : you need to sum total of conv_total_size of all job_order_lines
-
-                if rec.job_order_id.cut_total_size_for_line_ids:
-                    conv_total_size_for_all_job_order_lines = rec.job_order_id.cut_total_size_for_line_ids
-                    logging.info(yellow + "3 %s" % conv_total_size_for_all_job_order_lines + reset)
-                else:
-                    conv_total_size_for_all_job_order_lines = rec.conv_total_size
-                    logging.info(green + "4 %s" % conv_total_size_for_all_job_order_lines + reset)
-
-                uom_cost = rec.job_order_id.line_ids_uom_cost
-                rec.line_ids_uom_cost = uom_cost
-                logging.info(green + "rec.line_ids_uom_cost %s" % rec.line_ids_uom_cost + reset)
-                logging.info(yellow + "6 %s" % conv_total_size_for_all_job_order_lines + reset)
-                rec.conv_cost = uom_cost * rec.conv_total_size
-                logging.info(green + "7 %s" % rec.conv_total_size + reset)
-            else:
-                rec.conv_cost = 0
-
+            # logging.info(red + "1 %s" % rec.conv_total_size + reset)
+            # uom_cost = rec.job_order_id.line_ids_uom_cost
+            # logging.info(blue + "line_ids_uom_cost :%s" % uom_cost + reset)
+            # conv_cost = 0
+            # if rec.conv_total_size:
+            #     conv_cost = uom_cost * rec.conv_total_size
+            # logging.info(green + "conv_cost: %s" % conv_cost + reset)
+            # rec.conv_cost = conv_cost
+            # rec.line_ids_uom_cost = uom_cost
 
     # =========== Core Methods
     @api.constrains('conv_width', 'conv_length')
@@ -365,8 +363,8 @@ class StoneJobOrderLine(models.Model):
     conv_num_of_pieces = fields.Float("Pieces", default=1, readonly=True
                                       , states={'draft': [('readonly', False)]})
     conv_total_size = fields.Float("Total Size", compute=_compute_conv_size)
-    conv_cost = fields.Float("Order Line Cost", compute=_compute_conv_size)
-    line_ids_uom_cost = fields.Float(related='job_order_id.line_ids_uom_cost')
+    line_ids_uom_cost = fields.Float("UOM Cost")
+    conv_cost = fields.Float("Total Cost")
     state = fields.Selection(selection=[('draft', 'Draft'), ('item', 'Item Created')],
                              string="Status", default='draft', tracking=True,
                              help="This is used to check the status of item\n"

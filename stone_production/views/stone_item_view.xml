@@ -71,39 +71,39 @@
                             <label for="length"/>
                             <div class="o_row" name="length">
                                 <field name="length" class="oe_inline" required="1"/>
-                                <field name="dimension_uom_id" readonly="1" force_save="1"/>
+                                <field name="dimension_uom_name" readonly="1" force_save="1"/>
                             </div>
                             <label for="width" />
                             <div class="o_row" name="width">
                                 <field name="width" class="oe_inline" required="1"/>
-                                <field name="dimension_uom_id" readonly="1" force_save="1"/>
+                                <field name="dimension_uom_name" readonly="1" force_save="1"/>
                             </div>
                             <label for="height" attrs="{'invisible':[('type_size','!=', 'volume')]}"/>
                             <div class="o_row" name="height" attrs="{'invisible':[('type_size','!=', 'volume')]}">
                                 <field name="height" class="oe_inline" attrs="{'required':[('type_size','=', 'surface')]}"/>
-                                <field name="dimension_uom_id" readonly="1" force_save="1"/>
+                                <field name="dimension_uom_name" readonly="1" force_save="1"/>
                             </div>
                             <label for="thickness" attrs="{'invisible':[('type_size','!=', 'surface')]}"/>
                             <div class="o_row" name="thickness" attrs="{'invisible':[('type_size','!=', 'surface')]}">
                                 <field name="thickness" class="oe_inline"/>
-                                <field name="dimension_uom_id" readonly="1" force_save="1"/>
+                                <field name="dimension_uom_name" readonly="1" force_save="1"/>
                             </div>
                             <label for="size_value" style="border-top:1 solid gray;"/>
                             <div class="o_row" name="size_value">
                                 <field name="size_value" class="oe_inline"/>
-                                <field name="type_size_uom_id" readonly="1" force_save="1"/>
+                                <field name="type_size_uom_name" readonly="1" force_save="1"/>
                             </div>
                             <label for="cut_size" style="border-top:1 solid gray;"/>
                             <div class="o_row" name="cut_size">
                                 <field name="cut_size" class="oe_inline" readonly="1" force_save="1"/>
-                                <field name="type_size_uom_id" readonly="1" force_save="1"/>
+                                <field name="type_size_uom_name" readonly="1" force_save="1"/>
                             </div>
                             <label for="remain_size"/>
                             <div class="o_row" name="remain_size">
                                 <field name="remain_size" class="oe_inline" readonly="1" force_save="1"/>
-                                <field name="type_size_uom_id" readonly="1" force_save="1"/>
+                                <field name="type_size_uom_name" readonly="1" force_save="1"/>
                             </div>
-                            <field name="cost" readonly="1" force_save="1"/>
+                            <field name="cost" readonly="1" force_save="1" widget="monetary" options="{'currency_field': 'currency_id'}"/>
                         </group>
                         <group string="Pieces">
                             <field name="num_of_pieces"
@@ -111,10 +111,11 @@
                             <b><label for="total_size"/></b>
                             <div class="o_row" name="total_size">
                                 <field name="total_size" class="oe_inline"/>
-                                <field name="type_size_uom_id" readonly="1" force_save="1"/>
+                                <field name="type_size_uom_name" readonly="1" force_save="1"/>
                             </div>
                         </group>
                         <group string="Other Details">
+                            <field name="currency_id" invisible="1"/>
                             <field name="company_id" groups="base.group_multi_company"/>
                             <field name="parent_id" readonly="1" force_save="1"/>
                             <field name="cut_job_order_id" readonly="1" force_save="1" attrs="{'invisible':[('cut_job_order_id','=', False)]}"/>
@@ -155,8 +156,9 @@
                 <field name="total_size" sum="total_size"/>
                 <field name="cut_size" sum="cut_size"/>
                 <field name="remain_size" sum="remain_size"/>
-                <field name="cost" sum="cost"/>
+                <field name="cost" sum="cost" widget="monetary" options="{'currency_field': 'currency_id'}"/>
                 <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+                <field name="currency_id" invisible="1"/>
                 <field name="state" optional="show" widget="badge"
                        decoration-info="state == 'draft'" decoration-success="state == 'product'"/>
                 <field name="cut_status" optional="show" widget="badge" decoration-info="state == ('new', 'cutting_completed')"
