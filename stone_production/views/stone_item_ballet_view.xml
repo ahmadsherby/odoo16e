@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="stone_item_ballet_form_view" model="ir.ui.view">
+        <field name="name">stone.item.ballet.form.view</field>
+        <field name="model">stone.item.ballet</field>
+        <field name="arch" type="xml">
+            <form string="Item Ballet">
+                <sheet>
+                    <field name="active" invisible="1"/>
+                    <widget name="web_ribbon" title="Archived" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
+                    <div class="oe_title">
+                        <label for="name" string="Item Ballet"/>
+                        <h1>
+                            <div class="d-flex">
+                                <field class="text-break" name="name" placeholder="e.g. Block"/>
+                            </div>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+    <record id="stone_item_ballet_tree_view" model="ir.ui.view">
+        <field name="name">stone.item.ballet.tree.view</field>
+        <field name="model">stone.item.ballet</field>
+        <field name="arch" type="xml">
+            <tree multi_edit="1" string="Item Ballets">
+                <field name="name"/>
+                <field name="company_id" groups="base.group_multi_company" readonly="1" optional="hide"/>
+            </tree>
+        </field>
+    </record>
+    <record id="stone_item_ballet_action" model="ir.actions.act_window">
+        <field name="name">Item Ballet</field>
+        <field name="res_model">stone.item.ballet</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="stone_item_ballet_tree_view"/>
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+                Add New Type
+            </p>
+        </field>
+    </record>
+    <menuitem id="stone_item_ballet_menu" name="Item Ballet"
+              parent="stone_production.stone_production_config_item"
+              action="stone_item_ballet_action" sequence="4"/>
+</odoo>
