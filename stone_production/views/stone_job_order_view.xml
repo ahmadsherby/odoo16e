@@ -499,8 +499,7 @@
                             <field name="create_date" readonly="1" force_save="1"/>
                             <field name="item_type_size" invisible="1"/>
                         </group>
-                        <group string="Item Details">
-                            <separator string="Slab Dimensions" />
+                        <group string="Slab Dimensions">
                             <label for="length" />
                             <div class="o_row" name="length">
                                 <field name="length" required="1" class="oe_inline" readonly="1" force_save="1"/>
@@ -539,10 +538,15 @@
                             <label for="main_item_cost"/>
                             <div clas="o_row" name="main_item_cost">
                                 <field name="main_item_cost" class="oe_inline" readonly="1" force_save="1"/>
-                                <field name="currency_name" class="oe_inline" readonly="1" force_save="1" attrs="{'invisible':[('currency_id','=',False)]}"/>
+                                <field name="currency_name" class="oe_inline" readonly="1" force_save="1"
+                                       attrs="{'invisible':[('currency_id','=',False)]}"/>
                             </div>
-
-                            <field name="cut_total_cost" readonly="1" force_save="1" string="Item Size Cost"/>
+                            <label for="cut_total_cost"/>
+                            <div clas="o_row" name="cut_total_cost">
+                                <field name="cut_total_cost" class="oe_inline" readonly="1" force_save="1"/>
+                                <field name="currency_name" class="oe_inline" readonly="1" force_save="1"
+                                       attrs="{'invisible':[('currency_id','=',False)]}"/>
+                            </div>
                             <field name="cut_total_size_for_line_ids" readonly="1" force_save="1" attrs="{'invisible':[('line_ids','=',[])]}"/>
                             <field name="line_ids_uom_cost" readonly="1" force_save="1" attrs="{'invisible':[('line_ids','=',[])]}"/>
                         </group>

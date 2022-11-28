@@ -102,9 +102,10 @@ class StoneItem(models.Model):
         """
         for rec in self:
             slab_remain_num_of_pieces = 0
-            if rec.item_type_id == self.env.ref('stone_production.item_type_slab')\
-                    and rec.job_order_ids:
-                slab_remain_num_of_pieces = rec.num_of_pieces - sum(j.num_of_pieces for j in rec.job_order_ids)
+            if rec.item_type_id == self.env.ref('stone_production.item_type_slab'):
+                slab_remain_num_of_pieces = rec.num_of_pieces
+                if rec.job_order_ids:
+                    slab_remain_num_of_pieces -= sum(j.num_of_pieces for j in rec.job_order_ids)
             rec.slab_remain_num_of_pieces = slab_remain_num_of_pieces
 
     name = fields.Char("Item Code", default='/')

@@ -107,13 +107,13 @@ class StoneJobOrder(models.Model):
         return res
 
     @api.depends('cut_width', 'cut_length', 'cut_height', 'cut_thickness', 'line_ids.conv_total_size',
-                 'item_type_id.size', 'cut_num_of_pieces', 'item_size', 'main_item_cost')
+                 'item_type_id.size', 'cut_num_of_pieces', 'item_size', 'main_item_cost', 'num_of_pieces')
     def _compute_cut_size(self):
         """
         Compute size form dimension and total suze according to number of pieces
         """
         for rec in self:
-            piece_cut_size_value =  0
+            piece_cut_size_value = 0
             cut_num_of_pieces = rec.cut_num_of_pieces
             if rec.job_type_id == self.env.ref('stone_production.stone_job_order_type_cutting_block'):
                 if rec.item_type_id.size == 'volume':
