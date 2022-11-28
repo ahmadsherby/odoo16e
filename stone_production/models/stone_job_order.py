@@ -329,9 +329,8 @@ class StoneJobOrder(models.Model):
                 'pallet_id': rec.pallet_id and rec.pallet_id.id or False,
             })
         write_vals = {'job_order_status': 'job_completed'}
-        # in case of slab
-        if self.job_type_id == self.env.ref('stone_production.stone_job_order_type_cutting_slab')\
-                and self.slab_remain_num_of_pieces == 0.0:
+        # in case of slab  TODO:: and self.slab_remain_num_of_pieces == 0.0
+        if self.job_type_id == self.env.ref('stone_production.stone_job_order_type_cutting_slab'):
             write_vals['cut_status'] = 'completed'
         self.write(write_vals)
         action = self.env["ir.actions.actions"]._for_xml_id('stone_production.stone_item_action')
