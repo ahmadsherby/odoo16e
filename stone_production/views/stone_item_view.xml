@@ -10,7 +10,7 @@
                             attrs="{'invisible':['|','|',('state','!=','product'),('cut_status','not in',('new', 'cutting_completed')),('item_type_id','!=', %(stone_production.item_type_block)d)]}"
                             help="This Action will start create Job order with this block details"/>
                     <button name="action_slab_cut" string="Start Slab Cut" icon="fa-wrench" type="object" class="btn-warning rounded"
-                            attrs="{'invisible':['|','|','|',('state','!=','product'),('slab_remain_num_of_pieces','&gt;',1),
+                            attrs="{'invisible':['|','|','|',('state','!=','product'),('slab_remain_num_of_pieces','&lt;',1),
                             ('cut_status','not in',('new','cutting_completed')),('item_type_id','!=', %(stone_production.item_type_slab)d)]}"
                             help="This Action will start create Job order with this block details"/>
                     <button name="create_product" string="Create Product" states="draft"
