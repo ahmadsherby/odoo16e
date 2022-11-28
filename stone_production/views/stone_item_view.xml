@@ -10,7 +10,8 @@
                             attrs="{'invisible':['|','|',('state','!=','product'),('cut_status','not in',('new', 'cutting_completed')),('item_type_id','!=', %(stone_production.item_type_block)d)]}"
                             help="This Action will start create Job order with this block details"/>
                     <button name="action_slab_cut" string="Start Slab Cut" icon="fa-wrench" type="object" class="btn-warning rounded"
-                            attrs="{'invisible':['|','|',('state','!=','product'),('cut_status','not in',('new', 'cutting_completed')),('item_type_id','!=', %(stone_production.item_type_slab)d)]}"
+                            attrs="{'invisible':['|','|',('state','!=','product'),
+                            ('cut_status','not in',('new', 'cutting_completed')),('item_type_id','!=', %(stone_production.item_type_slab)d)]}"
                             help="This Action will start create Job order with this block details"/>
                     <button name="create_product" string="Create Product" states="draft"
                             icon="fa-plus" type="object" class="oe_highlight"/>
@@ -109,6 +110,8 @@
                         <group string="Pieces">
                             <field name="num_of_pieces"
                                    attrs="{'readonly':['|',('item_type_id', '=', %(stone_production.item_type_block)d),('state', '!=', 'draft')]}"/>
+                            <field name="slab_remain_num_of_pieces"
+                                    attrs="{'invisible':[('item_type_id', '!=', %(stone_production.item_type_slab)d)]}"/>
                             <label for="total_size"/>
                             <div class="o_row" name="total_size">
                                 <field name="total_size" class="oe_inline"/>

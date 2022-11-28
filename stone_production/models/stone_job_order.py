@@ -139,6 +139,14 @@ class StoneJobOrder(models.Model):
                     'conv_cost': line_ids_uom_cost * line.conv_total_size
                 })
 
+    @api.depends('num_of_pieces', 'slab_num_of_pieces')
+    def _compute_slab_pieces(self):
+        """
+        Compute remain slab only for slab job orders
+        """
+        for rec in self:
+            rec.slab_remain_num_of_pieces = rec.slab_num_of_pieces - rec.num_of_pieces
+
     name = fields.Char("Job Order", default="/", required=True)
     active = fields.Boolean('Active', default=True)
     company_id = fields.Many2one('res.company', string='Company')
@@ -168,11 +176,16 @@ class StoneJobOrder(models.Model):
     thickness = fields.Float('Thickness', digits='Stock Weight', readonly=True)
     item_size = fields.Float("Item Size", digits='Stock Weight', readonly=True)
     remain_size = fields.Float("Remain Size", digits='Stock Weight', readonly=1)
-    num_of_pieces = fields.Float("Pieces", default=1)
+    num_of_pieces = fields.Float("Pieces", default=1, help="Used number of pieces on this job order")
+    slab_num_of_pieces = fields.Float("Slab Pieces", default=1, help="Slab total number of pieces")
+    slab_remain_num_of_pieces = fields.Float("Slab Remain Pieces", default=1,
+                                             compute=_compute_slab_pieces,
+                                             help="Slab remain pieces after cut it into items")
     color_id = fields.Many2one(comodel_name='stone.item.color', string="Color", readonly=True)
     choice_id = fields.Many2one('stone.item.choice', "Choice")
     remarks = fields.Text("Remarks")
     main_item_cost = fields.Float("Job Order Cost(Main Item)")
+    piece_cost = fields.Float("Piece Cost")
 
     # User Filling Fields
     cut_length = fields.Integer('Cut Length', digits='Stock Weight')
@@ -236,6 +249,19 @@ class StoneJobOrder(models.Model):
                         rec.cut_height == 0.0:
                     raise UserError(_('Job Order Cut Height should not be zero.'))
 
+    @api.constrains('num_of_pieces', 'slab_num_of_pieces')
+    def _constrain_slab_pieces(self):
+        """
+        Constrain on slab job order to avoid set number of pieces l=more than the avaliable
+        """
+        for rec in self:
+            if rec.job_type_id == self.env.ref('stone_production.stone_job_order_type_cutting_slab'):
+                if rec.num_of_pieces > rec.slab_num_of_pieces:
+                    raise UserError(_("The Used pieces %s can't be more than the slab total pieces %s"
+                                      % (rec.num_of_pieces, rec.slab_num_of_pieces)))
+                if rec.num_of_pieces <= 0:
+                    raise UserError(_("The Used pieces can't be less or equal zero!!!"))
+
     # ========== Business methods
     # The Next action if response on create job order itself
     # ================================================
@@ -285,7 +311,7 @@ class StoneJobOrder(models.Model):
         if not self.line_ids:
             raise UserError(_("IT's Mandatory to have Converted lines to be convert!!!"))
         for rec in self.line_ids:
-            item_id = stone_item_obj.with_context(job_order_line=rec.id).create({
+            stone_item_obj.with_context(job_order_line=rec.id).create({
                 'cut_job_order_id': self.id,
                 'parent_id': self.item_id.id,
                 'choice_id': self.choice_id.id,
@@ -304,7 +330,8 @@ class StoneJobOrder(models.Model):
             })
         write_vals = {'job_order_status': 'job_completed'}
         # in case of slab
-        if self.job_type_id == self.env.ref('stone_production.stone_job_order_type_cutting_slab'):
+        if self.job_type_id == self.env.ref('stone_production.stone_job_order_type_cutting_slab')\
+                and self.slab_remain_num_of_pieces == 0.0:
             write_vals['cut_status'] = 'completed'
         self.write(write_vals)
         action = self.env["ir.actions.actions"]._for_xml_id('stone_production.stone_item_action')

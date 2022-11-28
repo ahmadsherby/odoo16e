@@ -270,6 +270,8 @@
                         </group>
                         <group string="Item Details"  attrs="{'invisible':[('cut_status','=','completed')]}">
                             <field name="color_id" force_save="1"/>
+                            <field name="choice_id" readonly="1" force_save="1"/>
+                            <field name="remarks" readonly="1" force_save="1"/>
                             <label for="length" />
                             <div class="o_row" name="length">
                                 <field name="length" required="1" class="oe_inline" readonly="1" force_save="1"/>
@@ -300,8 +302,7 @@
                                 <field name="remain_size" class="oe_inline"/>
                                 <field name="item_size_uom_name" class="oe_inline" readonly="1" force_save="1"/>
                             </div>
-                            <field name="choice_id" readonly="1" force_save="1"/>
-                            <field name="remarks" readonly="1" force_save="1"/>
+                            <field name="piece_cost" readonly="1" force_save="1" widget="monetary" options="{'currency_field': 'currency_id'}"/>
                             <label for="main_item_cost"/>
                             <div clas="o_row" name="main_item_cost">
                                 <field name="main_item_cost" class="oe_inline" readonly="1" force_save="1"/>
@@ -490,16 +491,16 @@
                             <field name="job_machine_id" options="{'no_create': 1, 'no_create_edit': 1}"
                                    domain="[('item_type_id', '=', item_type_id)]"
                                    attrs="{'readonly':[('cut_status', '!=', 'new')]}"/>
+                            <field name="color_id" force_save="1"/>
+                            <field name="choice_id" readonly="1" force_save="1"/>
+                            <field name="remarks" readonly="1" force_save="1"/>
                             <field name="company_id" groups="base.group_multi_company"/>
                             <field name="currency_id" invisible="1"/>
                             <field name="create_date" readonly="1" force_save="1"/>
                             <field name="item_type_size" invisible="1"/>
                         </group>
                         <group string="Item Details">
-                            <field name="color_id" force_save="1"/>
-                            <field name="choice_id" readonly="1" force_save="1"/>
-                            <field name="remarks" readonly="1" force_save="1"/>
-                             <separator string="Dimensions" />
+                            <separator string="Slab Dimensions" />
                             <label for="length" />
                             <div class="o_row" name="length">
                                 <field name="length" required="1" class="oe_inline" readonly="1" force_save="1"/>
@@ -520,17 +521,20 @@
                                 <field name="cut_size_value" class="oe_inline"/>
                                 <field name="type_size_uom_name" class="oe_inline" readonly="1" force_save="1"/>
                             </div>
-                            <field name="num_of_pieces" readonly="1" force_save="1"/>
+                            <field name="piece_cost" readonly="1" force_save="1" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                            <label for="num_of_pieces" string="Used Pieces" />  <!-- Used pieces on cut this slab -->
+                            <div class="o_row">
+                                <field name="num_of_pieces" required="1" class="oe_inline"/>  <!-- Cutted pieces on cut this slab -->
+                                <span class="oe_inline"> / </span>
+                                <field name="slab_num_of_pieces" readonly="1" force_save="1" class="oe_inline"/><!-- Total Slab pieces on cut this slab -->
+                                <span class="oe_inline"> Pieces</span>
+                            </div>
+                            <field name="slab_remain_num_of_pieces"/>
                             <label for="item_size" />
                             <div clas="o_row">
                                 <field name="item_size" class="oe_inline"/>
                                 <field name="item_size_uom_name" class="oe_inline" readonly="1" force_save="1"/>
                             </div>
-<!--                            <label for="remain_size" />-->
-<!--                            <div clas="o_row">-->
-<!--                                <field name="remain_size" class="oe_inline"/>-->
-<!--                                <field name="item_size_uom_name" class="oe_inline" readonly="1" force_save="1"/>-->
-<!--                            </div>-->
                             <separator string="Cost" />
                             <label for="main_item_cost"/>
                             <div clas="o_row" name="main_item_cost">
