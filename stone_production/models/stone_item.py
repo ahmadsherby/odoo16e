@@ -101,12 +101,12 @@ class StoneItem(models.Model):
         This shall be effect only on Slab items
         """
         for rec in self:
-            slab_remain_num_of_pieces = 0
+            slab_remain = 0
             if rec.item_type_id == self.env.ref('stone_production.item_type_slab'):
-                slab_remain_num_of_pieces = rec.num_of_pieces
+                slab_remain = rec.num_of_pieces
                 if rec.job_order_ids:
-                    slab_remain_num_of_pieces = rec.num_of_pieces - sum(j.num_of_pieces for j in rec.job_order_ids)
-            rec.slab_remain_num_of_pieces = slab_remain_num_of_pieces
+                    slab_remain = rec.num_of_pieces - sum(j.num_of_pieces for j in rec.job_order_ids.filtered(lambda jo: jo.cut_status == 'completed'))
+            rec.slab_remain_num_of_pieces = slab_remain
 
     name = fields.Char("Item Code", default='/')
     code_compute = fields.Char("Code CMP", default="/", compute=_compute_code)
@@ -155,8 +155,9 @@ class StoneItem(models.Model):
                                   "* Draft: it mean it has no related product yet and can be edited\n"
                                   "* Product Created: it mean product has created and uer can't edit it anymore.")
     cut_status = fields.Selection(selection=[('new', 'New'), ('under_cutting', 'Under Cutting'),
-                                             ('cutting_completed', 'Cutting Completed'), ('item_completed', 'Item Completed')],
-                                  string="Cut Status", default='new', tracking=True,
+                                             ('cutting_completed', 'Cutting Completed'),
+                                             ('item_completed', 'Item Completed')], string="Cut Status",
+                                  default='new', tracking=True,
                                   help="This is status of cut operation:\n"
                                        "* New: this is new status for job order where fields is open to edit.\n"
                                        "* Under Cutting: this is status for valid for cutting.\n"
@@ -346,7 +347,7 @@ class StoneItem(models.Model):
                 'length': rec.length,
                 'height': rec.height,
                 'thickness': rec.thickness,
-                'num_of_pieces': rec.num_of_pieces,
+                'num_of_pieces': rec.slab_remain_num_of_pieces,
                 'slab_num_of_pieces': rec.num_of_pieces,
                 'item_size': rec.total_size,
                 'remain_size': rec.remain_size,
