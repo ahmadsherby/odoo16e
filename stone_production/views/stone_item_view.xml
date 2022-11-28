@@ -172,8 +172,13 @@
                 <field name="cut_status" optional="show" widget="badge" decoration-info="state == ('new', 'cutting_completed')"
                        decoration-warning="state == 'under_cutting'" decoration-success="state == 'item_completed'"/>
                 <button name="action_block_cut" string="Start Block Cut" icon="fa-wrench" type="object" class="btn-warning rounded"
-                        attrs="{'invisible':['|','|',('state','!=','product'),('cut_status','not in',('new', 'cutting_completed')),('item_type_id','!=', %(stone_production.item_type_block)d)]}"
+                        attrs="{'invisible':['|','|',('state','!=','product'),('cut_status','not in',('new', 'cutting_completed')),
+                        ('item_type_id','!=', %(stone_production.item_type_block)d)]}"
                         help="This Action will start create Job order with this block details"/>
+                 <button name="action_slab_cut" string="Start Slab Cut" icon="fa-wrench" type="object" class="btn-warning rounded"
+                            attrs="{'invisible':['|','|','|',('state','!=','product'),('slab_remain_num_of_pieces','&lt;',1),
+                            ('cut_status','not in',('new','cutting_completed')),('item_type_id','!=', %(stone_production.item_type_slab)d)]}"
+                            help="This Action will start create Job order with this block details"/>
             </tree>
         </field>
     </record>
@@ -226,6 +231,15 @@
         <field name="view_mode">tree,form</field>
         <field name="view_id" ref="stone_item_tree_view"/>
         <field name="domain">[('item_type_id.name','=','Block'),('state','=','product'),
+            ('cut_status','in',('new','under_cutting' ,'cutting_completed'))]</field>
+    </record>
+    <!--Slab Action-->
+    <record id="stone_item_slab_action" model="ir.actions.act_window">
+        <field name="name">Slab Cutting</field>
+        <field name="res_model">stone.item</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="stone_item_tree_view"/>
+        <field name="domain">[('item_type_id.name','=','Slab'),('state','=','product'),
             ('cut_status','in',('new','under_cutting' ,'cutting_completed'))]</field>
     </record>
 </odoo>

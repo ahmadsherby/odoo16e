@@ -583,8 +583,13 @@
             </form>
         </field>
     </record>
+
+    <menuitem id="stone_job_order_menu_slab"
+              parent="stone_production.stone_job_order_menu_root"
+              action="stone_production.stone_item_slab_action" sequence="3"/>
+
     <record id="stone_job_order_action_slab" model="ir.actions.act_window">
-        <field name="name">Slab Cutting</field>
+        <field name="name">Cutted Slabs</field>
         <field name="res_model">stone.job.order</field>
         <field name="view_mode">tree,form</field>
         <field name="view_id" ref="stone_job_order_tree_view"/>
@@ -594,22 +599,9 @@
             (0, 0, {'view_mode': 'tree', 'view_id': ref('stone_production.stone_job_order_tree_view')}),
             (0, 0, {'view_mode': 'form', 'view_id': ref('stone_production.stone_job_order_slab_form_view')})]"/>
     </record>
-    <menuitem id="stone_job_order_menu_slab"
+    <menuitem id="stone_job_order_menu_all_slab"
               parent="stone_production.stone_job_order_menu_root"
-              action="stone_job_order_action_slab" sequence="3"/>
+              action="stone_job_order_action_slab" sequence="4"/>
 
-    <!--        <record id="stone_job_order_action_slab_lines" model="ir.actions.act_window">-->
-    <!--            <field name="name">Slab Cutting Lines</field>-->
-    <!--            <field name="res_model">stone.job.order</field>-->
-    <!--            <field name="view_mode">tree,form</field>-->
-    <!--            <field name="view_id" ref="stone_job_order_tree_view"/>-->
-    <!--            <field name="domain">[('job_type','=', 'slab')]</field>-->
-    <!--            <field name="context">{'default_job_type': 'slab'}</field>-->
-    <!--            <field name="view_ids" eval="[(5, 0, 0),-->
-    <!--                (0, 0, {'view_mode': 'tree', 'view_id': ref('stone_production.stone_job_order_tree_view')}),-->
-    <!--                (0, 0, {'view_mode': 'form', 'view_id': ref('stone_production.stone_job_order_slab_form_view')})]"/>-->
-    <!--        </record>-->
-    <!--        <menuitem id="stone_job_order_menu_slab_lines"-->
-    <!--                  parent="stone_production.stone_job_order_menu_root"-->
-    <!--                  action="stone_job_order_action_slab_lines" sequence="4"/>-->
+
 </odoo>
