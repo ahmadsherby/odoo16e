@@ -160,6 +160,7 @@
                 <field name="piece_size" sum="piece_size"/>
                 <field name="piece_cost" sum="piece_cost"/>
                 <field name="num_of_pieces" sum="num_of_pieces"/>
+                <field name="slab_remain_num_of_pieces" sum="slab_remain_num_of_pieces" optional="hide"/>
                 <field name="total_size" sum="total_size"/>
                 <field name="uom_cost" sum="uom_cost" widget="monetary" options="{'currency_field': 'currency_id'}"/>
                 <field name="item_total_cost" sum="item_total_cost" widget="monetary" options="{'currency_field': 'currency_id'}"/>

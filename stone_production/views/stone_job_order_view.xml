@@ -50,7 +50,7 @@
                         </group>
                     </group>
                     <notebook>
-                        <page string="Operation">
+                        <page name="operation" string="Operation">
                             <group>
                                 <group string="Cut Dimensions">
                                     <label for="cut_length"/>
@@ -310,7 +310,26 @@
                         </group>
                     </group>
                     <notebook>
-                        <page string="Cut Dimensions" attrs="{'invisible':[('cut_status','=','completed')]}">
+                        <page name="converted_lines" string="Convert Lines" attrs="{'invisible':['|',('cut_status','!=','completed'),
+                                                           ('job_order_status','!=','under_converting')]}">
+                            <field name="line_ids" attrs="{'readonly':[('job_order_status','=','job_completed')]}"
+                                   context="{'default_conv_type_id':%(stone_production.item_type_slab)d}">
+                                <tree editable="bottom">
+                                    <field name="conv_type_id" readonly="1" force_save="1"/>
+                                    <field name="conv_type_size" readonly="1" force_save="1" optional="hide"/>
+                                    <field name="conv_length" sum="conv_length"/>
+                                    <field name="conv_width" sum="conv_width"/>
+                                    <field name="conv_thickness" sum="conv_thickness"/>
+                                    <field name="conv_size_value" sum="conv_size_value"/>
+                                    <field name="conv_num_of_pieces" sum="conv_num_of_pieces"/>
+                                    <field name="conv_total_size" sum="conv_total_size" />
+                                    <field name="line_ids_uom_cost" sum="line_ids_uom_cost" force_save="1" readonly="1"/>
+                                    <field name="conv_cost" sum="conv_cost" force_save="1" readonly="1"/>
+                                    <field name="state" invisible="1" />
+                                </tree>
+                            </field>
+                        </page>
+                        <page name="cut_dimensions" string="Cut Dimensions" attrs="{'invisible':[('cut_status','=','completed')]}">
                             <group>
                                 <group>
                                     <field name="item_type_size" readonly="1" force_save="1"/>
@@ -340,26 +359,8 @@
                                 </group>
                             </group>
                         </page>
-                        <page string="Convert Lines" attrs="{'invisible':['|',('cut_status','!=','completed'),
-                                                           ('job_order_status','!=','under_converting')]}">
-                            <field name="line_ids" attrs="{'readonly':[('job_order_status','=','job_completed')]}"
-                                   context="{'default_conv_type_id':%(stone_production.item_type_slab)d}">
-                                <tree editable="bottom">
-                                    <field name="conv_type_id" readonly="1" force_save="1"/>
-                                    <field name="conv_type_size" readonly="1" force_save="1" optional="hide"/>
-                                    <field name="conv_length" sum="conv_length"/>
-                                    <field name="conv_width" sum="conv_width"/>
-                                    <field name="conv_thickness" sum="conv_thickness"/>
-                                    <field name="conv_size_value" sum="conv_size_value"/>
-                                    <field name="conv_num_of_pieces" sum="conv_num_of_pieces"/>
-                                    <field name="conv_total_size" sum="conv_total_size" />
-                                    <field name="line_ids_uom_cost" sum="line_ids_uom_cost" force_save="1" readonly="1"/>
-                                    <field name="conv_cost" sum="conv_cost" force_save="1" readonly="1"/>
-                                    <field name="state" invisible="1" />
-                                </tree>
-                            </field>
-                        </page>
-                        <page string="Item Details" attrs="{'invisible':[('cut_status','!=','completed')]}">
+
+                        <page name="item_details" string="Item Details" attrs="{'invisible':[('cut_status','!=','completed')]}">
                             <group>
                                 <group>
                                     <field name="color_id" force_save="1"/>
@@ -552,7 +553,7 @@
                         </group>
                     </group>
                     <notebook>
-                        <page string="Convert Lines" >
+                        <page name="converted_lines" string="Convert Lines" >
                             <field name="line_ids" attrs="{'readonly':[('job_order_status','=','job_completed')]}"
                                    context="{'default_conv_thickness':thickness}">
                                 <tree editable="bottom">
