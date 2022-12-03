@@ -2,6 +2,7 @@
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
 import logging
+from odoo.addons.stone_production.models.stone_item_type import _eq_selections
 igrey = '\x1b[38;21m'
 yellow = '\x1b[33;21m'
 red = '\x1b[31;21m'
@@ -24,6 +25,10 @@ class ProductProduct(models.Model):
     width = fields.Integer('Width', digits='Stock Weight')
     height = fields.Integer('Height', digits='Stock Weight')
     thickness = fields.Float('Thickness', digits='Stock Weight')
+    stone_size_eq = fields.Selection(selection=_eq_selections, string="Size Eq")
+    piece_size = fields.Float("Piece Size")
+    piece_size_uom_id = fields.Many2one('uom.uom', "Piece UOM")
+    piece_size_uom_name = fields.Char(related='piece_size_uom_id.name')
     num_of_pieces = fields.Float("Pieces")
     choice_id = fields.Many2one('stone.item.choice', "Choice")
     remarks = fields.Text("Remarks")

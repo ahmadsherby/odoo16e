@@ -12,7 +12,7 @@
         'data/stone_item_choice_data.xml',
         'data/stone_job_order_data.xml',
 
-        # 'security/',
+        'security/stone_production_security.xml',
         'security/ir.model.access.csv',
 
         'views/stone_production_view.xml',

@@ -7,16 +7,18 @@
             <form string="Item">
                 <header>
                     <button name="action_block_cut" string="Start Block Cut" icon="fa-wrench" type="object" class="btn-warning rounded"
+                            groups="stone_production.group_stone_production_item_cut_actions"
                             attrs="{'invisible':['|','|',('state','!=','product'),('cut_status','not in',('new', 'cutting_completed')),('item_type_id','!=', %(stone_production.item_type_block)d)]}"
                             help="This Action will start create Job order with this block details"/>
                     <button name="action_slab_cut" string="Start Slab Cut" icon="fa-wrench" type="object" class="btn-warning rounded"
+                            groups="stone_production.group_stone_production_item_cut_actions"
                             attrs="{'invisible':['|','|','|',('state','!=','product'),('slab_remain_num_of_pieces','&lt;',1),
                             ('cut_status','not in',('new','cutting_completed')),('item_type_id','!=', %(stone_production.item_type_slab)d)]}"
                             help="This Action will start create Job order with this block details"/>
                     <button name="create_product" string="Create Product" states="draft"
-                            icon="fa-plus" type="object" class="oe_highlight"/>
+                            icon="fa-plus" type="object" class="oe_highlight" groups="stone_production.group_stone_production_item_create_product"/>
                     <button name="action_item_completed" string="Cutting Completed" attrs="{'invisible':[('cut_status','!=', 'cutting_completed')]}"
-                            icon="fa-check" type="object" class="oe_highlight"/>
+                            icon="fa-check" type="object" class="oe_highlight" groups="stone_production.group_stone_production_item_cut_complete_actions"/>
                     <field name="cut_status" widget="statusbar" statusbar_visible="new,under_cutting,cutting_completed,item_completed"/>
                 </header>
                 <sheet>
@@ -111,7 +113,7 @@
                             <field name="num_of_pieces"
                                    attrs="{'readonly':['|',('item_type_id', '=', %(stone_production.item_type_block)d),('state', '!=', 'draft')]}"/>
                             <field name="slab_remain_num_of_pieces"
-                                    attrs="{'invisible':[('item_type_id', '!=', %(stone_production.item_type_slab)d)]}"/>
+                                   attrs="{'invisible':[('item_type_id', '!=', %(stone_production.item_type_slab)d)]}"/>
                             <label for="total_size"/>
                             <div class="o_row" name="total_size">
                                 <field name="total_size" class="oe_inline"/>
@@ -174,12 +176,15 @@
                        decoration-warning="state == 'under_cutting'" decoration-success="state == 'item_completed'"/>
                 <button name="action_block_cut" string="Start Block Cut" icon="fa-wrench" type="object" class="btn-warning rounded"
                         attrs="{'invisible':['|','|',('state','!=','product'),('cut_status','not in',('new', 'cutting_completed')),
-                        ('item_type_id','!=', %(stone_production.item_type_block)d)]}"
+                        ('item_type_id','!=', %(stone_production.item_type_block)d)]}" groups="stone_production.group_stone_production_item_cut_actions"
                         help="This Action will start create Job order with this block details"/>
-                 <button name="action_slab_cut" string="Start Slab Cut" icon="fa-wrench" type="object" class="btn-warning rounded"
-                            attrs="{'invisible':['|','|','|',('state','!=','product'),('slab_remain_num_of_pieces','&lt;',1),
+                <button name="action_slab_cut" string="Start Slab Cut" icon="fa-wrench" type="object" class="btn-warning rounded"
+                        attrs="{'invisible':['|','|','|',('state','!=','product'),('slab_remain_num_of_pieces','&lt;',1),
                             ('cut_status','not in',('new','cutting_completed')),('item_type_id','!=', %(stone_production.item_type_slab)d)]}"
-                            help="This Action will start create Job order with this block details"/>
+                        help="This Action will start create Job order with this block details"
+                        groups="stone_production.group_stone_production_item_cut_actions"/>
+                <button name="action_item_completed" string="Cutting Completed" attrs="{'invisible':[('cut_status','!=', 'cutting_completed')]}"
+                        icon="fa-check" type="object" class="oe_highlight" groups="stone_production.group_stone_production_item_cut_complete_actions"/>
             </tree>
         </field>
     </record>
@@ -243,4 +248,23 @@
         <field name="domain">[('item_type_id.name','=','Slab'),('state','=','product'),
             ('cut_status','in',('new','under_cutting' ,'cutting_completed'))]</field>
     </record>
+    <data noupdate="1">
+        <!-- Shareable Records -->
+        <record model="ir.rule" id="stone_item_shared_company_rule">
+            <field name="name">Stone Item: multi-company</field>
+            <field name="model_id" ref="model_stone_item"/>
+            <field name="global" eval="True"/>
+            <field name="domain_force">
+                ['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]
+            </field>
+        </record>
+        <record model="ir.rule" id="stone_item_pallet_shared_company_rule">
+            <field name="name">Stone Item Pallet: multi-company</field>
+            <field name="model_id" ref="model_stone_item_pallet"/>
+            <field name="global" eval="True"/>
+            <field name="domain_force">
+                ['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]
+            </field>
+        </record>
+    </data>
 </odoo>

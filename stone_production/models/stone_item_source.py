@@ -2,6 +2,7 @@
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
 import logging
+from odoo.osv import expression
 grey = '\x1b[38;21m'
 yellow = '\x1b[33;21m'
 red = '\x1b[31;21m'
@@ -18,12 +19,13 @@ class StoneItemSource(models.Model):
     _name = 'stone.item.source'
     _inherit = ['mail.thread', 'mail.activity.mixin', 'image.mixin']
     _description = "Stone Item Source(Query)"
+    _check_company_auto = True
     _rec_names_search = ['name', 'code']
 
     name = fields.Char("Item Source(Query)", required=True)
     code = fields.Char("Code", required=True)
     active = fields.Boolean('Active', default=True)
-    company_id = fields.Many2one('res.company', string='Company')
+    company_id = fields.Many2one('res.company', string='Company', default=lambda self: self.env.company)
     color_ids = fields.Many2many(comodel_name='stone.item.color', string="Allowed Colors", required=True,
                                  help="The item colors which can be used on selected products.")
     type_ids = fields.Many2many(comodel_name='stone.item.type', string="Allowed Types", required=True,

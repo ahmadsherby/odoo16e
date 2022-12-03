@@ -57,6 +57,7 @@ class StoneItemType(models.Model):
     size = fields.Selection(selection=_eq_selections, string="Size Equation", required=True,
                             help="The equation of compute size of item")
     size_uom_id = fields.Many2one('uom.uom', string="UOM", compute=_compute_size_uom_name)
+    size_uom_name = fields.Char(related='size_uom_id.name')
     categ_id = fields.Many2one('product.category', 'Product Category', required=True,
                                help="Sets a category to be used on create product.")
     item_ids = fields.One2many('stone.item', 'item_type_id', "Items")

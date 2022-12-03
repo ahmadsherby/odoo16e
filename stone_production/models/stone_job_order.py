@@ -2,6 +2,7 @@
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
 import logging
+from odoo.osv import expression
 igrey = '\x1b[38;21m'
 yellow = '\x1b[33;21m'
 red = '\x1b[31;21m'
@@ -57,10 +58,11 @@ class StoneJobOrderMachine(models.Model):
     _name = 'stone.job.order.machine'
     _description = "Stone Job Machine"
     _inherit = ['mail.thread', 'mail.activity.mixin', 'image.mixin']
+    _check_company_auto = True
 
     name = fields.Char("Job Machine")
     active = fields.Boolean('Active', default=True)
-    company_id = fields.Many2one('res.company', string='Company')
+    company_id = fields.Many2one('res.company', string='Company', default=lambda self: self.env.company)
     item_type_id = fields.Many2one(comodel_name='stone.item.type',
                                    string="Item Type", required=True)
     job_order_ids = fields.One2many('stone.job.order', 'job_type_id', "Job Orders")
@@ -94,7 +96,9 @@ class StoneJobOrder(models.Model):
     _name = 'stone.job.order'
     _description = "Stone Job Order"
     _inherit = ['mail.thread', 'mail.activity.mixin', 'image.mixin']
-    # _rec_names_search = ['name', 'item_id', 'item_type_id', 'parent_id']
+    _check_company_auto = True
+    _rec_names_search = ['name', 'item_id.name', 'item_type_id.code',
+                         'item_type_id.name', 'item_type_id',  'parent_id.name']
 
     # ========== compute methods
     @api.model
@@ -149,7 +153,7 @@ class StoneJobOrder(models.Model):
 
     name = fields.Char("Job Order", default="/", required=True)
     active = fields.Boolean('Active', default=True)
-    company_id = fields.Many2one('res.company', string='Company')
+    company_id = fields.Many2one('res.company', string='Company', default=lambda self: self.env.company)
     currency_id = fields.Many2one('res.currency', "Currency")
     currency_name = fields.Char(related='currency_id.name')
     job_type_id = fields.Many2one('stone.job.order.type', "Job Type")
@@ -415,15 +419,6 @@ class StoneJobOrderLine(models.Model):
                                   "* Item Created: it mean item has created and uer can't edit it anymore.")
     pallet_id = fields.Many2one('stone.item.pallet', "Pallet")
 
-
-class StoneItemPallet(models.Model):
-    _name = 'stone.item.pallet'
-    _description = "Stone Item Pallet"
-    _inherit = ['mail.thread', 'mail.activity.mixin', 'image.mixin']
-
-    name = fields.Char("Pallet")
-    active = fields.Boolean('Active', default=True)
-    company_id = fields.Many2one('res.company', string='Company')
 
 
 # Ahmed Salama Code End.

@@ -52,4 +52,15 @@
     <menuitem id="stone_item_color_menu" name="Item Color"
               parent="stone_production.stone_production_config_item"
               action="stone_item_color_action" sequence="2"/>
+    <data noupdate="1">
+        <!-- Shareable Records -->
+        <record model="ir.rule" id="stone_item_color_shared_company_rule">
+            <field name="name">Stone Item Color: multi-company</field>
+            <field name="model_id" ref="model_stone_item_color"/>
+            <field name="global" eval="True"/>
+            <field name="domain_force">
+                ['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]
+            </field>
+        </record>
+    </data>
 </odoo>

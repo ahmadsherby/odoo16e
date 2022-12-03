@@ -15,6 +15,12 @@
                 <field name="pallet_id" readonly="1" force_save="1"/>
             </xpath>
             <xpath expr="//group[@name='group_lots_and_weight']//div" position="after">
+                <label for="stone_size_eq"/>
+                <div class="o_row" name="size" width="2">
+                    <field name="stone_size_eq" class="oe_inline"/>
+                    <field name="piece_size_uom_name" readonly="1" force_save="1"/>
+                </div>
+
                 <label for="length" attrs="{'invisible':[('product_variant_count', '>', 1), ('is_product_variant', '=', False)]}"/>
                 <div class="o_row" name="weight" attrs="{'invisible':[('product_variant_count', '>', 1), ('is_product_variant', '=', False)]}">
                     <field name="length" class="oe_inline"/>
@@ -23,21 +29,25 @@
                 <label for="width" attrs="{'invisible':[('product_variant_count', '>', 1), ('is_product_variant', '=', False)]}"/>
                 <div class="o_row" name="weight" attrs="{'invisible':[('product_variant_count', '>', 1), ('is_product_variant', '=', False)]}">
                     <field name="width" class="oe_inline"/>
-                    <field name="dimension_uom_id"/>
+                    <field name="dimension_uom_id" readonly="1" force_save="1"/>
                 </div>
                 <label for="height" attrs="{'invisible':[('product_variant_count', '>', 1), ('is_product_variant', '=', False)]}"/>
                 <div class="o_row" name="weight" attrs="{'invisible':[('product_variant_count', '>', 1), ('is_product_variant', '=', False)]}">
                     <field name="height" class="oe_inline"/>
-                    <field name="dimension_uom_id"/>
+                    <field name="dimension_uom_id" readonly="1" force_save="1"/>
                 </div>
                 <label for="thickness" attrs="{'invisible':[('product_variant_count', '>', 1), ('is_product_variant', '=', False)]}"/>
                 <div class="o_row" name="weight" attrs="{'invisible':[('product_variant_count', '>', 1), ('is_product_variant', '=', False)]}">
                     <field name="thickness" class="oe_inline"/>
-                    <field name="dimension_uom_id"/>
+                    <field name="dimension_uom_id" readonly="1" force_save="1"/>
                 </div>
                 <field name="num_of_pieces" readonly="1" force_save="1"/>
+                <label for="piece_size"/>
+                <div class="o_row" name="piece_size">
+                    <field name="piece_size" class="oe_inline" readonly="1" force_save="1"/>
+                    <field name="piece_size_uom_name" readonly="1" force_save="1"/>
+                </div>
             </xpath>
-
         </field>
     </record>
 </odoo>

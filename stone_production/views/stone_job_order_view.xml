@@ -34,7 +34,6 @@
                                    readonly="1" force_save="1"/>
                             <field name="item_type_id" readonly="1" force_save="1"/>
                             <field name="job_machine_id" options="{'no_create': 1, 'no_create_edit': 1}"
-                                   domain="[('item_type_id', '=', item_type_id)]"
                                    attrs="{'readonly':[('cut_status', '!=', 'new')]}"/>
                             <field name="parent_id" readonly="1" force_save="1"/>
                         </group>
@@ -99,7 +98,6 @@
                 <field name="name"/>
                 <field name="item_id"/>
                 <field name="job_type_id"/>
-                <field name="job_machine_id" />
                 <field name="color_id" />
                 <field name="choice_id"  optional="hide"/>
                 <field name="job_machine_id" optional="hide"/>
@@ -126,12 +124,13 @@
                 <field name="job_order_status" widget="badge" optional="show" decoration-danger="cut_status == 'under_converting'" decoration-muted="cut_status == 'cancel'"
                        decoration-info="cut_status == 'new'" decoration-success="cut_status == 'job_completed'"/>
                 <button name="action_start_convert_job_order" string="Start Cut" icon="fa-refresh"
-                        type="object" class="btn-warning rounded"
+                        type="object" class="btn-warning rounded" groups="stone_production.group_stone_production_order_start_cut"
                         attrs="{'invisible':['|',('job_order_status','!=','new'),('cut_status','!=','completed')]}"
                         help="This Action will start set job order under converting"/>
                 <button name="action_create_converted" string="Create Slab" icon="fa-plus" type="object" class="btn-info rounded"
                         attrs="{'invisible':['|',('job_order_status','!=','under_converting'),('cut_status','!=','completed')]}"
-                        help="This Action will start create Job order with this block details"/>
+                        help="This Action will start create Job order with this block details"
+                        groups="stone_production.group_stone_production_job_order_create_items"/>
             </tree>
         </field>
     </record>
@@ -180,19 +179,22 @@
             <form string="Job Order(Cutting Block)">
                 <header>
                     <button name="action_start_cutting_job_order" string="Start Cut" type="object" icon="fa-wrench"
-                            attrs="{'invisible': [('cut_status', '!=', 'new')]}" class="oe_highlight"/>
+                            attrs="{'invisible': [('cut_status', '!=', 'new')]}" class="oe_highlight"
+                            groups="stone_production.group_stone_production_job_order_cut_actions"/>
                     <button name="action_done_cutting_job_order" string="Done Cut" type="object" icon="fa-check"
-                            attrs="{'invisible': ['|',('cut_status', '!=', 'under_cutting'),('job_type', '!=', 'block')]}" class="oe_highlight"/>
+                            attrs="{'invisible': ['|',('cut_status', '!=', 'under_cutting'),('job_type', '!=', 'block')]}" class="oe_highlight"
+                            groups="stone_production.group_stone_production_job_order_cut_complete_actions"/>
                     <button name="action_cancel" string="Cancel" type="object"
                             attrs="{'invisible': [('cut_status', 'not in', ('under_cutting', 'new'))]}" class="btn-danger"
-                            confirm="Are you sure of cancel this Job Order!!!"/>
+                            confirm="Are you sure of cancel this Job Order!!!" groups="stock.group_stock_manager"/>
                     <button name="action_start_convert_job_order" string="Start Slab Cut" icon="fa-refresh"
-                            type="object" class="btn-warning rounded"
+                            type="object" class="btn-warning rounded" groups="stone_production.group_stone_production_order_start_cut"
                             attrs="{'invisible':['|',('job_order_status','!=','new'),('cut_status','!=','completed')]}"
                             help="This Action will start set job order under converting"/>
                     <button name="action_create_converted" string="Create Items" icon="fa-plus" type="object" class="btn-info rounded"
                             attrs="{'invisible':['|',('job_order_status','!=','under_converting'),('cut_status','!=','completed')]}"
-                            help="This Action will start create Job order with this block details"/>
+                            help="This Action will start create Job order with this block details"
+                            groups="stone_production.group_stone_production_job_order_create_items"/>
                     <field name="cut_status" widget="statusbar" statusbar_visible="new,under_cutting,completed"/>
                 </header>
                 <sheet>
@@ -232,7 +234,6 @@
                                    readonly="1" force_save="1"/>
                             <field name="item_type_id" readonly="1" force_save="1"/>
                             <field name="job_machine_id" options="{'no_create': 1, 'no_create_edit': 1}"
-                                   domain="[('item_type_id', '=', item_type_id)]"
                                    attrs="{'readonly':[('cut_status', '!=', 'new')]}"/>
                             <field name="create_date" readonly="1" force_save="1"/>
                             <field name="item_type_size" invisible="1"/>
@@ -443,12 +444,13 @@
             <form string="Job Order(Cutting Slab)">
                 <header>
                     <button name="action_start_convert_job_order" string="Start Cut" icon="fa-refresh"
-                            type="object" class="btn-warning rounded"
+                            type="object" class="btn-warning rounded" groups="stone_production.group_stone_production_order_start_cut"
                             attrs="{'invisible':['|',('job_order_status','!=','new'),('cut_status','!=','completed')]}"
                             help="This Action will start set job order under converting"/>
                     <button name="action_create_converted" string="Create Items" icon="fa-plus" type="object" class="btn-info rounded"
                             attrs="{'invisible':['|',('job_order_status','!=','under_converting'),('cut_status','!=','under_cutting')]}"
-                            help="This Action will start create Job order with this block details"/>
+                            help="This Action will start create Job order with this block details"
+                            groups="stone_production.group_stone_production_job_order_create_items"/>
                     <field name="cut_status" widget="statusbar" statusbar_visible="new,under_cutting,completed"/>
                 </header>
                 <sheet>
@@ -489,7 +491,6 @@
                                    readonly="1" force_save="1"/>
                             <field name="item_type_id" readonly="1" force_save="1"/>
                             <field name="job_machine_id" options="{'no_create': 1, 'no_create_edit': 1}"
-                                   domain="[('item_type_id', '=', item_type_id)]"
                                    attrs="{'readonly':[('cut_status', '!=', 'new')]}"/>
                             <field name="color_id" force_save="1"/>
                             <field name="choice_id" readonly="1" force_save="1"/>
@@ -524,7 +525,7 @@
                             <label for="num_of_pieces" string="Used Pieces" />  <!-- Used pieces on cut this slab -->
                             <div class="o_row">
                                 <field name="num_of_pieces" required="1" class="oe_inline" force_save="1"
-                                    attrs="{'readonly':[('cut_status','=','completed')]}"/>  <!-- Cutted pieces on cut this slab -->
+                                       attrs="{'readonly':[('cut_status','=','completed')]}"/>  <!-- Cutted pieces on cut this slab -->
                                 <span class="oe_inline"> / </span>
                                 <field name="slab_num_of_pieces" readonly="1" force_save="1" class="oe_inline"/><!-- Total Slab pieces on cut this slab -->
                                 <span class="oe_inline"> Pieces</span>
@@ -604,5 +605,23 @@
               parent="stone_production.stone_job_order_menu_root"
               action="stone_job_order_action_slab" sequence="4"/>
 
-
+    <data noupdate="1">
+        <!-- Shareable Records -->
+        <record model="ir.rule" id="stone_job_order_shared_company_rule">
+            <field name="name">Stone Job Order: multi-company</field>
+            <field name="model_id" ref="model_stone_job_order"/>
+            <field name="global" eval="True"/>
+            <field name="domain_force">
+                ['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]
+            </field>
+        </record>
+        <record model="ir.rule" id="stone_job_order_machine_shared_company_rule">
+            <field name="name">Stone Job Order Machine: multi-company</field>
+            <field name="model_id" ref="model_stone_job_order_machine"/>
+            <field name="global" eval="True"/>
+            <field name="domain_force">
+                ['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]
+            </field>
+        </record>
+    </data>
 </odoo>

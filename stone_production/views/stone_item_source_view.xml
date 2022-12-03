@@ -24,6 +24,7 @@
                                    options="{'no_create': 1, 'no_create_edit': 1, 'color_field': 'color'}"/>
                             <field name="type_ids" widget="many2many_tags"
                                    options="{'no_create': 1, 'no_create_edit': 1, 'color_field': 'color'}"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
                         </group>
                         <group>
                             <field name="estimate_hour"/>
@@ -65,4 +66,15 @@
     <menuitem id="stone_item_source_menu" name="Item Source"
               parent="stone_production.stone_production_config_item"
               action="stone_item_source_action" sequence="3"/>
+    <data noupdate="1">
+        <!-- Shareable Records -->
+        <record model="ir.rule" id="stone_item_source_shared_company_rule">
+            <field name="name">Stone Item Source: multi-company</field>
+            <field name="model_id" ref="model_stone_item_source"/>
+            <field name="global" eval="True"/>
+            <field name="domain_force">
+                ['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]
+            </field>
+        </record>
+    </data>
 </odoo>

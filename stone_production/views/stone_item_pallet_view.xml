@@ -54,4 +54,15 @@
     <menuitem id="stone_item_pallet_menu" name="Item Pallet"
               parent="stone_production.stone_production_config_item"
               action="stone_item_pallet_action" sequence="4"/>
+    <data noupdate="1">
+        <!-- Shareable Records -->
+        <record model="ir.rule" id="stone_item_pallet_shared_company_rule">
+            <field name="name">Stone Item Pallet: multi-company</field>
+            <field name="model_id" ref="model_stone_item_pallet"/>
+            <field name="global" eval="True"/>
+            <field name="domain_force">
+                ['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]
+            </field>
+        </record>
+    </data>
 </odoo>

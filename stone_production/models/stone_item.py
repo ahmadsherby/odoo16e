@@ -12,11 +12,30 @@ blue = '\x1b[34m'
 # Ahmed Salama Code Start ---->
 
 
+class StoneItemPallet(models.Model):
+    _name = 'stone.item.pallet'
+    _description = "Stone Item Pallet"
+    _inherit = ['mail.thread', 'mail.activity.mixin', 'image.mixin']
+    _check_company_auto = True
+
+    name = fields.Char("Pallet")
+    active = fields.Boolean('Active', default=True)
+    company_id = fields.Many2one('res.company', string='Company', default=lambda self: self.env.company)
+
+
+class StoneItemChoice(models.Model):
+    _name = 'stone.item.choice'
+    _description = "Stone Item Choice"
+
+    name = fields.Char("Choice")
+
+
 class StoneItem(models.Model):
     _name = 'stone.item'
     _inherit = ['mail.thread', 'mail.activity.mixin', 'image.mixin']
     _description = "Stone ITem"
-    _rec_names_search = ['name', 'item_type_id', 'code', 'parent_id']
+    _rec_names_search = ['name', 'item_type_id.code', 'item_type_id.name', 'code', 'parent_id.name']
+    _check_company_auto = True
 
     # ========== compute methods
     @api.model
@@ -112,7 +131,7 @@ class StoneItem(models.Model):
     code_compute = fields.Char("Code CMP", default="/", compute=_compute_code)
     after_save = fields.Boolean("Readonly after save", default=False)
     active = fields.Boolean('Active', default=True)
-    company_id = fields.Many2one('res.company', string='Company')
+    company_id = fields.Many2one('res.company', string='Company', default=lambda self: self.env.company)
     currency_id = fields.Many2one('res.currency', "Currency")
     parent_id = fields.Many2one('stone.item', "Parent")
     parent_item_code = fields.Char('parent_id.code')
@@ -120,9 +139,11 @@ class StoneItem(models.Model):
     type_size = fields.Selection(related='item_type_id.size')
     type_size_uom_id = fields.Many2one(related='item_type_id.size_uom_id')
     type_size_uom_name = fields.Char(related='type_size_uom_id.name')
-    source_id = fields.Many2one(comodel_name='stone.item.source', string="Source", required=True)
+    source_id = fields.Many2one(comodel_name='stone.item.source', string="Source", required=True,
+                                domain="['|', ('company_id', '=', False), ('company_id', '=', company_id)]")
     color_ids = fields.Many2many(related='source_id.color_ids')
-    color_id = fields.Many2one(comodel_name='stone.item.color', string="Color", required=True)
+    color_id = fields.Many2one(comodel_name='stone.item.color', string="Color", required=True,
+                               domain="['|', ('company_id', '=', False), ('company_id', '=', company_id)]")
     length = fields.Integer('Length', digits='Stock Weight', readonly=True
                             , states={'draft': [('readonly', False)]})
     width = fields.Integer('Width', digits='Stock Weight', readonly=True
@@ -230,7 +251,8 @@ class StoneItem(models.Model):
                     'height': rec.height,
                     'thickness': rec.thickness,
                     'dimension_uom_id': rec.dimension_uom_id.id,
-                    'volume': rec.piece_size,
+                    'piece_size': rec.piece_size,
+                    'piece_size_uom_id': rec.type_size_uom_id.id,
                     'standard_price': rec.uom_cost,
                     'num_of_pieces': rec.num_of_pieces,
                     'uom_id': rec.type_size_uom_id.id,
@@ -372,11 +394,4 @@ class StoneItem(models.Model):
     def action_item_completed(self):
         for rec in self:
             rec.cut_status = 'item_completed'
-
-
-class StoneItemChoice(models.Model):
-    _name = 'stone.item.choice'
-    _description = "Stone Item Choice"
-
-    name = fields.Char("Choice")
 # Ahmed Salama Code End.

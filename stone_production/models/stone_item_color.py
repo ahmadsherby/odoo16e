@@ -2,6 +2,7 @@
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
 import logging
+from odoo.osv import expression
 from random import randint
 grey = '\x1b[38;21m'
 yellow = '\x1b[33;21m'
@@ -19,6 +20,7 @@ class StoneItemSource(models.Model):
     _name = 'stone.item.color'
     _inherit = ['mail.thread', 'mail.activity.mixin', 'image.mixin']
     _description = "Stone Item Color"
+    _check_company_auto = True
     _rec_names_search = ['name', 'code']
 
     # =========== Compute Methods
@@ -28,7 +30,7 @@ class StoneItemSource(models.Model):
     name = fields.Char("Item Source(Query)", required=True)
     code = fields.Char("Code", required=True)
     active = fields.Boolean('Active', default=True)
-    company_id = fields.Many2one('res.company', string='Company')
+    company_id = fields.Many2one('res.company', string='Company', default=lambda self: self.env.company)
     color = fields.Integer('Color', default=_default_color)
 
     # =========== Core Methods

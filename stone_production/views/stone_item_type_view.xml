@@ -39,8 +39,7 @@
                             <label for="size"/>
                             <div class="o_row" name="size" width="2">
                                 <field name="size" class="oe_inline"/>
-                                <field name="size_uom_id"  readonly="1" force_save="1"
-                                       options="{'no_create': 1, 'no_create_edit': 1, 'no_quick_create': 1}"/>
+                                <field name="size_uom_name"  readonly="1" force_save="1"/>
                             </div>
                             <field name="company_id" groups="base.group_multi_company"/>
                         </group>
