@@ -17,7 +17,7 @@
                             help="This Action will start create Job order with this block details"/>
                     <button name="create_product" string="Create Product" states="draft"
                             icon="fa-plus" type="object" class="oe_highlight" groups="stone_production.group_stone_production_item_create_product"/>
-                    <button name="action_item_completed" string="Cutting Completed" attrs="{'invisible':[('cut_status','!=', 'cutting_completed')]}"
+                    <button name="action_item_completed" string="Item Completed" attrs="{'invisible':[('cut_status','!=', 'cutting_completed')]}"
                             icon="fa-check" type="object" class="oe_highlight" groups="stone_production.group_stone_production_item_cut_complete_actions"/>
                     <field name="cut_status" widget="statusbar" statusbar_visible="new,under_cutting,cutting_completed,item_completed"/>
                 </header>
@@ -183,7 +183,7 @@
                             ('cut_status','not in',('new','cutting_completed')),('item_type_id','!=', %(stone_production.item_type_slab)d)]}"
                         help="This Action will start create Job order with this block details"
                         groups="stone_production.group_stone_production_item_cut_actions"/>
-                <button name="action_item_completed" string="Cutting Completed" attrs="{'invisible':[('cut_status','!=', 'cutting_completed')]}"
+                <button name="action_item_completed" string="Item Completed" attrs="{'invisible':[('cut_status','!=', 'cutting_completed')]}"
                         icon="fa-check" type="object" class="oe_highlight" groups="stone_production.group_stone_production_item_cut_complete_actions"/>
             </tree>
         </field>
