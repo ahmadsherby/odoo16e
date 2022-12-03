@@ -121,8 +121,8 @@
                 <field name="currency_id" invisible="1"/>
                 <field name="cut_status" widget="badge" optional="show" decoration-info="cut_status == 'under_cutting'"
                        decoration-success="cut_status == 'completed'" decoration-muted="cut_status in ['new', 'cancel']" />
-                <field name="job_order_status" widget="badge" optional="show" decoration-danger="cut_status == 'under_converting'" decoration-muted="cut_status == 'cancel'"
-                       decoration-info="cut_status == 'new'" decoration-success="cut_status == 'job_completed'"/>
+                <field name="job_order_status" widget="badge" optional="show" decoration-danger="job_order_status == 'under_converting'" decoration-muted="job_order_status == 'cancel'"
+                       decoration-info="job_order_status == 'new'" decoration-success="job_order_status == 'job_completed'"/>
                 <button name="action_start_convert_job_order" string="Start Cut" icon="fa-refresh"
                         type="object" class="btn-warning rounded" groups="stone_production.group_stone_production_order_start_cut"
                         attrs="{'invisible':['|',('job_order_status','!=','new'),('cut_status','!=','completed')]}"

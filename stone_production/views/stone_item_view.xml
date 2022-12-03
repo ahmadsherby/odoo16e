@@ -172,8 +172,8 @@
                 <field name="currency_id" invisible="1"/>
                 <field name="state" optional="show" widget="badge"
                        decoration-info="state == 'draft'" decoration-success="state == 'product'"/>
-                <field name="cut_status" optional="show" widget="badge" decoration-info="state == ('new', 'cutting_completed')"
-                       decoration-warning="state == 'under_cutting'" decoration-success="state == 'item_completed'"/>
+                <field name="cut_status" optional="show" widget="badge" decoration-info="cut_status == ('new', 'cutting_completed')"
+                       decoration-warning="cut_status == 'under_cutting'" decoration-success="cut_status == 'item_completed'"/>
                 <button name="action_block_cut" string="Start Block Cut" icon="fa-wrench" type="object" class="btn-warning rounded"
                         attrs="{'invisible':['|','|',('state','!=','product'),('cut_status','not in',('new', 'cutting_completed')),
                         ('item_type_id','!=', %(stone_production.item_type_block)d)]}" groups="stone_production.group_stone_production_item_cut_actions"
