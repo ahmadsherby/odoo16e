@@ -1,22 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <menuitem id="stone_production_root"
-              groups="stock.group_stock_manager,stock.group_stock_user"
+              groups="stone_production.group_stone_production_manager,stone_production.group_stone_production_user"
               web_icon="stone_production,static/description/icon.png"
               name="Stone Production" sequence="141"/>
         <menuitem id="stone_job_order_menu_root" name="Job Orders"
                   parent="stone_production.stone_production_root"
                   sequence="1"/>
+        <menuitem id="stone_item_menu_root" name="Items"
+              parent="stone_production.stone_production_root"
+              sequence="2"/>
         <menuitem id="stone_production_config"
                   parent="stone_production.stone_production_root"
-                  groups="stock.group_stock_manager,stock.group_stock_user"
+                  groups="stone_production.group_stone_production_manager"
                   name="Configurations" sequence="1000"/>
             <menuitem id="stone_production_config_item"
                       parent="stone_production.stone_production_config"
-                      groups="stock.group_stock_manager,stock.group_stock_user"
+                      groups="stone_production.group_stone_production_manager"
                       name="Items" sequence="1"/>
             <menuitem id="stone_production_config_order"
                       parent="stone_production.stone_production_config"
-                      groups="stock.group_stock_manager,stock.group_stock_user"
+                      groups="stone_production.group_stone_production_manager"
                       name="Orders" sequence="2"/>
 </odoo>

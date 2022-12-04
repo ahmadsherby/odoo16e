@@ -186,7 +186,7 @@
                             groups="stone_production.group_stone_production_job_order_cut_complete_actions"/>
                     <button name="action_cancel" string="Cancel" type="object"
                             attrs="{'invisible': [('cut_status', 'not in', ('under_cutting', 'new'))]}" class="btn-danger"
-                            confirm="Are you sure of cancel this Job Order!!!" groups="stock.group_stock_manager"/>
+                            confirm="Are you sure of cancel this Job Order!!!" groups="stone_production.group_stone_production_manager"/>
                     <button name="action_start_convert_job_order" string="Start Slab Cut" icon="fa-refresh"
                             type="object" class="btn-warning rounded" groups="stone_production.group_stone_production_order_start_cut"
                             attrs="{'invisible':['|',('job_order_status','!=','new'),('cut_status','!=','completed')]}"

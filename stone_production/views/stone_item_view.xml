@@ -47,8 +47,8 @@
                         <label for="name" string="Item Code"/>
                         <h1>
                             <div class="d-flex">
-<!--                                <field class="oe_read_only text-break" name="name" readonly="1" force_save="1"/>-->
-<!--                                <field class="oe_edit_only" name="code_compute"/>-->
+                                <!--                                <field class="oe_read_only text-break" name="name" readonly="1" force_save="1"/>-->
+                                <!--                                <field class="oe_edit_only" name="code_compute"/>-->
                                 <field name="name" readonly="1" force_save="1" attrs="{'invisible': [('name', '=', '/')]}"/>
                                 <field name="code_compute" attrs="{'invisible': [('name', '!=', '/')]}"/>
                             </div>
@@ -230,8 +230,8 @@
         </field>
     </record>
     <menuitem id="stone_item_menu" name="Items"
-              parent="stone_production.stone_production_root"
-              action="stone_item_action" sequence="2"/>
+              parent="stone_production.stone_item_menu_root"
+              action="stone_item_action" sequence="1"/>
     <!--Block Action-->
     <record id="stone_item_block_action" model="ir.actions.act_window">
         <field name="name">Block Cutting</field>

@@ -21,6 +21,7 @@ class ProductProduct(models.Model):
     source_id = fields.Many2one(comodel_name='stone.item.source', string="Stone Source")
     color_id = fields.Many2one(comodel_name='stone.item.color', string="Stone Color")
     dimension_uom_id = fields.Many2one('uom.uom', string="UOM")
+    dimension_uom_name = fields.Char(related='dimension_uom_id.name')
     length = fields.Integer('Length', digits='Stock Weight')
     width = fields.Integer('Width', digits='Stock Weight')
     height = fields.Integer('Height', digits='Stock Weight')

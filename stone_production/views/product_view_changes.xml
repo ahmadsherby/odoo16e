@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record id="product_template_form_view_inherit" model="ir.ui.view">
+    <record id="stone_production_product_template_form_view_inherit" model="ir.ui.view">
         <field name="name">product.template.common.form.inherit</field>
         <field name="model">product.template</field>
         <field name="inherit_id" ref="product.product_template_form_view"/>
         <field name="arch" type="xml">
-
             <xpath expr="//group[@name='group_general']" position="inside">
                 <field name="item_id" readonly="1" force_save="1"/>
                 <field name="item_type_id" readonly="1" force_save="1"/>
+                <field name="color_id" readonly="1" force_save="1"/>
                 <field name="source_id" readonly="1" force_save="1"/>
                 <field name="choice_id" readonly="1" force_save="1"/>
                 <field name="remarks" readonly="1" force_save="1"/>
@@ -20,26 +20,25 @@
                     <field name="stone_size_eq" class="oe_inline"/>
                     <field name="piece_size_uom_name" readonly="1" force_save="1"/>
                 </div>
-
                 <label for="length" attrs="{'invisible':[('product_variant_count', '>', 1), ('is_product_variant', '=', False)]}"/>
                 <div class="o_row" name="weight" attrs="{'invisible':[('product_variant_count', '>', 1), ('is_product_variant', '=', False)]}">
                     <field name="length" class="oe_inline"/>
-                    <field name="dimension_uom_id"/>
+                    <field name="dimension_uom_name" readonly="1" force_save="1"/>
                 </div>
                 <label for="width" attrs="{'invisible':[('product_variant_count', '>', 1), ('is_product_variant', '=', False)]}"/>
                 <div class="o_row" name="weight" attrs="{'invisible':[('product_variant_count', '>', 1), ('is_product_variant', '=', False)]}">
                     <field name="width" class="oe_inline"/>
-                    <field name="dimension_uom_id" readonly="1" force_save="1"/>
+                    <field name="dimension_uom_name" readonly="1" force_save="1"/>
                 </div>
                 <label for="height" attrs="{'invisible':[('product_variant_count', '>', 1), ('is_product_variant', '=', False)]}"/>
                 <div class="o_row" name="weight" attrs="{'invisible':[('product_variant_count', '>', 1), ('is_product_variant', '=', False)]}">
                     <field name="height" class="oe_inline"/>
-                    <field name="dimension_uom_id" readonly="1" force_save="1"/>
+                    <field name="dimension_uom_name" readonly="1" force_save="1"/>
                 </div>
                 <label for="thickness" attrs="{'invisible':[('product_variant_count', '>', 1), ('is_product_variant', '=', False)]}"/>
                 <div class="o_row" name="weight" attrs="{'invisible':[('product_variant_count', '>', 1), ('is_product_variant', '=', False)]}">
                     <field name="thickness" class="oe_inline"/>
-                    <field name="dimension_uom_id" readonly="1" force_save="1"/>
+                    <field name="dimension_uom_name" readonly="1" force_save="1"/>
                 </div>
                 <field name="num_of_pieces" readonly="1" force_save="1"/>
                 <label for="piece_size"/>
@@ -50,4 +49,53 @@
             </xpath>
         </field>
     </record>
+    <record id="stone_production_product_template_tree_view_inherit" model="ir.ui.view">
+        <field name="name">stone.productionproduct.template.common.form.inherit</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_tree_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='categ_id']" position="after">
+                <field name="item_id" readonly="1" force_save="1" optional="hide"/>
+                <field name="item_type_id" readonly="1" force_save="1" optional="show"/>
+                <field name="color_id" readonly="1" force_save="1" optional="show"/>
+                <field name="source_id" readonly="1" force_save="1" optional="hide"/>
+                <field name="choice_id" readonly="1" force_save="1" optional="hide"/>
+                <field name="remarks" readonly="1" force_save="1" optional="hide"/>
+                <field name="pallet_id" readonly="1" force_save="1" optional="hide"/>
+                <field name="stone_size_eq" optional="hide"/>
+                <field name="length" optional="hide"/>
+                <field name="width" optional="hide"/>
+                <field name="height" optional="hide"/>
+                <field name="thickness" optional="hide"/>
+                <field name="num_of_pieces" readonly="1" force_save="1"/>
+                <field name="piece_size" optional="hide" readonly="1" force_save="1"/>
+            </xpath>
+        </field>
+    </record>
+    <record id="stone_production_product_template_search_view_inherit" model="ir.ui.view">
+        <field name="name">stone.production.product.template.search.inherit</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_search_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='categ_id']" position="after">
+                <separator/>
+                <filter string="Item Type" name="stone_item_type" context="{'group_by':'item_type_id'}"/>
+                <filter string="Item Color" name="stone_item_color" context="{'group_by':'color_id'}"/>
+                <filter string="Item Product" name="stone_item_product" context="{'group_by':'source_id'}"/>
+            </xpath>
+        </field>
+    </record>
+    <record id="stone_production_product_template_action" model="ir.actions.act_window">
+        <field name="name">Stone Products</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">product.template</field>
+        <field name="view_mode">kanban,tree,form,activity</field>
+        <field name="view_id" ref="product.product_template_kanban_view"/>
+        <field name="search_view_id" ref="product.product_template_search_view"/>
+        <field name="domain">['|',('item_id','!=',False),('item_type_id','!=',False)]</field>
+        <field name="context">{"search_default_filter_to_sell":1, "search_default_stone_item_type": 1}</field>
+    </record>
+    <menuitem id="stone_product_menu" name="Products"
+              parent="stone_production.stone_item_menu_root"
+              action="stone_production_product_template_action" sequence="2"/>
 </odoo>

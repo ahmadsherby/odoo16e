@@ -243,6 +243,7 @@ class StoneItem(models.Model):
                     'default_code': rec.name,
                     'detailed_type': 'product',
                     'item_id': rec.id,
+                    'categ_id': rec.item_type_id.categ_id.id,
                     'item_type_id': rec.item_type_id.id,
                     'source_id': rec.source_id.id,
                     'color_id': rec.color_id.id,
@@ -250,6 +251,7 @@ class StoneItem(models.Model):
                     'length': rec.length,
                     'height': rec.height,
                     'thickness': rec.thickness,
+                    'stone_size_eq': rec.type_size,
                     'dimension_uom_id': rec.dimension_uom_id.id,
                     'piece_size': rec.piece_size,
                     'piece_size_uom_id': rec.type_size_uom_id.id,
@@ -260,6 +262,7 @@ class StoneItem(models.Model):
                     'choice_id': rec.choice_id.id,
                     'remarks': rec.remarks,
                     'pallet_id': rec.pallet_id and rec.pallet_id.id or False,
+                    'company_id': rec.company_id and rec.company_id.id or False,
                 })
                 rec.product_tmpl_id = rec.product_id.product_tmpl_id.id
                 # update it's remain size with cut size, cost with cost equation, and state
