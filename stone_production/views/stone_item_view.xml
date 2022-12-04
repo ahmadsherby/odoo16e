@@ -47,8 +47,10 @@
                         <label for="name" string="Item Code"/>
                         <h1>
                             <div class="d-flex">
-                                <field class="oe_read_only text-break" name="name" readonly="1" force_save="1"/>
-                                <field class="oe_edit_only" name="code_compute"/>
+<!--                                <field class="oe_read_only text-break" name="name" readonly="1" force_save="1"/>-->
+<!--                                <field class="oe_edit_only" name="code_compute"/>-->
+                                <field name="name" readonly="1" force_save="1" attrs="{'invisible': [('name', '=', '/')]}"/>
+                                <field name="code_compute" attrs="{'invisible': [('name', '!=', '/')]}"/>
                             </div>
                         </h1>
                     </div>
