@@ -6,7 +6,7 @@
     'license': "AGPL-3",
     'author': 'Ahmed Sherby, Ahmed Salama',
     'category': 'Inventory/Inventory',
-    'depends': ['stock', 'product', 'sale'],
+    'depends': ['stock', 'product', 'sale', 'purchase'],
     'data': [
         'data/stone_item_type_data.xml',
         'data/stone_item_choice_data.xml',
