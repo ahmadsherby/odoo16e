@@ -34,6 +34,7 @@ class StoneItemSource(models.Model):
     next_num = fields.Integer("Serial Next Number", default=1001, required=True,
                               help="The next code to be set on generate product")
     location_id = fields.Many2one('stock.location', 'Location', required=True,
+                                  domain="[('usage', '=', 'internal')]",
                                   help="Sets a location to be used on update pieces of the used product.")
     item_ids = fields.One2many('stone.item', 'source_id', "Items")
     purchase_source = fields.Boolean("Purchase Source?")

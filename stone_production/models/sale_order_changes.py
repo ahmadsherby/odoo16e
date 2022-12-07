@@ -23,10 +23,10 @@ class SaleOrderLine(models.Model):
         """
         for line in self:
             if line.product_id.item_type_id:
-                logging.info(yellow +" Ava QTY : %s" % line.product_id.qty_available + reset)
+                logging.info(yellow +" Ava QTY : %s" % line.product_id.free_qty + reset)
                 logging.info(yellow +" Piece size: %s" % line.product_id.piece_size + reset)
-                logging.info(green +" AVA Pieces: %s" % (line.product_id.qty_available / line.product_id.piece_size) + reset)
-                line.available_pieces = line.product_id.piece_size and line.product_id.qty_available / line.product_id.piece_size or 0.0
+                logging.info(green +" AVA Pieces: %s" % (line.product_id.free_qty / line.product_id.piece_size) + reset)
+                line.available_pieces = line.product_id.piece_size and line.product_id.free_qty / line.product_id.piece_size or 0.0
 
     @api.depends('display_type', 'product_id', 'product_packaging_qty',
                  'sale_pieces', 'item_type_id')
@@ -43,14 +43,27 @@ class SaleOrderLine(models.Model):
     @api.constrains('available_pieces', 'sale_pieces')
     def _stone_production_qty(self):
         for rec in self:
-            if isinstance(rec.id, int) \
-                    and rec.sale_pieces > rec.available_pieces:
-                raise UserError(_("Sale Pieces %s mustn't be more than Available Pieces %s !!!"
-                                  % (rec.sale_pieces, rec.available_pieces)))
+            if isinstance(rec.id, int):
+                if rec.sale_pieces > rec.available_pieces:
+                    raise UserError(_("Sale Pieces %s mustn't be more than Available Pieces %s !!!"
+                                      % (rec.sale_pieces, rec.available_pieces)))
+                if rec.item_type_id == self.env.ref('stone_production.item_type_block') and rec.sale_pieces < 1:
+                    raise UserError(_("Sale Pieces %s of Blocks mustn't be less than 1!!!" % rec.sale_pieces))
+
+    @api.depends('item_type_id')
+    @api.onchange('item_type_id')
+    def _onchange_product_compute_product_qty(self):
+        """
+        Reset Product Field
+        """
+        for line in self:
+            if line.item_type_id:
+                line.product_id = False
+                line.name = False
 
     item_type_id = fields.Many2one(comodel_name='stone.item.type', string="Type")
     item_color_id = fields.Many2one(comodel_name='stone.item.color', string="Color")
-
+    item_pallet_id = fields.Many2one('stone.item.pallet', "Pallet")
     item_size_eq = fields.Selection(related='item_type_id.size')
     piece_size = fields.Float(related='product_template_id.piece_size')
 

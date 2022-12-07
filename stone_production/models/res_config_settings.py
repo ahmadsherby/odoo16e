@@ -10,7 +10,8 @@ class ResCompany(models.Model):
 
 class ResConfigSettings(models.TransientModel):
     _inherit = 'res.config.settings'
-    
+
     stone_finished_good_loc_id = fields.Many2one(related='company_id.stone_finished_good_loc_id',
                                                  string="Finished Good Location", readonly=False,
+                                                 domain="[('usage', '=', 'internal'), ('company_id', 'in', [company_id, False])]",
                                                  help="Sets a location to be used on update pieces of the used product.")
