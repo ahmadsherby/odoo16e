@@ -36,6 +36,7 @@ class StoneItemSource(models.Model):
     location_id = fields.Many2one('stock.location', 'Location', required=True,
                                   help="Sets a location to be used on update pieces of the used product.")
     item_ids = fields.One2many('stone.item', 'source_id', "Items")
+    purchase_source = fields.Boolean("Purchase Source?")
 
     # =========== Core Methods
     def name_get(self):
@@ -71,5 +72,15 @@ class StoneItemSource(models.Model):
                     raise UserError(_("It's not possible to edit item type code used on active item %s "
                                       % rec.item_ids.mapped('display_name')))
         return super().write(vals)
+
+    @api.constrains('purchase_source')
+    def _constrain_one_purchase_source(self):
+        for rec in self:
+            if isinstance(rec.id, int):
+                other_ids = self.search([('purchase_source', '=', True), ('company_id', '=', self.env.company.id)])
+                if len(other_ids) > 1:
+                    raise UserError(
+                        _("Can't have more than 1 purchase source\n %s already set as purchase source for company %s"
+                          % (other_ids.mapped('display_name'), self.env.company.display_name)))
 
 # Ahmed Salama Code End.

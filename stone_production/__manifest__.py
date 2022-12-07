@@ -27,6 +27,7 @@
         'views/stone_job_order_machine_view.xml',
         'views/stone_job_order_view.xml',
         'views/sale_order_view_changes.xml',
+        'views/purchase_order_view_changes.xml',
     ],
     'installable': True,
     'auto_install': False,

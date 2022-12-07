@@ -13,6 +13,7 @@
                 <field name="choice_id" readonly="1" force_save="1"/>
                 <field name="remarks" readonly="1" force_save="1"/>
                 <field name="pallet_id" readonly="1" force_save="1"/>
+                <field name="generated_po_id" readonly="1" force_save="1"/>
             </xpath>
             <xpath expr="//group[@name='group_lots_and_weight']//div" position="after">
                 <label for="stone_size_eq"/>

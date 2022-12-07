@@ -30,6 +30,7 @@
                             <field name="estimate_hour"/>
                             <field name="next_num"/>
                             <field name="location_id"/>
+                            <field name="purchase_source"/>
                         </group>
                     </group>
                 </sheet>

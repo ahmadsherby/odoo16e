@@ -12,17 +12,22 @@ blue = '\x1b[34m'
 # Ahmed Salama Code Start ---->
 
 
+class PurchaseOrder(models.Model):
+    _inherit = 'purchase.order'
+
+    stone_production_product_ids = fields.One2many('product.template', 'generated_po_id', "New Products")
+
+
 class PurchaseOrderLine(models.Model):
     _inherit = 'purchase.order.line'
 
-    item_type_id = fields.Many2one(comodel_name='stone.item.type', string="Type")
+    item_type_id = fields.Many2one(related='product_id.item_type_id')
     item_type_size_eq = fields.Selection(related='item_type_id.size')
-    type_size_uom_id = fields.Many2one(related='item_type_id.size_uom_id')
-    source_id = fields.Many2one(comodel_name='stone.item.source', string="Source")
-    color_id = fields.Many2one(comodel_name='stone.item.color', string="Color")
-    length = fields.Integer('Length', digits='Stock Weight')
-    width = fields.Integer('Width', digits='Stock Weight')
-    height = fields.Integer('Height', digits='Stock Weight')
-    thickness = fields.Float('Thickness', digits='Stock Weight')
+    color_id = fields.Many2one(related='product_id.color_id')
+    length = fields.Integer(related='product_id.length')
+    width = fields.Integer(related='product_id.width')
+    height = fields.Integer(related='product_id.height')
+    thickness = fields.Float(related='product_id.thickness')
+
 
 # Ahmed Salama Code End.

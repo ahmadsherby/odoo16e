@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="stone_production_purchase_order_form_inherit" model="ir.ui.view">
+            <field name="name">stone.production.purchase.order.form.inherit</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.purchase_order_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//page[@name='products']" position="after">
+                    <page string="Add New Products" name="new_products">
+                        <field name="stone_production_product_ids"
+                               mode="tree"
+                               context="{'purchase_ok':True,'partner_id':partner_id,'item_vendor_id':partner_id,
+                                         'company_id': company_id, 'detailed_type':'product'}"
+                               attrs="{'readonly': [('state', '!=', 'draft')]}">
+                            <tree string="New Products" editable="bottom">
+                                <field name="name"/>
+                                <field name="item_type_id" required="1" options="{'no_create': 1, 'no_create_edit': 1}"/>
+                                <field name="color_id" required="1" options="{'no_create': 1, 'no_create_edit': 1}"/>
+                                <field name="source_id" required="1" options="{'no_create': 1, 'no_create_edit': 1}" domain="[('purchase_source','=', True)]"/>
+                                <field name="stone_size_eq" readonly="1" force_save="1"/>
+                                <field name="length" required="1" />
+                                <field name="width" required="1"/>
+                                <field name="height" attrs="{'required':[('stone_size_eq','=', 'surface')]}" optional="show"/>
+                                <field name="thickness" attrs="{'required':[('stone_size_eq','=', 'surface')]}" optional="hide"/>
+                                <field name="num_of_pieces" required="1" sum="num_of_pieces"/>
+                                <field name="standard_price" sum="standard_price"/>
+                                <field name="piece_size" sum="piece_size"/>
+                                <field name="piece_cost" sum="piece_cost"/>
+                                <field name="choice_id" required="1" options="{'no_create': 1, 'no_create_edit': 1}"/>
+                                <field name="remarks" optional="hide" />
+                                <field name="pallet_id" optional="hide"/>
+                            </tree>
+                        </field>
+                    </page>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>
