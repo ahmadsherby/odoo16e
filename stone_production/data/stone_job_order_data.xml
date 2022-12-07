@@ -6,7 +6,7 @@
             <field name="code">stone.job.order</field>
             <field name="prefix">JO/</field>
             <field name="padding">4</field>
-            <field name="company_id">0</field>
+            <field eval="False" name="company_id"/>
         </record>
         <!-- types-->
         <record id="stone_job_order_type_cutting_block" model="stone.job.order.type">
