@@ -22,4 +22,15 @@
                       parent="stone_production.stone_production_config"
                       groups="stone_production.group_stone_production_manager"
                       name="Orders" sequence="2"/>
+            <record id="action_stone_production_config_settings" model="ir.actions.act_window">
+                <field name="name">Settings</field>
+                <field name="type">ir.actions.act_window</field>
+                <field name="res_model">res.config.settings</field>
+                <field name="view_mode">form</field>
+                <field name="target">inline</field>
+                <field name="context">{'module' : 'stone_production', 'bin_size': False}</field>
+            </record>
+            <menuitem id="menu_stone_production_general_settings" name="Settings"
+                      parent="stone_production_config" sequence="0"
+                      action="action_stone_production_config_settings" groups="base.group_system"/>
 </odoo>

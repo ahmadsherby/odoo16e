@@ -139,8 +139,9 @@ class StoneItem(models.Model):
     type_size = fields.Selection(related='item_type_id.size')
     type_size_uom_id = fields.Many2one(related='item_type_id.size_uom_id')
     type_size_uom_name = fields.Char(related='type_size_uom_id.name')
-    source_id = fields.Many2one(comodel_name='stone.item.source', string="Source", required=True,
+    source_id = fields.Many2one(comodel_name='stone.item.source', string="Source",
                                 domain="['|', ('company_id', '=', False), ('company_id', '=', company_id)]")
+    vendor_id = fields.Many2one('res.partner', 'Source Vendor')
     color_ids = fields.Many2many(related='source_id.color_ids')
     color_id = fields.Many2one(comodel_name='stone.item.color', string="Color", required=True,
                                domain="['|', ('company_id', '=', False), ('company_id', '=', company_id)]")
@@ -210,22 +211,25 @@ class StoneItem(models.Model):
         if vals.get('company_id'):
             company_id = self.env['res.company'].browse(vals.get('company_id'))
         vals['currency_id'] = company_id.currency_id.id
-        if item_type_id == self.env.ref('stone_production.item_type_block'):
-            next_num = source_id.next_num
-            code = self._concat_code(item_type_id.code, source_id.code, color_id.code, source_id.next_num)
-            vals['uom_cost'] = source_id.estimate_hour
-        elif item_type_id in (self.env.ref('stone_production.item_type_slab'),
-                              self.env.ref('stone_production.item_type_tile'),
-                              self.env.ref('stone_production.item_type_strip')):
-            thickness = vals.get('thickness') and str(vals.get('thickness')) or 1
-            if '.' in thickness:
-                thickness = thickness.split('.')[0]
-            code = "%s-%s*%s*%s-%s" % (color_id.code, vals.get('length'), vals.get('width'), thickness, "%s" % self.env.context.get('job_order_line') or '')
-            if item_type_id == self.env.ref('stone_production.item_type_tile'):
-                code = "Tiles-%s" % code
-            elif item_type_id == self.env.ref('stone_production.item_type_strip'):
-                code = "Strips-%s" % code
-        vals['name'] = code
+        if not vals.get('product_id'):
+            if item_type_id == self.env.ref('stone_production.item_type_block'):
+                next_num = source_id.next_num
+                vals['name'] = self._concat_code(item_type_id.code, source_id.code, color_id.code, source_id.next_num)
+                vals['uom_cost'] = source_id.estimate_hour
+            elif item_type_id in (self.env.ref('stone_production.item_type_slab'),
+                                  self.env.ref('stone_production.item_type_tile'),
+                                  self.env.ref('stone_production.item_type_strip')):
+                thickness = vals.get('thickness') and str(vals.get('thickness')) or 1
+                if '.' in thickness:
+                    thickness = thickness.split('.')[0]
+                code = "%s-%s*%s*%s-%s" % (color_id.code, vals.get('length'), vals.get('width'), thickness, "%s" % self.env.context.get('job_order_line') or '')
+                if item_type_id == self.env.ref('stone_production.item_type_tile'):
+                    code = "Tiles-%s" % code
+                elif item_type_id == self.env.ref('stone_production.item_type_strip'):
+                    code = "Strips-%s" % code
+                vals['name'] = code
+        else:
+            pass  # TODO: this will be name from product if it's PO
         vals['after_save'] = True
         item = super(StoneItem, self).create(vals)
         if next_num:
@@ -271,9 +275,15 @@ class StoneItem(models.Model):
                     'remain_size': rec.piece_size,
                 })
                 # Add qty as stock for location of source with num_of_pieces
+                if rec.item_type_id == self.env.ref('stone_production.item_type_block'):
+                    location_id = rec.source_id.location_id
+                else:
+                    location_id = self.env.company.stone_finished_good_loc_id
+                    if not location_id:
+                        raise UserError(_("Finished Good Location is missing on config setting for :%s Company" % self.env.company.display_name))
                 quant = quant_obj.create({'product_id': rec.product_id.id,
                                           'inventory_quantity': rec.total_size,
-                                          'location_id': rec.source_id.location_id.id})
+                                          'location_id': location_id.id})
                 quant.action_apply_inventory()
                 # quant_obj._update_available_quantity(rec.product_id, rec.source_id.location_id, rec.total_size)
 

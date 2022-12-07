@@ -23,7 +23,10 @@ class SaleOrderLine(models.Model):
         """
         for line in self:
             if line.product_id.item_type_id:
-                line.available_pieces = line.product_id.num_of_pieces
+                logging.info(yellow +" Ava QTY : %s" % line.product_id.qty_available + reset)
+                logging.info(yellow +" Piece size: %s" % line.product_id.piece_size + reset)
+                logging.info(green +" AVA Pieces: %s" % (line.product_id.qty_available / line.product_id.piece_size) + reset)
+                line.available_pieces = line.product_id.piece_size and line.product_id.qty_available / line.product_id.piece_size or 0.0
 
     @api.depends('display_type', 'product_id', 'product_packaging_qty',
                  'sale_pieces', 'item_type_id')
@@ -37,6 +40,14 @@ class SaleOrderLine(models.Model):
                 line.product_uom_qty = line.piece_size * line.sale_pieces
                 continue
 
+    @api.constrains('available_pieces', 'sale_pieces')
+    def _stone_production_qty(self):
+        for rec in self:
+            if isinstance(rec.id, int) \
+                    and rec.sale_pieces > rec.available_pieces:
+                raise UserError(_("Sale Pieces %s mustn't be more than Available Pieces %s !!!"
+                                  % (rec.sale_pieces, rec.available_pieces)))
+
     item_type_id = fields.Many2one(comodel_name='stone.item.type', string="Type")
     item_color_id = fields.Many2one(comodel_name='stone.item.color', string="Color")
 
@@ -45,4 +56,9 @@ class SaleOrderLine(models.Model):
 
     available_pieces = fields.Float("Available Pieces", compute=_compute_available_pieces, store=True,)
     sale_pieces = fields.Float("Sale Pieces", default=1)
+    length = fields.Integer(related='product_id.length')
+    width = fields.Integer(related='product_id.width')
+    height = fields.Integer(related='product_id.height')
+    thickness = fields.Float(related='product_id.thickness')
+
 # Ahmed Salama Code End.

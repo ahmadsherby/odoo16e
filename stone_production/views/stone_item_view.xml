@@ -60,9 +60,17 @@
                                    domain="[('manual_insert', '=', True)]"
                                    attrs="{'readonly':['|',('after_save', '=', True),('state', '!=', 'draft')]}"/>
                             <field name="type_size" invisible="1"/>
-                            <field name="source_id" domain="[('type_ids','in',item_type_id)]"
+                            <label for="source_id"/>
+                            <div class="o_row">
+                                <field name="source_id" domain="[('type_ids','in',item_type_id)]"
                                    options="{'no_create': 1, 'no_create_edit': 1}"
-                                   attrs="{'readonly':['|',('after_save', '=', True),('state', '!=', 'draft')]}"/>
+                                   attrs="{'readonly':['|',('after_save', '=', True),('state', '!=', 'draft')],
+                                   'invisible':[('after_save', '=', True),('source_id', '=', False)]}"/>
+                                <field name="vendor_id" attrs="{'readonly':['|',('after_save', '=', True),('state', '!=', 'draft')],
+                                   'invisible':[('after_save', '=', True),('vendor_id', '=', False)]}"
+                                   options="{'no_create': 1, 'no_create_edit': 1}" readonly="1"/>
+                            </div>
+
                             <field name="color_ids" invisible="1"/>
                             <field name="color_id" domain="[('id','in',color_ids)]"  options="{'no_create': 1, 'no_create_edit': 1}"
                                    attrs="{'readonly':['|',('after_save', '=', True),('state', '!=', 'draft')]}"/>
@@ -198,6 +206,7 @@
                 <field name="name" string="Name"/>
                 <field name="item_type_id" />
                 <field name="source_id" />
+                <field name="vendor_id" />
                 <field name="color_id" />
                 <field name="company_id" groups="base.group_multi_company"/>
                 <filter string="Block" name="block" domain="[('item_type_id','=',%(stone_production.item_type_block)d)]" />
@@ -212,6 +221,7 @@
                     <filter string="Item Type" name="group_item_type" domain="[]" context="{'group_by':'item_type_id'}"/>
                     <filter string="Item Color" name="group_item_color" domain="[]" context="{'group_by':'color_id'}"/>
                     <filter string="Item Source" name="group_item_source" domain="[]" context="{'group_by':'source_id'}"/>
+                    <filter string="Item Source Vendor" name="group_item_vendor_id" domain="[]" context="{'group_by':'vendor_id'}"/>
                     <filter string="Item Pallet" name="group_item_pallet" domain="[]" context="{'group_by':'pallet_id'}"/>
                 </group>
             </search>

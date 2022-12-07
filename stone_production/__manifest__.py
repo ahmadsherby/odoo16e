@@ -15,6 +15,7 @@
         'security/stone_production_security.xml',
         'security/ir.model.access.csv',
 
+        'views/res_config_setting_view_changes.xml',
         'views/stone_production_view.xml',
         'views/stone_item_type_view.xml',
         'views/stone_item_color_view.xml',

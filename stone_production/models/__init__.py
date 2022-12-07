@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from . import res_config_settings
 from . import stone_item_type
 from . import stone_item_color
 from . import stone_item_source
