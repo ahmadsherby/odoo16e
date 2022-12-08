@@ -106,7 +106,7 @@
                 </xpath>
                 <xpath expr="//group" position="before">
                     <separator/>
-                    <filter string="Without Item" name="filter_without_item" domain="[('item_id', '=', False)]"/>
+                    <filter string="Without Stone Item" name="filter_without_item" domain="[('item_id', '=', False)]"/>
                 </xpath>
                 <xpath expr="//group" position="inside">
                     <separator/>
