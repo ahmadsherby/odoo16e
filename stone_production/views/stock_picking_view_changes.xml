@@ -63,7 +63,7 @@
                            decoration-muted="state == 'draft'"
                            decoration-success="state == 'done'"
                            decoration-warning="state not in ('draft','cancel','done','assigned')"/>
-                    <button name="action_product_create_item" string="Create Stone Item"  icon="fa-wrench" type="object" class="btn-info rounded"
+                    <button name="action_product_create_item" string="Create Stone Item"  icon="fa-plus" type="object" class="btn-info rounded"
                             attrs="{'invisible':['|',('item_type_id','=',False),('item_id','!=',False)]}"
                             groups="stone_production.group_stone_production_product_create_item"/>
                 </tree>

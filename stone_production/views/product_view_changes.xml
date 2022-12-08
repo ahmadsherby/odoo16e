@@ -15,7 +15,7 @@
                 <field name="pallet_id" readonly="1" force_save="1" attrs="{'invisible':[('item_type_id','=',False)]}"/>
                 <field name="generated_po_id" readonly="1" force_save="1" attrs="{'invisible':[('item_type_id','=',False)]}"/>
                 <field name="item_vendor_id" readonly="1" force_save="1" attrs="{'invisible':[('item_type_id','=',False)]}"/>
-                <button name="action_create_item" string="Create Item"  icon="fa-wrench" type="object" class="btn-info rounded"
+                <button name="action_create_item" string="Create Item"  icon="fa-plus" type="object" class="btn-info rounded"
                         attrs="{'invisible':['|',('item_type_id','=',False),('item_id','!=',False)]}"
                         groups="stone_production.group_stone_production_product_create_item"/>
             </xpath>
