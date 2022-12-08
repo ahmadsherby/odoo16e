@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Stock Picking Views-->
+        <record id="stone_production_view_picking_form_inherit" model="ir.ui.view">
+            <field name="name">stone.production.stock.picking.form.inherit</field>
+            <field name="model">stock.picking</field>
+            <field name="inherit_id" ref="stock.view_picking_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='move_ids_without_package']//tree//field[@name='product_id']" position="after">
+                    <field name="item_type_id" optional="show" readonly="1" force_save="1"/>
+                    <field name="color_id" optional="show" attrs="{'readonly': [('state', '=', 'done')]}"/>
+                    <field name="pallet_id" optional="show" attrs="{'readonly': [('state', '=', 'done')]}"/>
+                    <field name="choice_id" optional="show" attrs="{'readonly': [('state', '=', 'done')]}"/>
+                    <field name="length" optional="hide" attrs="{'readonly': [('state', '=', 'done')]}"/>
+                    <field name="width" optional="hide" attrs="{'readonly': [('state', '=', 'done')]}"/>
+                    <field name="height" optional="hide" attrs="{'readonly': [('state', '=', 'done')]}"/>
+                    <field name="thickness" optional="hide" attrs="{'readonly': [('state', '=', 'done')]}"/>
+                    <field name="num_of_pieces" optional="hide" attrs="{'readonly': [('state', '=', 'done')]}"/>
+                    <field name="piece_size" optional="hide" attrs="{'readonly': [('state', '=', 'done')]}"/>
+                    <field name="item_total_size" optional="hide" attrs="{'readonly': [('state', '=', 'done')]}"/>
+                </xpath>
+            </field>
+        </record>
+        <!-- Stock Move Views-->
+        <record id="stone_production_view_move_tree" model="ir.ui.view">
+            <field name="name">stone.production.stock.picking.move.tree</field>
+            <field name="model">stock.move</field>
+            <field name="arch" type="xml">
+                <tree string="Stones Stock Moves(Without Items)" create="0" default_order="date desc"
+                      decoration-danger="item_id==False"  decoration-success="item_id!=False">
+                    <field name="date" groups="base.group_no_one" decoration-danger="(state not in ('cancel','done')) and date > current_date"/>
+                    <field name="reference" optional="show"/>
+                    <field name="picking_type_id" invisible="1"/>
+                    <field name="location_usage" invisible="1"/>
+                    <field name="location_dest_usage" invisible="1"/>
+                    <field name="product_id" optional="show"/>
+                    <field name="item_id" optional="show"/>
+                    <field name="item_type_id" optional="show" readonly="1" force_save="1"/>
+                    <field name="color_id" optional="show" attrs="{'readonly': [('state', '=', 'done')]}"/>
+                    <field name="pallet_id" optional="show" attrs="{'readonly': [('state', '=', 'done')]}"/>
+                    <field name="choice_id" optional="show" attrs="{'readonly': [('state', '=', 'done')]}"/>
+                    <field name="length" optional="hide" attrs="{'readonly': [('state', '=', 'done')]}"/>
+                    <field name="width" optional="hide" attrs="{'readonly': [('state', '=', 'done')]}"/>
+                    <field name="height" optional="hide" attrs="{'readonly': [('state', '=', 'done')]}"/>
+                    <field name="thickness" optional="hide" attrs="{'readonly': [('state', '=', 'done')]}"/>
+                    <field name="num_of_pieces" optional="hide" attrs="{'readonly': [('state', '=', 'done')]}"/>
+                    <field name="piece_size" optional="hide" attrs="{'readonly': [('state', '=', 'done')]}"/>
+                    <field name="item_total_size" optional="hide" attrs="{'readonly': [('state', '=', 'done')]}"/>
+                    <field name="location_id" options="{'no_create': True}" string="From"
+                           decoration-muted="location_usage not in ('internal','transit')" optional="show"/>
+                    <field name="location_dest_id" options="{'no_create': True}" string="To"
+                           decoration-muted="location_dest_usage not in ('internal','transit')" optional="show"/>
+                    <field name="product_packaging_id" optional="hide" groups="product.group_stock_packaging"/>
+                    <field name="product_uom_qty" string="Quantity" sum="Total Quantity" optional="show"
+                           decoration-danger="(location_usage in ('internal','transit')) and (location_dest_usage not in ('internal','transit'))"
+                           decoration-success="(location_usage not in ('internal','transit')) and (location_dest_usage in ('internal','transit'))"/>
+                    <field name="product_uom" options="{'no_open': True, 'no_create': True}" string="Unit" groups="uom.group_uom" optional="show"/>
+                    <field name="company_id" groups="base.group_multi_company"/>
+                    <field name="state" widget='badge' optional="show"
+                           decoration-danger="state=='cancel'"
+                           decoration-info="state== 'assigned'"
+                           decoration-muted="state == 'draft'"
+                           decoration-success="state == 'done'"
+                           decoration-warning="state not in ('draft','cancel','done','assigned')"/>
+                    <button name="action_product_create_item" string="Create Stone Item"  icon="fa-wrench" type="object" class="btn-info rounded"
+                            attrs="{'invisible':['|',('item_type_id','=',False),('item_id','!=',False)]}"
+                            groups="stone_production.group_stone_production_product_create_item"/>
+                </tree>
+            </field>
+        </record>
+        <record id="stone_production_view_move_form_inherit" model="ir.ui.view">
+            <field name="name">stone.production.stock.move.form.inherit</field>
+            <field name="model">stock.move</field>
+            <field name="inherit_id" ref="stock.view_move_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//group[@name='origin_grp']" position="after">
+                    <group name="stone_item" string="Stone Item Details" attrs="{'invisible': [('item_type_id', '=', False)]}"
+                           groups="stone_production.group_stone_production_user">
+                        <field name="item_type_id" optional="show" readonly="1" force_save="1"/>
+                        <field name="color_id" optional="show" attrs="{'readonly': [('state', '=', 'done')]}"/>
+                        <field name="pallet_id" optional="show" attrs="{'readonly': [('state', '=', 'done')]}"/>
+                        <field name="choice_id" optional="show" attrs="{'readonly': [('state', '=', 'done')]}"/>
+                        <field name="length" optional="hide" attrs="{'readonly': [('state', '=', 'done')]}"/>
+                        <field name="width" optional="hide" attrs="{'readonly': [('state', '=', 'done')]}"/>
+                        <field name="height" optional="hide" attrs="{'readonly': [('state', '=', 'done')]}"/>
+                        <field name="thickness" optional="hide" attrs="{'readonly': [('state', '=', 'done')]}"/>
+                        <field name="num_of_pieces" optional="hide" attrs="{'readonly': [('state', '=', 'done')]}"/>
+                        <field name="piece_size" optional="hide" attrs="{'readonly': [('state', '=', 'done')]}"/>
+                        <field name="item_total_size" optional="hide" attrs="{'readonly': [('state', '=', 'done')]}"/>
+                    </group>
+                </xpath>
+
+            </field>
+        </record>
+        <record id="stone_production_view_move_search_inherit" model="ir.ui.view">
+            <field name="name">stone.production.stock.move.search.inherit</field>
+            <field name="model">stock.move</field>
+            <field name="inherit_id" ref="stock.view_move_search"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='product_id']" position="after">
+                    <field name="item_type_id"/>
+                    <field name="color_id"/>
+                    <field name="pallet_id"/>
+                    <field name="choice_id"/>
+                </xpath>
+                <xpath expr="//group" position="before">
+                    <separator/>
+                    <filter string="Without Item" name="filter_without_item" domain="[('item_id', '=', False)]"/>
+                </xpath>
+                <xpath expr="//group" position="inside">
+                    <separator/>
+                    <filter string="Item Type" name="by_item_type_id" domain="[]" context="{'group_by': 'item_type_id'}"/>
+                    <filter string="Item Color" name="by_item_color_id" domain="[]" context="{'group_by': 'color_id'}"/>
+                    <filter string="Item Pallet" name="by_item_pallet_id" domain="[]" context="{'group_by': 'pallet_id'}"/>
+                    <filter string="Item Choice" name="by_item_choice_id" domain="[]" context="{'group_by': 'choice_id'}"/>
+                </xpath>
+            </field>
+        </record>
+        <record id="stone_production_stock_move_action" model="ir.actions.act_window">
+            <field name="name">Stones Stock Moves(Without Items)</field>
+            <field name="res_model">stock.move</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="view_id" ref="stone_production_view_move_tree"/>
+            <field name="search_view_id" ref="stock.view_move_search"/>
+            <field name="context">{'search_default_done': 1,'search_default_filter_without_item': 1}</field>
+            <field name="domain">[('item_type_id','!=', False), ('state','=', 'done')]</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    No Stone stock move found
+                </p><p>
+                This menu gives you the full traceability of inventory
+                operations related to products of stone production . You can filter on the product
+                to see all the past or future movements for the product.
+            </p>
+            </field>
+        </record>
+        <menuitem action="stone_production_stock_move_action" id="stone_production_stock_move_menu"
+                  parent="stock.menu_warehouse_report" sequence="231"
+                  groups="stone_production.group_stone_production_user"/>
+        <menuitem id="stone_production_items_stock_move_action"
+                  parent="stone_production.stone_item_menu_root"
+                  action="stone_production_stock_move_action" sequence="3"/>
+
+    </data>
+    <data noupdate="1">
+        <record model="ir.actions.server" id="action_multi_stock_product_create_item">
+            <field name="name">Create Stone Item</field>
+            <field name="model_id" ref="stock.model_stock_move"/>
+            <field name="code">
+                if records:
+                action = records.action_product_create_item()
+            </field>
+            <field name="binding_view_types">list</field>
+            <field name="state">code</field>
+            <field name="groups_id" eval="[(4,ref('stone_production.group_stone_production_product_create_item'))]"/>
+            <field name="binding_model_id" ref="stock.model_stock_move"/>
+        </record>
+    </data>
+</odoo>

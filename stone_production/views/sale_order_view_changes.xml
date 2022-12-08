@@ -7,10 +7,10 @@
             <field name="inherit_id" ref="sale.view_order_form"/>
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='order_line']//tree//field[@name='product_id']" position="before">
-                    <field name="item_type_id" options="{'no_create': 1, 'no_create_edit': 1}" attrs="{'readonly': [('product_updatable', '=', False)]}"/>
-                    <field name="item_color_id" attrs="{'required':[('item_type_id','!=',False)],
+                    <field name="item_type_id" optional="show" options="{'no_create': 1, 'no_create_edit': 1}" attrs="{'readonly': [('product_updatable', '=', False)]}"/>
+                    <field name="item_color_id" optional="show" attrs="{'required':[('item_type_id','!=',False)],
                     'readonly': [('product_updatable', '=', False)]}" options="{'no_create': 1, 'no_create_edit': 1}"/>
-                    <field name="item_pallet_id" attrs="{'required':[
+                    <field name="item_pallet_id" optional="show" attrs="{'required':[
                     ('item_type_id', 'in', (%(stone_production.item_type_tile)d,%(stone_production.item_type_strip)d))],
                     'readonly': [('product_updatable', '=', False)]}" options="{'no_create': 1, 'no_create_edit': 1}"/>
                 </xpath>
@@ -32,10 +32,10 @@
                     <field name="width" readonly="1" force_save="1" optional="hide"/>
                     <field name="height" readonly="1" force_save="1" optional="hide"/>
                     <field name="thickness" readonly="1" force_save="1" optional="hide"/>
-                    <field name="available_pieces"/>
+                    <field name="available_pieces" optional="show"/>
                     <field name="sale_pieces"  attrs="{'required':[('item_type_id','!=',False)],
-                    'readonly': [('product_updatable', '=', False)]}"/>
-                    <field name="piece_size" readonly="1" force_save="1"/>
+                    'readonly': [('product_updatable', '=', False)]}" optional="show"/>
+                    <field name="piece_size" readonly="1" force_save="1" optional="show"/>
                 </xpath>
             </field>
         </record>

@@ -95,14 +95,14 @@
         <field name="model">stone.job.order</field>
         <field name="arch" type="xml">
             <tree>
-                <field name="name"/>
-                <field name="item_id"/>
-                <field name="job_type_id"/>
-                <field name="color_id" />
+                <field name="name" optional="show"/>
+                <field name="item_id" optional="show"/>
+                <field name="job_type_id" optional="show"/>
+                <field name="color_id" optional="show"/>
                 <field name="choice_id"  optional="hide"/>
                 <field name="job_machine_id" optional="hide"/>
-                <field name="create_date" readonly="1" force_save="1"/>
-                <field name="job_type" invisible="1"/>
+                <field name="create_date" readonly="1" force_save="1" optional="hide"/>
+                <field name="job_type" invisible="1" optional="show"/>
                 <field name="length" optional="hide" sum="length"/>
                 <field name="width" optional="hide" sum="width"/>
                 <field name="height" optional="hide" sum="height"/>

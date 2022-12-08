@@ -66,6 +66,7 @@ class ProductProduct(models.Model):
     item_type_id = fields.Many2one(comodel_name='stone.item.type', string="Stone Type")
     source_id = fields.Many2one(comodel_name='stone.item.source', string="Stone Source")
     color_id = fields.Many2one(comodel_name='stone.item.color', string="Stone Color")
+    pallet_id = fields.Many2one(comodel_name='stone.item.pallet', string="Pallet")
     type_size_uom_id = fields.Many2one(related='item_type_id.size_uom_id')
     dimension_uom_id = fields.Many2one('uom.uom', string="UOM", compute=_compute_dim_uom_name)
     dimension_uom_name = fields.Char(related='dimension_uom_id.name')
@@ -83,8 +84,34 @@ class ProductProduct(models.Model):
     item_total_cost = fields.Float("Item Total Cost", compute=_compute_size)
     choice_id = fields.Many2one('stone.item.choice', "Choice")
     remarks = fields.Text("Remarks")
-    pallet_id = fields.Many2one('stone.item.pallet', "Pallet")
+
     item_vendor_id = fields.Many2one('res.partner', 'Source Vendor')
     generated_po_id = fields.Many2one('purchase.order', "Generated From PO")
+
+    def action_create_item(self):
+        stone_item_obj = self.env['stone.item']
+        for rec in self:
+            if rec.item_type_id:
+                rec.item_id = stone_item_obj.create({
+                    'name': rec.name,
+                    'company_id': rec.company_id and rec.company_id.id or False,
+                    'currency_id': rec.currency_id and rec.currency_id.id or False,
+                    'item_type_id': rec.item_type_id.id,
+                    'source_id': rec.source_id and rec.source_id.id or False,
+                    'color_id': rec.color_id and rec.color_id.id or False,
+                    'vendor_id': rec.item_vendor_id and rec.item_vendor_id.id or False,
+                    'choice_id': rec.choice_id and rec.choice_id.id or False,
+                    'pallet_id': rec.pallet_id and rec.pallet_id.id or False,
+                    'length': rec.length,
+                    'width': rec.width,
+                    'height': rec.height,
+                    'thickness': rec.thickness,
+                    'num_of_pieces': rec.num_of_pieces,
+                    'remarks': rec.remarks,
+                    'uom_cost': rec.standard_price,
+                    'state': 'product',
+                    'product_id': rec.product_variant_id.id,
+                    'product_tmpl_id': rec.id,
+                })
 
 # Ahmed Salama Code End.

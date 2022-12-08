@@ -6,47 +6,60 @@
         <field name="inherit_id" ref="product.product_template_form_view"/>
         <field name="arch" type="xml">
             <xpath expr="//group[@name='group_general']" position="inside">
-                <field name="item_id" readonly="1" force_save="1"/>
-                <field name="item_type_id" readonly="1" force_save="1"/>
-                <field name="color_id" readonly="1" force_save="1"/>
-                <field name="source_id" readonly="1" force_save="1"/>
-                <field name="choice_id" readonly="1" force_save="1"/>
-                <field name="remarks" readonly="1" force_save="1"/>
-                <field name="pallet_id" readonly="1" force_save="1"/>
-                <field name="generated_po_id" readonly="1" force_save="1"/>
+                <field name="item_id" readonly="1" force_save="1" attrs="{'invisible':[('item_type_id','=',False)]}"/>
+                <field name="item_type_id" readonly="1" force_save="1" attrs="{'invisible':[('item_type_id','=',False)]}"/>
+                <field name="color_id" readonly="1" force_save="1" attrs="{'invisible':[('item_type_id','=',False)]}"/>
+                <field name="source_id" readonly="1" force_save="1" attrs="{'invisible':[('item_type_id','=',False)]}"/>
+                <field name="choice_id" readonly="1" force_save="1" attrs="{'invisible':[('item_type_id','=',False)]}"/>
+                <field name="remarks" readonly="1" force_save="1" attrs="{'invisible':[('item_type_id','=',False)]}"/>
+                <field name="pallet_id" readonly="1" force_save="1" attrs="{'invisible':[('item_type_id','=',False)]}"/>
+                <field name="generated_po_id" readonly="1" force_save="1" attrs="{'invisible':[('item_type_id','=',False)]}"/>
+                <field name="item_vendor_id" readonly="1" force_save="1" attrs="{'invisible':[('item_type_id','=',False)]}"/>
+                <button name="action_create_item" string="Create Item"  icon="fa-wrench" type="object" class="btn-info rounded"
+                        attrs="{'invisible':['|',('item_type_id','=',False),('item_id','!=',False)]}"
+                        groups="stone_production.group_stone_production_product_create_item"/>
             </xpath>
             <xpath expr="//group[@name='group_lots_and_weight']//div" position="after">
-                <label for="stone_size_eq"/>
-                <div class="o_row" name="size" width="2">
+                <label for="stone_size_eq" attrs="{'invisible':[('item_type_id','=',False)]}"/>
+                <div class="o_row" name="size" width="2" attrs="{'invisible':[('item_type_id','=',False)]}">
                     <field name="stone_size_eq" class="oe_inline"/>
                     <field name="piece_size_uom_name" readonly="1" force_save="1"/>
                 </div>
-                <label for="length" attrs="{'invisible':[('product_variant_count', '>', 1), ('is_product_variant', '=', False)]}"/>
-                <div class="o_row" name="weight" attrs="{'invisible':[('product_variant_count', '>', 1), ('is_product_variant', '=', False)]}">
+                <label for="length" attrs="{'invisible':[('item_type_id','=',False)]}"/>
+                <div class="o_row" name="weight" attrs="{'invisible':[('item_type_id','=',False)]}">
                     <field name="length" class="oe_inline"/>
                     <field name="dimension_uom_name" readonly="1" force_save="1"/>
                 </div>
-                <label for="width" attrs="{'invisible':[('product_variant_count', '>', 1), ('is_product_variant', '=', False)]}"/>
-                <div class="o_row" name="weight" attrs="{'invisible':[('product_variant_count', '>', 1), ('is_product_variant', '=', False)]}">
+                <label for="width" attrs="{'invisible':[('item_type_id','=',False)]}"/>
+                <div class="o_row" name="weight" attrs="{'invisible':[('item_type_id','=',False)]}">
                     <field name="width" class="oe_inline"/>
                     <field name="dimension_uom_name" readonly="1" force_save="1"/>
                 </div>
-                <label for="height" attrs="{'invisible':[('product_variant_count', '>', 1), ('is_product_variant', '=', False)]}"/>
-                <div class="o_row" name="weight" attrs="{'invisible':[('product_variant_count', '>', 1), ('is_product_variant', '=', False)]}">
+                <label for="height" attrs="{'invisible':[('item_type_id','=',False)]}"/>
+                <div class="o_row" name="weight" attrs="{'invisible':[('item_type_id','=',False)]}">
                     <field name="height" class="oe_inline"/>
                     <field name="dimension_uom_name" readonly="1" force_save="1"/>
                 </div>
-                <label for="thickness" attrs="{'invisible':[('product_variant_count', '>', 1), ('is_product_variant', '=', False)]}"/>
-                <div class="o_row" name="weight" attrs="{'invisible':[('product_variant_count', '>', 1), ('is_product_variant', '=', False)]}">
+                <label for="thickness" attrs="{'invisible':[('item_type_id','=',False)]}"/>
+                <div class="o_row" name="weight" attrs="{'invisible':[('item_type_id','=',False)]}">
                     <field name="thickness" class="oe_inline"/>
                     <field name="dimension_uom_name" readonly="1" force_save="1"/>
                 </div>
-                <field name="num_of_pieces" readonly="1" force_save="1"/>
-                <label for="piece_size"/>
-                <div class="o_row" name="piece_size">
+                <field name="num_of_pieces" readonly="1" force_save="1" attrs="{'invisible':[('item_type_id','=',False)]}"/>
+                <label for="piece_size" attrs="{'invisible':[('item_type_id','=',False)]}"/>
+                <div class="o_row" name="piece_size" attrs="{'invisible':[('item_type_id','=',False)]}">
                     <field name="piece_size" class="oe_inline" readonly="1" force_save="1"/>
                     <field name="piece_size_uom_name" readonly="1" force_save="1"/>
                 </div>
+                <label for="item_total_size" attrs="{'invisible':[('item_type_id','=',False)]}"/>
+                <div class="o_row" name="piece_size" attrs="{'invisible':[('item_type_id','=',False)]}">
+                    <field name="item_total_size" class="oe_inline" readonly="1" force_save="1"/>
+                    <field name="piece_size_uom_name" readonly="1" force_save="1"/>
+                </div>
+            </xpath>
+            <xpath expr="//field[@name='categ_id']" position="before">
+                <field name="item_total_cost" readonly="1" force_save="1" widget="monetary" options="{'currency_field': 'currency_id'}"
+                       attrs="{'invisible':[('item_type_id','=',False)]}"/>
             </xpath>
         </field>
     </record>
@@ -110,4 +123,18 @@
     <menuitem id="stone_product_menu" name="Products"
               parent="stone_production.stone_item_menu_root"
               action="stone_production_product_template_action" sequence="2"/>
+    <data noupdate="1">
+        <record model="ir.actions.server" id="action_multi_product_create_item">
+            <field name="name">Create Stone Item</field>
+            <field name="model_id" ref="product.model_product_template"/>
+            <field name="code">
+                if records:
+                action = records.action_create_item()
+            </field>
+            <field name="binding_view_types">list</field>
+            <field name="state">code</field>
+            <field name="groups_id" eval="[(4,ref('stone_production.group_stone_production_product_create_item'))]"/>
+            <field name="binding_model_id" ref="product.model_product_template"/>
+        </record>
+    </data>
 </odoo>

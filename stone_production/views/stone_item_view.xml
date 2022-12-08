@@ -154,7 +154,7 @@
             <tree string="Item Types">
                 <field name="after_save" invisible="1"/>
                 <field name="code_compute" invisible="1"/>
-                <field name="name"/>
+                <field name="name" optional="show"/>
                 <field name="item_type_id" optional="show" attrs="{'readonly':['|',('after_save', '=', True),('state', '!=', 'draft')]}"/>
                 <field name="parent_id" optional="hide" attrs="{'readonly':['|',('after_save', '=', True),('state', '!=', 'draft')]}"/>
                 <field name="cut_job_order_id" optional="hide" attrs="{'readonly':['|',('after_save', '=', True),('state', '!=', 'draft')]}"/>
@@ -169,15 +169,15 @@
                 <field name="width" optional="hide"/>
                 <field name="height" optional="hide"/>
                 <field name="thickness" optional="hide"/>
-                <field name="piece_size" sum="piece_size"/>
-                <field name="piece_cost" sum="piece_cost"/>
-                <field name="num_of_pieces" sum="num_of_pieces"/>
+                <field name="piece_size" sum="piece_size" optional="show"/>
+                <field name="piece_cost" sum="piece_cost" optional="show"/>
+                <field name="num_of_pieces" sum="num_of_pieces" optional="show"/>
                 <field name="slab_remain_num_of_pieces" sum="slab_remain_num_of_pieces" optional="hide"/>
-                <field name="total_size" sum="total_size"/>
-                <field name="uom_cost" sum="uom_cost" widget="monetary" options="{'currency_field': 'currency_id'}"/>
-                <field name="item_total_cost" sum="item_total_cost" widget="monetary" options="{'currency_field': 'currency_id'}"/>
-                <field name="cut_size" sum="cut_size"/>
-                <field name="remain_size" sum="remain_size"/>
+                <field name="total_size" sum="total_size" optional="show"/>
+                <field name="uom_cost" sum="uom_cost" widget="monetary" options="{'currency_field': 'currency_id'}" optional="show"/>
+                <field name="item_total_cost" sum="item_total_cost" widget="monetary" options="{'currency_field': 'currency_id'}" optional="show"/>
+                <field name="cut_size" sum="cut_size" optional="show"/>
+                <field name="remain_size" sum="remain_size" optional="show"/>
                 <field name="company_id" groups="base.group_multi_company" optional="hide"/>
                 <field name="currency_id" invisible="1"/>
                 <field name="state" optional="show" widget="badge"

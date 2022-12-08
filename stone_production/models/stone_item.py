@@ -139,12 +139,11 @@ class StoneItem(models.Model):
     type_size = fields.Selection(related='item_type_id.size')
     type_size_uom_id = fields.Many2one(related='item_type_id.size_uom_id')
     type_size_uom_name = fields.Char(related='type_size_uom_id.name')
-    source_id = fields.Many2one(comodel_name='stone.item.source', string="Source",
-                                domain="['|', ('company_id', '=', False), ('company_id', '=', company_id)]")
+    source_id = fields.Many2one(comodel_name='stone.item.source', string="Source")
     vendor_id = fields.Many2one('res.partner', 'Source Vendor')
     color_ids = fields.Many2many(related='source_id.color_ids')
-    color_id = fields.Many2one(comodel_name='stone.item.color', string="Color", required=True,
-                               domain="['|', ('company_id', '=', False), ('company_id', '=', company_id)]")
+    color_id = fields.Many2one(comodel_name='stone.item.color', string="Color", required=True)
+    pallet_id = fields.Many2one('stone.item.pallet', "Pallet")
     length = fields.Integer('Length', digits='Stock Weight', readonly=True
                             , states={'draft': [('readonly', False)]})
     width = fields.Integer('Width', digits='Stock Weight', readonly=True
@@ -188,7 +187,6 @@ class StoneItem(models.Model):
     product_tmpl_id = fields.Many2one('product.template', "Template", ondelete='cascade')
     job_order_ids = fields.One2many('stone.job.order', 'item_id', "Job Orders")
     cut_job_order_id = fields.Many2one('stone.job.order', "Cut Job Order")
-    pallet_id = fields.Many2one('stone.item.pallet', "Pallet")
 
     # =========== Core Methods
     @api.model
