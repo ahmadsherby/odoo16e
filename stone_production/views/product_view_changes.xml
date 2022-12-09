@@ -101,6 +101,11 @@
                 <field name="color_id"/>
                 <field name="pallet_id"/>
             </xpath>
+            <xpath expr="//group" position="before">
+                <separator/>
+                <filter string="Stone Products" name="stone_products" domain="[('item_type_id','!=',False)]"/>
+                <filter string="Non-Stone Products" name="non_stone_products" domain="[('item_type_id','=',False)]"/>
+            </xpath>
             <xpath expr="//filter[@name='categ_id']" position="after">
                 <separator/>
                 <filter string="Item Type" name="stone_item_type" context="{'group_by':'item_type_id'}"/>

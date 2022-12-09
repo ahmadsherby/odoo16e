@@ -17,58 +17,66 @@
                             <tree string="New Products" editable="bottom">
                                 <field name="detailed_type" invisible="1"/>
                                 <field name="purchase_ok" invisible="1"/>
-                                <field name="name" style="width: 100px !important;"/>
-                                <field name="item_type_id" required="1" options="{'no_create': 1, 'no_create_edit': 1}"/>
-                                <field name="color_id" required="1" options="{'no_create': 1, 'no_create_edit': 1}"/>
-                                <field name="source_id" required="1" options="{'no_create': 1, 'no_create_edit': 1}" domain="[('purchase_source','=', True)]"/>
-                                <field name="pallet_id" attrs="{'required':[('item_type_id', 'in',  (%(stone_production.item_type_tile)d,%(stone_production.item_type_strip)d))]}" optional="hide"/>
+                                <field name="name" style="width:150px !important;" width="150"/>
+                                <field name="item_type_id" required="1" options="{'no_create': 1, 'no_create_edit': 1}" optional="show"/>
+                                <field name="color_id" required="1" options="{'no_create': 1, 'no_create_edit': 1}" optional="show"/>
+                                <field name="source_id" required="1" options="{'no_create': 1, 'no_create_edit': 1}"
+                                       domain="[('purchase_source','=', True)]" optional="show"/>
+                                <field name="pallet_id" optional="hide"
+                                       attrs="{'required':[('item_type_id', 'in',(%(stone_production.item_type_tile)d,%(stone_production.item_type_strip)d))]}"/>
                                 <field name="stone_size_eq" readonly="1" force_save="1" optional="hide"/>
                                 <field name="type_size_uom_id" readonly="1" force_save="1" optional="hide"/>
-                                <field name="length" required="1" />
-                                <field name="width" required="1"/>
+                                <field name="length" required="1" optional="show"/>
+                                <field name="width" required="1" optional="show"/>
                                 <field name="height" attrs="{'required': [('item_type_id', '=', %(stone_production.item_type_block)d)]}" optional="show"/>
                                 <field name="thickness"  optional="hide"/>
-                                <field name="num_of_pieces" required="1" sum="num_of_pieces" attrs="{'readonly': [('item_type_id', '=', %(stone_production.item_type_block)d)]}"/>
-                                <field name="standard_price" sum="standard_price"/>
-                                <field name="piece_size" sum="piece_size"/>
-                                <field name="piece_cost" sum="piece_cost"/>
-                                <field name="choice_id" required="1" options="{'no_create': 1, 'no_create_edit': 1}"/>
-                                <field name="remarks" optional="hide" />
-                                <field name="item_vendor_id" optional="hide" />
-                                <field name="item_total_size" sum="item_total_size"/>
-                                <field name="item_total_cost" sum="item_total_cost"/>
+                                <field name="num_of_pieces" required="1" sum="num_of_pieces" optional="show"
+                                       attrs="{'readonly': [('item_type_id', '=', %(stone_production.item_type_block)d)]}"/>
+                                <field name="standard_price" sum="standard_price" optional="show"/>
+                                <field name="piece_size" sum="piece_size" optional="show"/>
+                                <field name="piece_cost" sum="piece_cost" optional="show"/>
+                                <field name="choice_id" required="1" optional="show" options="{'no_create': 1, 'no_create_edit': 1}"/>
+                                <field name="remarks" optional="hide"/>
+                                <field name="item_vendor_id" optional="hide"/>
+                                <field name="item_total_size" sum="item_total_size" optional="show"/>
+                                <field name="item_total_cost" sum="item_total_cost" optional="show"/>
                                 <field name="company_id" groups="base.group_multi_company" optional="hide"/>
                             </tree>
                         </field>
                     </page>
                 </xpath>
                 <xpath expr="//field[@name='order_line']//tree//field[@name='name']" position="after">
-                    <field name="length" readonly="1" force_save="1" optional="hide"/>
-                    <field name="width" readonly="1" force_save="1" optional="hide"/>
-                    <field name="height" readonly="1" force_save="1" optional="hide"/>
-                    <field name="thickness" readonly="1" force_save="1" optional="hide"/>
+                    <field name="length" readonly="1" force_save="1" optional="hide"
+                           attrs="{'column_invisible':[('parent.stone_production_product_ids', '=', [])]}"/>
+                    <field name="width" readonly="1" force_save="1" optional="hide"
+                           attrs="{'column_invisible':[('parent.stone_production_product_ids', '=', [])]}"/>
+                    <field name="height" readonly="1" force_save="1" optional="hide"
+                           attrs="{'column_invisible':[('parent.stone_production_product_ids', '=', [])]}"/>
+                    <field name="thickness" readonly="1" force_save="1" optional="hide"
+                           attrs="{'column_invisible':[('parent.stone_production_product_ids', '=', [])]}"/>
                 </xpath>
                 <xpath expr="//field[@name='order_line']//tree//field[@name='product_qty']" position="before">
-                    <field name="num_of_pieces" readonly="1" force_save="1" optional="show"/>
-                    <field name="piece_size" readonly="1" force_save="1" optional="show"/>
+                    <field name="num_of_pieces" readonly="1" force_save="1" optional="show"
+                           attrs="{'column_invisible':[('parent.stone_production_product_ids', '=', [])]}"/>
+                    <field name="piece_size" readonly="1" force_save="1" optional="show"
+                           attrs="{'column_invisible':[('parent.stone_production_product_ids', '=', [])]}"/>
                 </xpath>
                 <xpath expr="//field[@name='order_line']//tree//field[@name='product_id']" position="replace">
-                    <!--                    <field name="product_id"-->
-                    <!--                            attrs="{'readonly': [('state', 'in', ('purchase', 'to approve','done', 'cancel'))],-->
-                    <!--                                                       'column_invisible':[('parent.stone_production_product_ids', '!=', [])],-->
-                    <!--                                    'required': [('display_type', '=', False)]}"-->
-                    <!--                            context="{'partner_id':parent.partner_id, 'quantity':product_qty,'uom':product_uom, 'company_id': parent.company_id}"-->
-                    <!--                            force_save="1" domain="[('purchase_ok', '=', True),('item_type_id', '=', False), '|', ('company_id', '=', False), ('company_id', '=', parent.company_id)]"/>-->
-                    <field name="product_id" string="Stone Production Product"
+                    <!--Only to remove domain attrs-->
+                    <field name="product_id"
                            attrs="{'readonly': [('state', 'in', ('purchase', 'to approve','done', 'cancel'))],
-                                        'column_invisible':[('parent.stone_production_product_ids', '=', [])],
-                                    'required': [('display_type', '=', False)]}"
-                           options="{'no_create': 1, 'no_create_edit': 1}"
-                           force_save="1" domain="[('id', 'in', parent.stone_production_product_ids)]"/>
-                    <field name="item_type_id" readonly="1" force_save="1" optional="hide"/>
-                    <field name="color_id" readonly="1" force_save="1" optional="hide"/>
-                    <field name="pallet_id" readonly="1" force_save="1" optional="hide"/>
-                    <field name="choice_id" readonly="1" force_save="1" optional="hide"/>
+                                    'required': [('display_type', '=', False)],}"
+                           context="{'partner_id':parent.partner_id, 'quantity':product_qty,'uom':product_uom,
+                                      'company_id': parent.company_id}" force_save="1" options="{'no_create': 1, 'no_create_edit': 1}"/>
+
+                    <field name="item_type_id" readonly="1" force_save="1" optional="hide"
+                           attrs="{'column_invisible':[('parent.stone_production_product_ids', '=', [])]}"/>
+                    <field name="color_id" readonly="1" force_save="1" optional="hide"
+                           attrs="{'column_invisible':[('parent.stone_production_product_ids', '=', [])]}"/>
+                    <field name="pallet_id" readonly="1" force_save="1" optional="hide"
+                           attrs="{'column_invisible':[('parent.stone_production_product_ids', '=', [])]}"/>
+                    <field name="choice_id" readonly="1" force_save="1" optional="hide"
+                           attrs="{'column_invisible':[('parent.stone_production_product_ids', '=', [])]} "/>
                 </xpath>
             </field>
         </record>
