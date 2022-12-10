@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-       <record id="stone_production_view_move_form_inherit" model="ir.ui.view">
+       <record id="stone_production_view_account_move_form_inherit" model="ir.ui.view">
            <field name="name">stone.production.account.move.form.inherit</field>
            <field name="model">account.move</field>
            <field name="inherit_id" ref="account.view_move_form"/>
