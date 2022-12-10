@@ -33,7 +33,10 @@ class PurchaseOrderLine(models.Model):
     @api.depends('product_qty', 'product_uom', 'product_id.item_total_cost')
     def _compute_price_unit_and_date_planned_and_name(self):
         for line in self:
-            line.price_unit = line.product_id.item_total_cost
+            if not line.product_id or line.invoice_lines:
+                continue
+            line.price_unit = line.product_id.standard_price
+        super()._compute_price_unit_and_date_planned_and_name()
 
     @api.onchange('item_type_id', 'order_id')
     @api.depends('item_type_id', 'order_id.stone_production_product_ids')
