@@ -114,7 +114,7 @@
                 </xpath>
                 <xpath expr="//group" position="before">
                     <separator/>
-                    <filter string="Without Stone Item" name="filter_without_item" domain="[('valuation_adjustment_lines', '!=', []),('item_id', '=', False)]"/>
+                    <filter string="Without Stone Item" name="filter_without_item" domain="[('valuation_adjustment_lines', '!=', False),('item_id', '=', False)]"/>
                 </xpath>
                 <xpath expr="//group" position="inside">
                     <separator/>
