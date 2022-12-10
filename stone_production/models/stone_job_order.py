@@ -317,6 +317,8 @@ class StoneJobOrder(models.Model):
         for rec in self.line_ids:
             stone_item_obj.with_context(job_order_line=rec.id).create({
                 'cut_job_order_id': self.id,
+                'company_id': rec.company_id and rec.company_id.id or False,
+                'currency_id': rec.currency_id and rec.currency_id.id or False,
                 'parent_id': self.item_id.id,
                 'choice_id': self.choice_id.id,
                 'source_id': self.item_id.source_id.id,

@@ -35,4 +35,16 @@ class StockMoveInherit(models.Model):
         """
         self.filtered(lambda mv: mv.item_type_id and not mv.item_id).mapped('product_id.product_tmpl_id').action_create_item()
 
+    @api.onchange('num_of_pieces', 'piece_size')
+    @api.depends('move_line_ids.qty_done', 'move_line_ids.product_uom_id', 'move_line_nosuggest_ids.qty_done',
+                 'num_of_pieces', 'piece_size')
+    def _quantity_done_compute(self):
+        super()._quantity_done_compute()
+        for move in self:
+            if move.item_type_id and move.num_of_pieces and move.state not in ('done', 'cancel'):
+                quantity_done = move.piece_size * move.num_of_pieces
+                for move_line in move.move_line_ids:
+                    move_line.qty_done = quantity_done
+                move.quantity_done = quantity_done
+
 # Ahmed Salama Code End.

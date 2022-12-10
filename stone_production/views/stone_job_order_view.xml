@@ -34,7 +34,8 @@
                                    readonly="1" force_save="1"/>
                             <field name="item_type_id" readonly="1" force_save="1"/>
                             <field name="job_machine_id" options="{'no_create': 1, 'no_create_edit': 1}"
-                                   attrs="{'readonly':[('cut_status', '!=', 'new')]}"/>
+                                   domain="[('item_type_id', '=', item_type_id)]"
+                                   attrs="{'readonly':[('cut_status', 'in', ('completed','cancel'))]}"/>
                             <field name="parent_id" readonly="1" force_save="1"/>
                         </group>
                         <group string="Extra Details">
@@ -234,7 +235,8 @@
                                    readonly="1" force_save="1"/>
                             <field name="item_type_id" readonly="1" force_save="1"/>
                             <field name="job_machine_id" options="{'no_create': 1, 'no_create_edit': 1}"
-                                   attrs="{'readonly':[('cut_status', '!=', 'new')]}"/>
+                                   domain="[('item_type_id', '=', item_type_id)]"
+                                   attrs="{'readonly':[('cut_status', 'in', ('completed','cancel'))]}"/>
                             <field name="create_date" readonly="1" force_save="1"/>
                             <field name="item_type_size" invisible="1"/>
                             <field name="company_id" groups="base.group_multi_company"/>
@@ -491,7 +493,8 @@
                                    readonly="1" force_save="1"/>
                             <field name="item_type_id" readonly="1" force_save="1"/>
                             <field name="job_machine_id" options="{'no_create': 1, 'no_create_edit': 1}"
-                                   attrs="{'readonly':[('cut_status', '!=', 'new')]}"/>
+                                   domain="[('item_type_id', '=', item_type_id)]"
+                                   attrs="{'readonly':[('cut_status', 'in', ('completed','cancel'))]}"/>
                             <field name="color_id" force_save="1"/>
                             <field name="choice_id" readonly="1" force_save="1"/>
                             <field name="remarks" readonly="1" force_save="1"/>

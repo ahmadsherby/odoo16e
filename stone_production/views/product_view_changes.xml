@@ -128,6 +128,47 @@
     <menuitem id="stone_product_menu" name="Products"
               parent="stone_production.stone_item_menu_root"
               action="stone_production_product_template_action" sequence="2"/>
+    <!--Purchase Related Changes-->
+    <record id="stone_production_product_tree" model="ir.ui.view">
+        <field name="name">stone.production.product.template.tree</field>
+        <field name="model">product.template</field>
+        <field name="arch" type="xml">
+            <tree string="Stone Production New Product" editable="bottom">
+                <field name="generated_po_id" invisible="1"/>
+                <field name="detailed_type" invisible="1"/>
+                <field name="purchase_ok" invisible="1"/>
+                <field name="name" />
+                <field name="item_type_id" required="1" options="{'no_create': 1, 'no_create_edit': 1}" optional="show"/>
+                <field name="color_id" required="1" options="{'no_create': 1, 'no_create_edit': 1}" optional="show"/>
+                <field name="source_id" required="1" options="{'no_create': 1, 'no_create_edit': 1}"
+                       domain="[('purchase_source','=', True)]" optional="show"/>
+                <field name="pallet_id" optional="hide"
+                       attrs="{'required':[('item_type_id', 'in',(%(stone_production.item_type_tile)d,%(stone_production.item_type_strip)d))]}"/>
+                <field name="stone_size_eq" readonly="1" force_save="1" optional="hide"/>
+                <field name="type_size_uom_id" readonly="1" force_save="1" optional="hide"/>
+                <field name="length" required="1" optional="show"/>
+                <field name="width" required="1" optional="show"/>
+                <field name="height" attrs="{'required': [('item_type_id', '=', %(stone_production.item_type_block)d)]}" optional="show"/>
+                <field name="thickness"  optional="hide"/>
+                <field name="num_of_pieces" required="1" sum="num_of_pieces" optional="show"
+                       attrs="{'readonly': [('item_type_id', '=', %(stone_production.item_type_block)d)]}"/>
+                <field name="standard_price" sum="standard_price" optional="show"/>
+                <field name="piece_size" sum="piece_size" optional="show"/>
+                <field name="piece_cost" sum="piece_cost" optional="show"/>
+                <field name="choice_id" required="1" optional="show" options="{'no_create': 1, 'no_create_edit': 1}"/>
+                <field name="remarks" optional="hide"/>
+                <field name="item_vendor_id" optional="hide"/>
+                <field name="item_total_size" sum="item_total_size" optional="show"/>
+                <field name="item_total_cost" sum="item_total_cost" optional="show"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+            </tree>
+        </field>
+    </record>
+    <record id="stone_production_new_product_action" model="ir.actions.act_window">
+        <field name="res_model">product.template</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="stone_production.stone_production_product_tree"/>
+    </record>
     <data noupdate="1">
         <record model="ir.actions.server" id="action_multi_product_create_item">
             <field name="name">Create Stone Item</field>

@@ -9,16 +9,22 @@
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='move_ids_without_package']//tree//field[@name='product_id']" position="after">
                     <field name="item_type_id" optional="show" readonly="1" force_save="1"/>
-                    <field name="color_id" optional="show" attrs="{'readonly': [('state', '=', 'done')],'column_invisible':[('item_type_id', '=', False)]}"/>
-                    <field name="pallet_id" optional="show" attrs="{'readonly': [('state', '=', 'done')],'column_invisible':[('item_type_id', '=', False)]}"/>
-                    <field name="choice_id" optional="show" attrs="{'readonly': [('state', '=', 'done')],'column_invisible':[('item_type_id', '=', False)]}"/>
-                    <field name="length" optional="hide" attrs="{'readonly': [('state', '=', 'done')],'column_invisible':[('item_type_id', '=', False)]}"/>
-                    <field name="width" optional="hide" attrs="{'readonly': [('state', '=', 'done')],'column_invisible':[('item_type_id', '=', False)]}"/>
-                    <field name="height" optional="hide" attrs="{'readonly': [('state', '=', 'done')],'column_invisible':[('item_type_id', '=', False)]}"/>
-                    <field name="thickness" optional="hide" attrs="{'readonly': [('state', '=', 'done')],'column_invisible':[('item_type_id', '=', False)]}"/>
-                    <field name="num_of_pieces" optional="hide" attrs="{'readonly': [('state', '=', 'done')],'column_invisible':[('item_type_id', '=', False)]}"/>
-                    <field name="piece_size" optional="hide"  attrs="{'readonly': [('state', '=', 'done')],'column_invisible':[('item_type_id', '=', False)]}"/>
-                    <field name="item_total_size" optional="hide" attrs="{'readonly': [('state', '=', 'done')],'column_invisible':[('item_type_id', '=', False)]}"/>
+                    <field name="color_id" optional="show" readonly="1" force_save="1" attrs="{'column_invisible':[('item_type_id', '=', False)]}"/>
+                    <field name="pallet_id" optional="show" readonly="1" force_save="1" attrs="{'column_invisible':[('item_type_id', '=', False)]}"/>
+                    <field name="choice_id" optional="show" readonly="1" force_save="1" attrs="{'column_invisible':[('item_type_id', '=', False)]}"/>
+                    <field name="length" optional="hide" readonly="1" force_save="1" attrs="{'column_invisible':[('item_type_id', '=', False)]}"/>
+                    <field name="width" optional="hide" readonly="1" force_save="1" attrs="{'column_invisible':[('item_type_id', '=', False)]}"/>
+                    <field name="height" optional="hide" readonly="1" force_save="1" attrs="{'column_invisible':[('item_type_id', '=', False)]}"/>
+                    <field name="thickness" optional="hide" readonly="1" force_save="1" attrs="{'column_invisible':[('item_type_id', '=', False)]}"/>
+                    <field name="num_of_pieces" optional="show" force_save="1"
+                           attrs="{'readonly':[('item_type_id','=',%(stone_production.item_type_block)d)],
+                    'column_invisible':[('item_type_id', '=', False)]}"/>
+                    <field name="piece_size" optional="hide"  readonly="1" force_save="1" attrs="{'column_invisible':[('item_type_id', '=', False)]}"/>
+                    <field name="item_total_size" optional="hide" readonly="1" force_save="1" attrs="{'column_invisible':[('item_type_id', '=', False)]}"/>
+                </xpath>
+                <xpath expr="//field[@name='move_ids_without_package']//tree//field[@name='quantity_done']" position="replace">
+                    <field name="quantity_done" string="Done" attrs="{'readonly': ['|',('item_type_id', '!=', False),('product_id', '=', False)],
+                                    'column_invisible':[('parent.state', '=', 'draft'), ('parent.immediate_transfer', '=', False)]}"/>
                 </xpath>
             </field>
         </record>

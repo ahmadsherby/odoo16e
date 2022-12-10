@@ -234,6 +234,32 @@ class StoneItem(models.Model):
             item.source_id.write({'next_num': next_num+1})
         return item
 
+    @api.constrains('width', 'length')
+    def _check_values(self):
+        for rec in self:
+            if isinstance(rec.id, int) and rec.cut_status == 'under_cutting':
+                if rec.width == 0.0 or rec.length == 0.0:
+                    raise UserError(_('Item Details (Length & Width) Values should not be zero.'))
+            if rec.item_type_id == self.env.ref('stone_production.item_type_block') and \
+                    rec.height == 0.0:
+                raise UserError(_('Item Height should not be zero.'))
+
+    @api.constrains('name', 'parent_id')
+    def _constrain_name(self):
+        """
+        Constrain Name
+        """
+        for rec in self:
+            if isinstance(rec.id, int):
+                domain = [('name', '=', rec.name), ('id', '!=', rec.id)]
+                if rec.parent_id:
+                    domain.append(('parent_id', '=', rec.parent_id.id))
+                other_ids = self.search(domain)
+                if other_ids:
+                    raise UserError(
+                        _("Name Must be Unique!!!\n %s already have this name." % other_ids.mapped(
+                            'display_name')))
+
     # ========== Business methods
     def create_product(self):
         product_obj = self.env['product.product']
@@ -265,6 +291,7 @@ class StoneItem(models.Model):
                     'remarks': rec.remarks,
                     'pallet_id': rec.pallet_id and rec.pallet_id.id or False,
                     'company_id': rec.company_id and rec.company_id.id or False,
+                    'currency_id': rec.currency_id and rec.currency_id.id or False,
                 })
                 rec.product_tmpl_id = rec.product_id.product_tmpl_id.id
                 # update it's remain size with cut size, cost with cost equation, and state
@@ -284,33 +311,6 @@ class StoneItem(models.Model):
                                           'location_id': location_id.id})
                 quant.action_apply_inventory()
                 # quant_obj._update_available_quantity(rec.product_id, rec.source_id.location_id, rec.total_size)
-
-    @api.constrains('name', 'parent_id')
-    def _constrain_name(self):
-        """
-        Constrain Name
-        """
-        for rec in self:
-            if isinstance(rec.id, int):
-                domain = [('name', '=', rec.name), ('id', '!=', rec.id)]
-                if rec.parent_id:
-                    domain.append(('parent_id', '=', rec.parent_id.id))
-                other_ids = self.search(domain)
-                if other_ids:
-                    raise UserError(
-                        _("Name Must be Unique!!!\n %s already have this name." % other_ids.mapped(
-                            'display_name')))
-
-    # =========== Core Methods
-    @api.constrains('width', 'length')
-    def _check_values(self):
-        for rec in self:
-            if isinstance(rec.id, int) and rec.cut_status == 'under_cutting':
-                if rec.width == 0.0 or rec.length == 0.0:
-                    raise UserError(_('Item Details (Length & Width) Values should not be zero.'))
-            if rec.item_type_id == self.env.ref('stone_production.item_type_block') and \
-                    rec.height == 0.0:
-                raise UserError(_('Item Height should not be zero.'))
 
     def open_orders(self):
         """
@@ -340,6 +340,7 @@ class StoneItem(models.Model):
                 'job_machine_id': self.env.ref('stone_production.stone_job_order_machine_cutting_block').id,
                 'color_id': rec.color_id.id,
                 'choice_id': rec.choice_id.id,
+                'company_id': rec.company_id and rec.company_id.id or False,
                 'currency_id': rec.currency_id and rec.currency_id.id or False,
                 'item_id': rec.id,
                 'width': rec.width,
@@ -372,6 +373,8 @@ class StoneItem(models.Model):
                 'job_type_id': self.env.ref('stone_production.stone_job_order_type_cutting_slab').id,
                 'job_type': 'slab',
                 'job_machine_id': self.env.ref('stone_production.stone_job_order_machine_cutting_slab').id,
+                'company_id': rec.company_id and rec.company_id.id or False,
+                'currency_id': rec.currency_id and rec.currency_id.id or False,
                 'parent_id': rec.cut_job_order_id.id,
                 'color_id': rec.color_id.id,
                 'choice_id': rec.choice_id.id,

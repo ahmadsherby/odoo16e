@@ -17,18 +17,58 @@ class PurchaseOrder(models.Model):
 
     stone_production_product_ids = fields.One2many('product.template', 'generated_po_id', "New Products")
 
+    # ========== Business methods
+    def open_po_new_products(self):
+        """
+        open new products created on this po
+        :return: action view
+        """
+        self.ensure_one()
+        domain = [('purchase_source', '=', True)]
+        if self.company_id:
+            domain.append(('company_id', '=', self.company_id.id))
+        default_source = self.env['stone.item.source'].search(domain, limit=1)
+        action = self.env["ir.actions.actions"]._for_xml_id('stone_production.stone_production_new_product_action')
+        action['context'] = {'default_generated_po_id': self.id, 'default_purchase_ok': True,
+                             'default_company_id': self.company_id and self.company_id.id or False,
+                             'default_item_vendor_id': self.partner_id and self.partner_id.id or False,
+                             'default_source_id': default_source and default_source.id or False,
+                             'default_detailed_type': 'product'}
+        print("CTX: ", action['context'])
+        action['domain'] = [('id', 'in', self.stone_production_product_ids.ids)]
+        return action
+
+    def _create_picking(self):
+        super(PurchaseOrder, self)._create_picking()
+        for order in self:
+            if any(pol.item_type_id for pol in order.order_line):
+                # This order Contain products related to stone production
+                # Todo: set done as reserve to prevent user from change done_qty
+                order.picking_ids.action_set_quantities_to_reservation()
+
 
 class PurchaseOrderLine(models.Model):
     _inherit = 'purchase.order.line'
+
+    @api.onchange('product_id', 'num_of_pieces', 'piece_size')
+    def onchange_product_id(self):
+        super().onchange_product_id()
+
+    @api.depends('product_packaging_qty', 'num_of_pieces', 'piece_size')
+    def _compute_product_qty(self):
+        super(PurchaseOrderLine, self)._compute_product_qty()
+        for line in self:
+            if line.product_id and line.product_id.item_type_id and line.state != 'done':
+                line.product_qty = line.piece_size * line.num_of_pieces
 
     def _suggest_quantity(self):
         """
         Append Qty needed to work regarding new product lines
         """
+        print("num_of_pieces: ", self.num_of_pieces)
         super()._suggest_quantity()
         if self.product_id and self.product_id.item_type_id:
             self.product_qty = self.piece_size * self.num_of_pieces
-            print('product_qty: ', self.product_qty)
 
     @api.depends('product_qty', 'product_uom', 'product_id.item_total_cost')
     def _compute_price_unit_and_date_planned_and_name(self):
@@ -53,9 +93,7 @@ class PurchaseOrderLine(models.Model):
         else:
             domain.append(('purchase_ok', '=', True))
             domain.append(('item_type_id', '=', False))
-        print("Domain: ", domain)
         product_ids = self.env['product.product'].search(domain).ids
-        print("product_ids: ", product_ids)
         return {'domain': {'product_id': [('id', 'in', product_ids)]}}
 
     product_id = fields.Many2one(domain=_get_product_domain)
@@ -68,7 +106,8 @@ class PurchaseOrderLine(models.Model):
     width = fields.Integer(related='product_id.width')
     height = fields.Integer(related='product_id.height')
     thickness = fields.Float(related='product_id.thickness')
-    num_of_pieces = fields.Float(related='product_id.num_of_pieces')
+    num_of_pieces = fields.Float(related='product_id.num_of_pieces', store=True)
     piece_size = fields.Float(related='product_id.piece_size')
+
 
 # Ahmed Salama Code End.
