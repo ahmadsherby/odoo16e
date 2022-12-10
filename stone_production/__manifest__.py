@@ -6,7 +6,7 @@
     'license': "AGPL-3",
     'author': 'Ahmed Sherby, Ahmed Salama',
     'category': 'Inventory/Inventory',
-    'depends': ['stock', 'product', 'sale', 'purchase'],
+    'depends': ['stock', 'product', 'sale', 'purchase', 'account', 'stock_landed_costs'],
     'data': [
         'data/stone_item_type_data.xml',
         'data/stone_item_choice_data.xml',
@@ -29,6 +29,8 @@
         'views/sale_order_view_changes.xml',
         'views/purchase_order_view_changes.xml',
         'views/stock_picking_view_changes.xml',
+        'views/account_move_view_changes.xml',
+        'views/stock_landed_cost_view_changes.xml',
     ],
     'installable': True,
     'auto_install': False,

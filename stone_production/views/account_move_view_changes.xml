@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+       <record id="stone_production_view_move_form_inherit" model="ir.ui.view">
+           <field name="name">stone.production.account.move.form.inherit</field>
+           <field name="model">account.move</field>
+           <field name="inherit_id" ref="account.view_move_form"/>
+           <field name="arch" type="xml">
+               <xpath expr="//group[@id='header_left_group']" position="inside">
+                   <field name="landed_cost_po_id" readonly="1" force_save="1"/>
+                   <field name="landed_cost_picking_ids" widget="many2many_tags" readonly="1" force_save="1"/>
+               </xpath>
+               <xpath expr="//field[@name='product_id']" position="replace">
+                  <field name="product_id" optional="show"/>
+               </xpath>
+           </field>
+       </record>
+    </data>
+</odoo>

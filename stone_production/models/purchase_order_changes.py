@@ -15,7 +15,14 @@ blue = '\x1b[34m'
 class PurchaseOrder(models.Model):
     _inherit = 'purchase.order'
 
+    @api.depends('landed_cost_bill_ids')
+    def _landed_cost_count(self):
+        for po in self:
+            po.landed_cost_bill_count = len(po.landed_cost_bill_ids)
+
     stone_production_product_ids = fields.One2many('product.template', 'generated_po_id', "New Products")
+    landed_cost_bill_ids = fields.One2many('account.move', 'landed_cost_po_id', "Landed Cost Bills")
+    landed_cost_bill_count = fields.Integer(compute=_landed_cost_count)
 
     # ========== Business methods
     def open_po_new_products(self):
@@ -45,6 +52,17 @@ class PurchaseOrder(models.Model):
                 # This order Contain products related to stone production
                 # Todo: set done as reserve to prevent user from change done_qty
                 order.picking_ids.action_set_quantities_to_reservation()
+
+    def action_add_landed_cost(self):
+        action = self.env['ir.actions.act_window']._for_xml_id('account.action_move_in_invoice_type')
+        # choose the view_mode accordingly
+        invoices = self.landed_cost_bill_ids
+        action['domain'] = [('id', 'in', invoices.ids)]
+        action['context'] = {'default_company_id': self.company_id and self.company_id.id or False,
+                             'default_landed_cost_po_id': self.id,
+                             'default_landed_cost_picking_ids': self.picking_ids.ids,
+                             'default_move_type': 'in_invoice'}
+        return action
 
 
 class PurchaseOrderLine(models.Model):

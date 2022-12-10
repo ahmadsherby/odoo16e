@@ -16,6 +16,15 @@
                             <span class="o_stat_text">New Products</span>
                         </div>
                     </button>
+                    <button type="object"  name="action_add_landed_cost"
+                            class="oe_stat_button"
+                            icon="fa-money" attrs="{'invisible':[('state','=','draft')]}">
+                        <div class="o_field_widget o_stat_info">
+                            <field name="landed_cost_bill_ids" invisible="1"/>
+                            <span class="o_stat_value"><field name="landed_cost_bill_count"/></span>
+                            <span class="o_stat_text">Laded Costs</span>
+                        </div>
+                    </button>
                 </xpath>
                 <!--                <xpath expr="//page[@name='products']" position="after">-->
                 <!--                    <page string="Add New Products" name="new_products">-->

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+       <record id="stock_production_view_stock_landed_cost_tree2_inherit" model="ir.ui.view">
+           <field name="name">stock.production.landed.cost.tree.inherit</field>
+           <field name="model">stock.landed.cost</field>
+           <field name="inherit_id" ref="stock_landed_costs.view_stock_landed_cost_tree2"/>
+           <field name="arch" type="xml">
+               <xpath expr="//field[@name='name']" position="after">
+                   <field name="landed_cost_po_id" optional="show"/>
+                   <field name="vendor_bill_id" optional="show"/>
+                   <field name="picking_ids" widget="many2many_tags" optional="hide"/>
+               </xpath>
+
+           </field>
+       </record>
+        <record id="stock_production_view_stock_landed_cost_form" model="ir.ui.view">
+           <field name="name">stock.production.landed.cost.form.inherit</field>
+           <field name="model">stock.landed.cost</field>
+           <field name="inherit_id" ref="stock_landed_costs.view_stock_landed_cost_form"/>
+           <field name="arch" type="xml">
+               <xpath expr="//field[@name='picking_ids']" position="before">
+                   <field name="landed_cost_po_id" readonlt="1" force_save="1"/>
+               </xpath>
+           </field>
+       </record>
+    </data>
+</odoo>

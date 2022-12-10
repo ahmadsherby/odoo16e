@@ -9,3 +9,5 @@ from . import stone_job_order
 from . import sale_order_changes
 from . import purchase_order_changes
 from . import stock_picking_changes
+from . import account_move_changes
+from . import stock_landed_cost_changes

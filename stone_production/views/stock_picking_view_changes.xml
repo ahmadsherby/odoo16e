@@ -63,6 +63,7 @@
                            decoration-success="(location_usage not in ('internal','transit')) and (location_dest_usage in ('internal','transit'))"/>
                     <field name="product_uom" options="{'no_open': True, 'no_create': True}" string="Unit" groups="uom.group_uom" optional="show"/>
                     <field name="company_id" groups="base.group_multi_company"/>
+                    <field name="valuation_adjustment_lines" widget="many2many_tags" optional="hide"/>
                     <field name="state" widget='badge' optional="show"
                            decoration-danger="state=='cancel'"
                            decoration-info="state== 'assigned'"
@@ -70,7 +71,7 @@
                            decoration-success="state == 'done'"
                            decoration-warning="state not in ('draft','cancel','done','assigned')"/>
                     <button name="action_product_create_item" string="Create Stone Item"  icon="fa-plus" type="object" class="btn-info rounded"
-                            attrs="{'invisible':['|',('item_type_id','=',False),('item_id','!=',False)]}"
+                            attrs="{'invisible':['|','|',('item_type_id','=',False),('item_id','!=',False),('valuation_adjustment_lines','=',[])]}"
                             groups="stone_production.group_stone_production_product_create_item"/>
                 </tree>
             </field>
@@ -83,6 +84,7 @@
                 <xpath expr="//group[@name='origin_grp']" position="after">
                     <group name="stone_item" string="Stone Item Details" attrs="{'invisible': [('item_type_id', '=', False)]}"
                            groups="stone_production.group_stone_production_user">
+                        <field name="item_id" optional="show" readonly="1" force_save="1"/>
                         <field name="item_type_id" optional="show" readonly="1" force_save="1"/>
                         <field name="color_id" optional="show" attrs="{'readonly': [('state', '=', 'done')]}"/>
                         <field name="pallet_id" optional="show" attrs="{'readonly': [('state', '=', 'done')]}"/>
@@ -112,7 +114,7 @@
                 </xpath>
                 <xpath expr="//group" position="before">
                     <separator/>
-                    <filter string="Without Stone Item" name="filter_without_item" domain="[('item_id', '=', False)]"/>
+                    <filter string="Without Stone Item" name="filter_without_item" domain="[('valuation_adjustment_lines', '!=', []),('item_id', '=', False)]"/>
                 </xpath>
                 <xpath expr="//group" position="inside">
                     <separator/>

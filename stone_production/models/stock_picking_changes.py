@@ -12,6 +12,10 @@ blue = '\x1b[34m'
 # Ahmed Salama Code Start ---->
 
 
+class StockPickingInherit(models.Model):
+    _inherit = 'stock.picking'
+
+
 class StockMoveInherit(models.Model):
     _inherit = 'stock.move'
 
@@ -28,6 +32,9 @@ class StockMoveInherit(models.Model):
     num_of_pieces = fields.Float(related='product_id.num_of_pieces', store=True)
     piece_size = fields.Float(related='product_id.piece_size', store=True)
     item_total_size = fields.Float(related='product_id.item_total_size', store=True)
+    # Reverse Field that is related to landed cost to be used on create button item domain
+    valuation_adjustment_lines = fields.One2many('stock.valuation.adjustment.lines', 'move_id',
+                                                 'Valuation Adjustments', domain=[('cost_id', '!=', False)])
 
     def action_product_create_item(self):
         """
