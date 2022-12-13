@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Move Views -->
+        <record id="company_seq_view_move_form_inherit" model="ir.ui.view">
+            <field name="name">company_seq.account.move.form.inherit</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="account.view_move_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//div[@class='oe_title']" position="inside">
+                    <h3>
+                        <field name="company_seq" readonly="1" force_save="1" attrs="{'invisible': [('company_seq', '=', False)]}"/>
+                    </h3>
+                </xpath>
+            </field>
+        </record>
+        <record id="company_seq_view_move_tree_inherit" model="ir.ui.view">
+            <field name="name">company_seq.account.move.tree.inherit</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="account.view_move_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='name']" position="after">
+                    <field name="company_seq" readonly="1" force_save="1" optional="hide"/>
+                </xpath>
+            </field>
+        </record>
+        <!-- Company Views -->
+        <record id="company_seq_view_company_form_inherit" model="ir.ui.view">
+            <field name="name">company_seq.res.company.form.inherit</field>
+            <field name="model">res.company</field>
+            <field name="inherit_id" ref="base.view_company_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='currency_id']" position="before">
+                    <field name="company_seq_id" readonly="1" force_save="1" />
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

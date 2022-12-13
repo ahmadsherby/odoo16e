@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <function name="_generate_seq_for_exist_companies" model="res.company"/>
+    </data>
+</odoo>
