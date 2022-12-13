@@ -15,6 +15,11 @@ blue = '\x1b[34m'
 class PurchaseOrder(models.Model):
     _inherit = 'purchase.order'
 
+    @api.depends('stone_production_product_ids')
+    def _stone_production_product_count(self):
+        for po in self:
+            po.stone_production_product_count = len(po.stone_production_product_ids)
+
     @api.depends('landed_cost_bill_ids')
     def _landed_cost_count(self):
         for po in self:
@@ -23,6 +28,10 @@ class PurchaseOrder(models.Model):
     stone_production_product_ids = fields.One2many('product.template', 'generated_po_id', "New Products")
     landed_cost_bill_ids = fields.One2many('account.move', 'landed_cost_po_id', "Landed Cost Bills")
     landed_cost_bill_count = fields.Integer(compute=_landed_cost_count)
+    stone_production_product_count = fields.Integer(compute=_stone_production_product_count)
+    stone_purchase_type = fields.Selection([('regular', "Regular"), ('local', "Block Local Purchase"),
+                                            ('external', "External Purchase")], "Stone Purchase Type",
+                                           required=True, default='regular')
 
     # ========== Business methods
     def open_po_new_products(self):
@@ -34,12 +43,21 @@ class PurchaseOrder(models.Model):
         domain = [('purchase_source', '=', True)]
         if self.company_id:
             domain.append(('company_id', '=', self.company_id.id))
+        default_cageg_id = int(self.env['ir.config_parameter'].sudo().get_param(
+            'stone_production.stone_po_prod_categ_id'))
+        if not default_cageg_id:
+            raise UserError(
+                _("PO. New Product Category is missing on config setting"))
+        if self.stone_purchase_type == 'local':
+            default_item_type_id = self.env.ref('stone_production.item_type_block')
         default_source = self.env['stone.item.source'].search(domain, limit=1)
         action = self.env["ir.actions.actions"]._for_xml_id('stone_production.stone_production_new_product_action')
         action['context'] = {'default_generated_po_id': self.id, 'default_purchase_ok': True,
                              'default_company_id': self.company_id and self.company_id.id or False,
                              'default_item_vendor_id': self.partner_id and self.partner_id.id or False,
                              'default_source_id': default_source and default_source.id or False,
+                             'default_categ_id': default_cageg_id,
+                             'default_item_type_id': default_item_type_id and default_item_type_id.id or False,
                              'default_detailed_type': 'product'}
         print("CTX: ", action['context'])
         action['domain'] = [('id', 'in', self.stone_production_product_ids.ids)]
@@ -63,6 +81,18 @@ class PurchaseOrder(models.Model):
                              'default_landed_cost_picking_ids': self.picking_ids.ids,
                              'default_move_type': 'in_invoice'}
         return action
+
+    def action_generate_product_lines(self):
+        lines = []
+        for product in self.stone_production_product_ids:
+            lines.append((0, 0, {
+                'product_id': product.id,
+                'state': 'draft',
+                'partner_id': self.partner_id.id,
+                'order_id': self.id
+            }))
+        self.order_line = [(5, 0)]
+        self.order_line = lines
 
 
 class PurchaseOrderLine(models.Model):

@@ -26,6 +26,20 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="col-12 col-lg-6 o_setting_box">
+                                <div class="o_setting_right_pane">
+                                    <label for="stone_po_prod_categ_id" class="o_light_label"/>
+                                    <span class="fa fa-lg fa-product-hunt" title="PO. New Product Category"/>
+                                    <div class="text-muted">
+                                        Set a product category to be used by default on po new products.
+                                    </div>
+                                    <div class="content-group">
+                                        <div class="row mt16">
+                                            <field name="stone_po_prod_categ_id"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
 
                         </div>
                     </div>

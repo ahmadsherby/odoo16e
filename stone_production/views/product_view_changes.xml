@@ -64,7 +64,7 @@
         </field>
     </record>
     <record id="stone_production_product_template_tree_view_inherit" model="ir.ui.view">
-        <field name="name">stone.productionproduct.template.common.form.inherit</field>
+        <field name="name">stone.production.product.template.common.form.inherit</field>
         <field name="model">product.template</field>
         <field name="inherit_id" ref="product.product_template_tree_view"/>
         <field name="arch" type="xml">
@@ -137,11 +137,15 @@
                 <field name="generated_po_id" invisible="1"/>
                 <field name="detailed_type" invisible="1"/>
                 <field name="purchase_ok" invisible="1"/>
-                <field name="name" />
-                <field name="item_type_id" required="1" options="{'no_create': 1, 'no_create_edit': 1}" optional="show"/>
+                <field name="item_type_id" required="1" options="{'no_create': 1, 'no_create_edit': 1}" optional="show"
+                attrs="{'readonly':[('item_type_id', '=',%(stone_production.item_type_block)d)]}"/>
                 <field name="color_id" required="1" options="{'no_create': 1, 'no_create_edit': 1}" optional="show"/>
+                <field name="name" />
                 <field name="source_id" required="1" options="{'no_create': 1, 'no_create_edit': 1}"
                        domain="[('purchase_source','=', True)]" optional="show"/>
+                <field name="choice_id" required="1" optional="show" options="{'no_create': 1, 'no_create_edit': 1}"/>
+                <field name="categ_id" optional="hide" options="{'no_create': 1, 'no_create_edit': 1}"/>
+                <field name="remarks" optional="hide"/>
                 <field name="pallet_id" optional="hide"
                        attrs="{'required':[('item_type_id', 'in',(%(stone_production.item_type_tile)d,%(stone_production.item_type_strip)d))]}"/>
                 <field name="stone_size_eq" readonly="1" force_save="1" optional="hide"/>
@@ -155,8 +159,7 @@
                 <field name="standard_price" sum="standard_price" optional="show"/>
                 <field name="piece_size" sum="piece_size" optional="show"/>
                 <field name="piece_cost" sum="piece_cost" optional="show"/>
-                <field name="choice_id" required="1" optional="show" options="{'no_create': 1, 'no_create_edit': 1}"/>
-                <field name="remarks" optional="hide"/>
+
                 <field name="item_vendor_id" optional="hide"/>
                 <field name="item_total_size" sum="item_total_size" optional="show"/>
                 <field name="item_total_cost" sum="item_total_cost" optional="show"/>
