@@ -27,7 +27,7 @@
         'views/stone_job_order_machine_view.xml',
         'views/stone_job_order_view.xml',
         'views/sale_order_view_changes.xml',
-        'views/res_partner_view_changes.xml',
+        # 'views/res_partner_view_changes.xml',
         'views/purchase_order_view_changes.xml',
         'views/stock_picking_view_changes.xml',
         'views/account_move_view_changes.xml',
