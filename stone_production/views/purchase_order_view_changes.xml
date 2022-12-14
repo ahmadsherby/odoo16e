@@ -32,7 +32,7 @@
                     'required': [('stone_purchase_type','=','local')]}"
                     context="{'is_transporter': True}"/>
                 </xpath>
-                <xpath expr="//group//group[2]" position="inside">
+                <xpath expr="//group//group" position="inside">
                     <field name="trans_bill_id" force_save="1" readonly="1"
                            attrs="{'invisible':[('trans_bill_id', '=', False)]}"/>
                     <field name="trans_landed_cost_id" force_save="1" readonly="1"

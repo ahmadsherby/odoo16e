@@ -169,14 +169,11 @@ class PurchaseOrderInherit(models.Model):
         """
         lines = []
         for line in self.order_line:
-            account = line.product_id.property_account_expense_id and \
-                      line.product_id.property_account_expense_id or \
-                      line.product_id.categ_id.property_account_expense_categ_id
             lines.append((0, 0, {
                 'product_id': trans_prod_id,
                 'name': line.product_id.display_name,
                 'is_landed_costs_line': True,
-                'account_id': account and account.id,
+                'account_id': line.product_id.product_tmpl_id.get_product_accounts()['expense'].id,
                 'quantity': line.total_trans_weight,
                 'price_unit': self.transporter_id.tons_trans_cost
             }))

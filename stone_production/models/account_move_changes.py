@@ -20,14 +20,26 @@ class AccountMoveInherit(models.Model):
                                                column2='picking_id', relation='landed_cost_bill_picking_id_rel',
                                                string="Landed Cost Pickings")
 
-    def _prepare_landed_costs(self):
+    def _prepare_landed_cost_lines(self):
         landed_costs_lines = self.line_ids.filtered(lambda line: line.is_landed_costs_line)
-
-        landed_costs = self.env['stock.landed.cost'].create({
-            'vendor_bill_id': self.id,
-            'landed_cost_po_id': self.landed_cost_po_id and self.landed_cost_po_id.id or False,
-            'picking_ids': self.landed_cost_po_id and self.landed_cost_po_id.picking_ids.ids or False,
-            'cost_lines': [(0, 0, {
+        if self.landed_cost_po_id and self.landed_cost_po_id.stone_purchase_type == 'local':
+            trans_prod_id = self.env['product.product'].browse(int(self.env['ir.config_parameter'].sudo().get_param(
+                'stone_production.stone_po_trans_prod_id')))
+            if not trans_prod_id:
+                raise UserError(
+                    _("Missing PO default Transportation product, please check Stone Production configurations!!!!"))
+            price_unit = landed_costs_lines[0].currency_id._convert(
+                sum(l.price_subtotal for l in landed_costs_lines),
+                landed_costs_lines[0].company_currency_id, landed_costs_lines[0].company_id, landed_costs_lines[0].move_id.date)
+            cost_lines = [(0, 0, {
+                'product_id': trans_prod_id.id,
+                'name': trans_prod_id.name,
+                'account_id': trans_prod_id.product_tmpl_id.get_product_accounts()['expense'].id,
+                'price_unit': price_unit,
+                'split_method': trans_prod_id.split_method_landed_cost or 'equal',
+            })]
+        else:
+            cost_lines = [(0, 0, {
                 'product_id': l.product_id.id,
                 'name': l.product_id.name,
                 'account_id': l.product_id.product_tmpl_id.get_product_accounts()['stock_input'].id,
@@ -35,8 +47,16 @@ class AccountMoveInherit(models.Model):
                                                      l.move_id.date),
                 'split_method': l.product_id.split_method_landed_cost or 'equal',
 
-            }) for l in landed_costs_lines],
-        })
+            }) for l in landed_costs_lines]
+        return cost_lines
+
+    def _prepare_landed_costs(self):
+        cost_lines = self._prepare_landed_cost_lines()
+        landed_costs = self.env['stock.landed.cost'].create({
+            'vendor_bill_id': self.id,
+            'landed_cost_po_id': self.landed_cost_po_id and self.landed_cost_po_id.id or False,
+            'picking_ids': self.landed_cost_po_id and self.landed_cost_po_id.picking_ids.ids or False,
+            'cost_lines': cost_lines})
         return landed_costs
 
     def button_create_landed_costs(self):
