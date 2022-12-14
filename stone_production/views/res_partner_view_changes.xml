@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+       <record id="stone_production_view_partner_form_inherit" model="ir.ui.view">
+            <field name="name">stone.production.res.partner.view.form.inherit</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//h1" position="before">
+                    <h3 class="o_row">
+                        <i class="fa fa-truck" title="transporter" style="padding-right:2px;font-size:22px;"/>
+                        <field name="is_transporter" nolable="1"/>
+                        <label for="is_transporter" class="oe_edit_only"/>
+                    </h3>
+                </xpath>
+                <xpath expr="//group[@name='container_row_2']" position="inside">
+                    <group name="trans" string="Transportation">
+                        <field name="tons_trans_cost" attrs="{'required':[('is_transporter','=', True)],'invisible':[('is_transporter','=', False)]}"/>
+                        <field name="trans_multi_factor" attrs="{'required':[('is_transporter','=', True)],'invisible':[('is_transporter','=', False)]}"/>
+                    </group>
+                </xpath>
+            </field>
+        </record>
+        <record id="stone_production_view_res_partner_filter_inherit" model="ir.ui.view">
+            <field name="name">stone.production.res.partner.select.inherit</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_res_partner_filter"/>
+            <field name="arch" type="xml">
+                <xpath expr="//group" position="before">
+                    <filter string="Transporter" name="filter_is_transporter" domain="[('is_transporter','=',True)]"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

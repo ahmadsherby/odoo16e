@@ -28,16 +28,24 @@
                 </xpath>
                 <xpath expr="//field[@name='partner_id']" position="after">
                     <field name="stone_purchase_type" attrs="{'readonly': [('state','!=','draft')]}"/>
+                    <field name="transporter_id" attrs="{'invisible': [('stone_purchase_type','!=','local')],
+                    'required': [('stone_purchase_type','=','local')]}"
+                    context="{'is_transporter': True}"/>
+                </xpath>
+                <xpath expr="//group//group[2]" position="inside">
+                    <field name="trans_bill_id" force_save="1" readonly="1"
+                           attrs="{'invisible':[('trans_bill_id', '=', False)]}"/>
+                    <field name="trans_landed_cost_id" force_save="1" readonly="1"
+                           attrs="{'invisible':[('trans_landed_cost_id', '=', False)]}"/>
+
                 </xpath>
                 <xpath expr="//page[@name='products']//field" position="before">
                     <button name="action_generate_product_lines" string="Generate Lines"
                             class="btn btn-info" icon="fa-cogs" type="object"
                             attrs="{'invisible': ['|',('state', '!=', 'draft'),('stone_production_product_ids','=',[])]}"/>
                 </xpath>
-                <xpath expr="//field[@name='order_line']" position="attributes">
-                    <attribute name="attrs">{'readonly': ['|',('state', 'in', ('done', 'cancel')),('stone_production_product_ids','=',[])]}</attribute>
-                </xpath>
                 <xpath expr="//field[@name='order_line']//tree//field[@name='name']" position="after">
+                    <field name="transporter_id" invisible="1"/>
                     <field name="length" readonly="1" force_save="1" optional="hide"
                            attrs="{'column_invisible':[('parent.stone_production_product_ids', '=', [])]}"/>
                     <field name="width" readonly="1" force_save="1" optional="hide"
@@ -47,15 +55,24 @@
                     <field name="thickness" readonly="1" force_save="1" optional="hide"
                            attrs="{'column_invisible':[('parent.stone_production_product_ids', '=', [])]}"/>
                 </xpath>
-                <xpath expr="//field[@name='order_line']//tree//field[@name='product_qty']" position="replace">
-                    <field name="product_qty" attrs="{'readonly': ['|',('item_type_id', '!=', False),('product_id', '=', False)]}"/>
-                </xpath>
                 <xpath expr="//field[@name='order_line']//tree//field[@name='product_qty']" position="before">
                     <!--  'readonly':[('item_type_id','=',%(stone_production.item_type_block)d)],-->
                     <field name="num_of_pieces" force_save="1" optional="show" readonly="1"
                            attrs="{'column_invisible':[('parent.stone_production_product_ids', '=', [])]}"/>
                     <field name="piece_size" readonly="1" force_save="1" optional="show"
                            attrs="{'column_invisible':[('parent.stone_production_product_ids', '=', [])]}"/>
+                    <field name="item_total_size" readonly="1" force_save="1" optional="hide"
+                           attrs="{'column_invisible':[('parent.stone_production_product_ids', '=', [])]}"/>
+                    <field name="item_total_cost" readonly="1" force_save="1" optional="hide"
+                           attrs="{'column_invisible':[('parent.stone_production_product_ids', '=', [])]}"/>
+                </xpath>
+                <xpath expr="//field[@name='order_line']//tree//field[@name='product_qty']" position="replace">
+                    <field name="product_qty" attrs="{'readonly': ['|',('item_type_id', '!=', False),('product_id', '=', False)]}"/>
+                    <field name="total_trans_weight" force_save="1" optional="hide"
+                           attrs="{'column_invisible':['|',('parent.stone_production_product_ids', '=', []), ('transporter_id', '=', False)],
+                           'readonly': [('state', 'in', ('purchase', 'to approve','done', 'cancel'))]}"/>
+                    <field name="total_trans_cost" readonly="1" force_save="1" optional="hide"
+                           attrs="{'column_invisible':['|',('parent.stone_production_product_ids', '=', []), ('transporter_id', '=', False)]}"/>
                 </xpath>
                 <xpath expr="//field[@name='order_line']//tree//field[@name='product_id']" position="replace">
                     <!--Only to remove domain attrs-->

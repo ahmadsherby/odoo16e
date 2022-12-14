@@ -84,7 +84,6 @@ class ProductProduct(models.Model):
     item_total_cost = fields.Float("Item Total Cost", compute=_compute_size)
     choice_id = fields.Many2one('stone.item.choice', "Choice")
     remarks = fields.Text("Remarks")
-
     item_vendor_id = fields.Many2one('res.partner', 'Source Vendor')
     generated_po_id = fields.Many2one('purchase.order', "Generated From PO")
 
