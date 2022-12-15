@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
-from odoo import models, fields, api, _
-from odoo.exceptions import UserError
-import logging
-from odoo.addons.stone_production.models.stone_item_type import _eq_selections
-igrey = '\x1b[38;21m'
+from odoo import models, fields, api, tools, _
+grey = '\x1b[38;21m'
 yellow = '\x1b[33;21m'
 red = '\x1b[31;21m'
 bold_red = '\x1b[31;1m'
@@ -54,6 +51,7 @@ class ProductProduct(models.Model):
         :param vals_list:
         :return:
         """
+        print("HERE: ", vals_list)
         if vals_list.get('item_type_id'):
             item_type_id = self.env['stone.item.type'].browse(vals_list.get('item_type_id'))
             if item_type_id:

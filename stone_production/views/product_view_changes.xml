@@ -145,6 +145,8 @@
                        domain="[('purchase_source','=', True)]" optional="show"/>
                 <field name="choice_id" required="1" optional="show" options="{'no_create': 1, 'no_create_edit': 1}"/>
                 <field name="categ_id" optional="hide" options="{'no_create': 1, 'no_create_edit': 1}"/>
+                <field name="uom_id" optional="hide" options="{'no_create': 1, 'no_create_edit': 1}"/>
+                <field name="uom_po_id" optional="hide" options="{'no_create': 1, 'no_create_edit': 1}"/>
                 <field name="remarks" optional="hide"/>
                 <field name="pallet_id" optional="hide"
                        attrs="{'required':[('item_type_id', 'in',(%(stone_production.item_type_tile)d,%(stone_production.item_type_strip)d))]}"/>

@@ -35,6 +35,8 @@ class PurchaseOrderInherit(models.Model):
                                      states=READONLY_STATES, change_default=True, tracking=True,
                                      domain="['|', ('company_id', '=', False), ('company_id', '=', company_id), ('is_transporter','=', True)]",
                                      help="You can find a transporter by its Name, TIN, Email or Internal Reference, with Transporting flag.")
+    tons_trans_cost = fields.Float(related='transporter_id.tons_trans_cost')
+    trans_multi_factor = fields.Float(related='transporter_id.trans_multi_factor')
 
     stone_production_product_ids = fields.One2many('product.template', 'generated_po_id', "New Products",
                                                    states=READONLY_STATES,)
@@ -64,17 +66,23 @@ class PurchaseOrderInherit(models.Model):
         if not default_cageg_id:
             raise UserError(
                 _("PO. New Product Category is missing on config setting"))
+        default_item_type_id = False
         if self.stone_purchase_type == 'local':
             default_item_type_id = self.env.ref('stone_production.item_type_block')
         default_source = self.env['stone.item.source'].search(domain, limit=1)
         action = self.env["ir.actions.actions"]._for_xml_id('stone_production.stone_production_new_product_action')
-        action['context'] = {'default_generated_po_id': self.id, 'default_purchase_ok': True,
+        ctx = {'default_generated_po_id': self.id, 'default_purchase_ok': True,
                              'default_company_id': self.company_id and self.company_id.id or False,
                              'default_item_vendor_id': self.partner_id and self.partner_id.id or False,
                              'default_source_id': default_source and default_source.id or False,
                              'default_categ_id': default_cageg_id,
-                             'default_item_type_id': default_item_type_id and default_item_type_id.id or False,
                              'default_detailed_type': 'product'}
+        if default_item_type_id:
+            ctx['default_item_type_id'] = default_item_type_id.id
+            ctx['default_uom_id'] = default_item_type_id.size_uom_id.id
+            ctx['default_uom_po_id'] = default_item_type_id.size_uom_id.id
+            ctx['default_piece_size_uom_id'] = default_item_type_id.size_uom_id.id
+        action['context'] = ctx
         print("CTX: ", action['context'])
         action['domain'] = [('id', 'in', self.stone_production_product_ids.ids)]
         return action
@@ -139,8 +147,8 @@ class PurchaseOrderInherit(models.Model):
         :param journal_id:
         """
         bill_obj = self.env['account.move']
-        trans_prod_id = int(self.env['ir.config_parameter'].sudo().get_param(
-            'stone_production.stone_po_trans_prod_id'))
+        trans_prod_id = self.env['product.product'].browse(int(self.env['ir.config_parameter'].sudo().get_param(
+            'stone_production.stone_po_trans_prod_id')))
         if not trans_prod_id:
             raise UserError(_("Missing PO default Transportation product, please check Stone Production configurations!!!!"))
         lines = self._prepare_transportation_bill_lines(trans_prod_id)
@@ -170,7 +178,7 @@ class PurchaseOrderInherit(models.Model):
         lines = []
         for line in self.order_line:
             lines.append((0, 0, {
-                'product_id': trans_prod_id,
+                'product_id': trans_prod_id.product_tmpl_id.id,
                 'name': line.product_id.display_name,
                 'is_landed_costs_line': True,
                 'account_id': line.product_id.product_tmpl_id.get_product_accounts()['expense'].id,

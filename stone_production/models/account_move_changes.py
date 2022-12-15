@@ -32,7 +32,7 @@ class AccountMoveInherit(models.Model):
                 sum(l.price_subtotal for l in landed_costs_lines),
                 landed_costs_lines[0].company_currency_id, landed_costs_lines[0].company_id, landed_costs_lines[0].move_id.date)
             cost_lines = [(0, 0, {
-                'product_id': trans_prod_id.id,
+                'product_id': trans_prod_id.product_tmpl_id.id,
                 'name': trans_prod_id.name,
                 'account_id': trans_prod_id.product_tmpl_id.get_product_accounts()['expense'].id,
                 'price_unit': price_unit,
