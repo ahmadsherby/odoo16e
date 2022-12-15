@@ -26,11 +26,13 @@
                         </div>
                     </button>
                 </xpath>
-                <xpath expr="//field[@name='partner_id']" position="after">
+                <xpath expr="//field[@name='partner_id']" position="before">
                     <field name="stone_purchase_type" attrs="{'readonly': [('state','!=','draft')]}"/>
+                </xpath>
+                <xpath expr="//field[@name='partner_id']" position="after">
                     <field name="transporter_id" attrs="{'invisible': [('stone_purchase_type','!=','local')],
                     'required': [('stone_purchase_type','=','local')]}"
-                    context="{'is_transporter': True}"/>
+                           context="{'is_transporter': True}"/>
                     <field name="tons_trans_cost" readonly="1" force_save="1"
                            attrs="{'invisible': [('transporter_id','=',False)]}"/>
                     <field name="trans_multi_factor" readonly="1" force_save="1"
@@ -41,12 +43,14 @@
                            attrs="{'invisible':[('trans_bill_id', '=', False)]}"/>
                     <field name="trans_landed_cost_id" force_save="1" readonly="1"
                            attrs="{'invisible':[('trans_landed_cost_id', '=', False)]}"/>
-
                 </xpath>
                 <xpath expr="//page[@name='products']//field" position="before">
                     <button name="action_generate_product_lines" string="Generate Lines"
                             class="btn btn-info" icon="fa-cogs" type="object"
                             attrs="{'invisible': ['|',('state', '!=', 'draft'),('stone_production_product_ids','=',[])]}"/>
+                </xpath>
+                <xpath expr="//field[@name='order_line']" position="attributes">
+                    <attribute name="attrs">{'readonly': ['|',('state', 'in', ('done', 'cancel')),('stone_purchase_type','!=','regular')]}</attribute>
                 </xpath>
                 <xpath expr="//field[@name='order_line']//tree//field[@name='name']" position="after">
                     <field name="transporter_id" invisible="1"/>
