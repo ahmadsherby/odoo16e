@@ -32,7 +32,7 @@
                 <xpath expr="//field[@name='partner_id']" position="after">
                     <field name="transporter_id" attrs="{'invisible': [('stone_purchase_type','!=','local')],
                     'required': [('stone_purchase_type','=','local')]}"
-                           context="{'is_transporter': True}"/>
+                           context="{'default_is_transporter': 1}"/>
                     <field name="tons_trans_cost" readonly="1" force_save="1"
                            attrs="{'invisible': [('transporter_id','=',False)]}"/>
                     <field name="trans_multi_factor" readonly="1" force_save="1"

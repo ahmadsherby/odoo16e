@@ -17,8 +17,8 @@ class ResConfigSettings(models.TransientModel):
                                                  help="Set a location to be used on update pieces of the used product.")
     stone_po_prod_categ_id = fields.Many2one('product.category', "PO. New Product Category", readonly=False,
                                              help="Set a product category to be used by default on po new products.")
-    stone_po_trans_prod_id = fields.Many2one('product.template', "PO. Transportation", readonly=False,
-                                             domaon="[('landed_cost_ok', '=', True)]",
+    stone_po_trans_prod_id = fields.Many2one('product.product', "PO. Transportation", readonly=False,
+                                             domain=[('landed_cost_ok', '=', True)],
                                              help="Set a product to be used by default on po transportation.")
 
     @api.model

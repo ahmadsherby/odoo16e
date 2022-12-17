@@ -139,6 +139,7 @@ class PurchaseOrderInherit(models.Model):
             journal = self.env['account.journal'].search(currency_domain, limit=1)
         else:
             journal = self.env['account.journal'].search(domain, limit=1)
+
         return journal
 
     def _create_transportation_bill(self, journal_id):
@@ -178,7 +179,7 @@ class PurchaseOrderInherit(models.Model):
         lines = []
         for line in self.order_line:
             lines.append((0, 0, {
-                'product_id': trans_prod_id.product_tmpl_id.id,
+                'product_id': trans_prod_id.id,
                 'name': line.product_id.display_name,
                 'is_landed_costs_line': True,
                 'account_id': line.product_id.product_tmpl_id.get_product_accounts()['expense'].id,
